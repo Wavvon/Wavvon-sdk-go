@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ["1.23", "stable"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Wavvon/Wavvon-server
+          ref: develop
+          path: wavvon-server
+          sparse-checkout: crates/identity/wire-vectors.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+      - run: ./scripts/check
+        env:
+          CI: "true"
+          WAVVON_WIRE_VECTORS: ${{ github.workspace }}/wavvon-server/crates/identity/wire-vectors.json
+      - run: go test -race ./...
+        env:
+          CI: "true"
+          WAVVON_WIRE_VECTORS: ${{ github.workspace }}/wavvon-server/crates/identity/wire-vectors.json

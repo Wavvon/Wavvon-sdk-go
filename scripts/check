@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+# gofmt, vet, staticcheck and the tests. Must pass before a commit.
+set -eu
+cd "$(dirname "$0")/.."
+unformatted="$(gofmt -l .)"
+if [ -n "$unformatted" ]; then
+  echo "gofmt -l is not empty:"; echo "$unformatted"; exit 1
+fi
+go vet ./...
+go run honnef.co/go/tools/cmd/staticcheck@latest ./...
+go test ./...
+go test -v -run '^TestConformance$' . | grep -E '^\s*!!|^--- SKIP' || true
