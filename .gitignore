@@ -1,0 +1,5 @@
+/smoke
+/echobot
+*.exe
+*.test
+*.out
