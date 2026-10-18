@@ -32,10 +32,8 @@ explain choices in the commit message.
 1. **Generated REST** - `rest/rest.gen.go`, from Wavvon-docs `openapi.yaml` by
    `scripts/generate.sh` (oapi-codegen, pinned in the script; config
    `rest/oapi-codegen.yaml`). Committed. The spec is read from a git commit,
-   never the working tree, and passed through `scripts/specpatch` (its own
-   module) which fixes only what oapi-codegen rejects and prints each fix;
-   `rest/SPEC_COMMIT` gets `+specpatch` when it did. Each printed fix is a
-   spec bug for Wavvon-docs. Never edit the generated file by hand.
+   never the working tree, unpatched: a spec oapi-codegen rejects is a
+   Wavvon-docs bug, fixed there. Never edit the generated file by hand.
 2. **Hand-written core** - package `wavvon` at the root: `auth.go` challenge
    rules and login; `retry.go` backoff (`DoWithRetry`); `client.go` `Client`
    (the generated client's transport adds the bearer, retries and

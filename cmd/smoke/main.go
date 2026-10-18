@@ -173,7 +173,7 @@ func local(ctx context.Context) error {
 	step("hub up at %s", hubURL)
 
 	role, err := wavvon.Check(owner.Rest.CreateRoleWithResponse(ctx, rest.CreateRoleJSONRequestBody{
-		Name: "Apps", Priority: ptr[int64](10), Permissions: &[]string{"apps.register"},
+		Name: "Apps", Priority: 10, Permissions: []string{"apps.register"},
 	}))
 	if err != nil || role.JSON201 == nil {
 		return fmt.Errorf("create role: %v", err)
@@ -231,7 +231,7 @@ func smoke(ctx context.Context, hubURL, inviteCode, channelID string) error {
 		return err
 	}
 	srv := &http.Server{Handler: &wavvon.DispatchHandler{
-		HubPublicKey: deref(info.PublicKey),
+		HubPublicKey: info.PublicKey,
 		OnSlashCommand: func(_ context.Context, inv *wavvon.SlashInvocation) (*wavvon.AppResponse, error) {
 			select {
 			case invocations <- inv:

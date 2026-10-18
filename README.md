@@ -131,7 +131,7 @@ Login, REST, the socket and polling need no capability.
 Every signed byte sequence is checked against the shared wire vectors in
 Wavvon-server (`crates/identity/wire-vectors.json`): the auth challenge, the
 Ed25519 dispatch signature, and the outgoing-webhook HKDF + HMAC. CI reads
-them from Wavvon-server `develop`.
+them from Wavvon-server at commit `eb11d75657ee8362dd42a7982fc5b13a3dcc4e68`.
 
 The REST client was generated from Wavvon-docs at the commit in
 [rest/SPEC_COMMIT](rest/SPEC_COMMIT).

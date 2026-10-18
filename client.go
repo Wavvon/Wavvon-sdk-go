@@ -275,7 +275,7 @@ func (c *Client) HasCapability(ctx context.Context, name string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return info.Capabilities != nil && slices.Contains(*info.Capabilities, name), nil
+	return slices.Contains(info.Capabilities, name), nil
 }
 
 // RequireCapability returns *UnsupportedByHubError unless the hub advertises name.
@@ -390,7 +390,7 @@ func (c *Client) PollEvents(ctx context.Context, since int64) ([]PolledEvent, er
 // AckEvents acknowledges polled events (DELETE /me/events) so they are not
 // returned again.
 func (c *Client) AckEvents(ctx context.Context, ids []string) error {
-	_, err := Check(c.Rest.AckMeEventsWithResponse(ctx, rest.AckMeEventsJSONRequestBody{Ids: &ids}))
+	_, err := Check(c.Rest.AckMeEventsWithResponse(ctx, rest.AckMeEventsJSONRequestBody{Ids: nonNil(ids)}))
 	return err
 }
 

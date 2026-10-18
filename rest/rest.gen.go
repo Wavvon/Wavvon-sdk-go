@@ -21,6 +21,12 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// Defines values for AppCommandDefScope.
+const (
+	AppCommandDefScopeChannel AppCommandDefScope = "channel"
+	AppCommandDefScopeHub     AppCommandDefScope = "hub"
+)
+
 // Defines values for CertPayloadStanding.
 const (
 	Good    CertPayloadStanding = "good"
@@ -128,12 +134,6 @@ const (
 	Puzzle SetHubSettingsChallengeJSONBodyChallengeMode = "puzzle"
 )
 
-// Defines values for SetMeAppCommandsJSONBodyCommandsScope.
-const (
-	SetMeAppCommandsJSONBodyCommandsScopeChannel SetMeAppCommandsJSONBodyCommandsScope = "channel"
-	SetMeAppCommandsJSONBodyCommandsScopeHub     SetMeAppCommandsJSONBodyCommandsScope = "hub"
-)
-
 // AllianceInfo defines model for AllianceInfo.
 type AllianceInfo struct {
 	CreatedAt *int64  `json:"created_at,omitempty"`
@@ -141,6 +141,50 @@ type AllianceInfo struct {
 	Id        *string `json:"id,omitempty"`
 	Name      *string `json:"name,omitempty"`
 }
+
+// AllianceVoiceGrant defines model for AllianceVoiceGrant.
+type AllianceVoiceGrant struct {
+	Payload AllianceVoiceGrantPayload `json:"payload"`
+
+	// Signature Hex Ed25519 signature by origin_hub_pubkey over the payload JSON
+	Signature string `json:"signature"`
+}
+
+// AllianceVoiceGrantPayload defines model for AllianceVoiceGrantPayload.
+type AllianceVoiceGrantPayload struct {
+	AllianceId string `json:"alliance_id"`
+	ChannelId  string `json:"channel_id"`
+
+	// DisplayName Roster display only. Hub-vouched, not proven.
+	DisplayName     *string `json:"display_name"`
+	ExpiresAt       int64   `json:"expires_at"`
+	IssuedAt        int64   `json:"issued_at"`
+	OriginHubPubkey string  `json:"origin_hub_pubkey"`
+	OriginHubUrl    string  `json:"origin_hub_url"`
+
+	// OwnerHubPubkey Must be this hub, so a grant cannot be replayed elsewhere
+	OwnerHubPubkey string `json:"owner_hub_pubkey"`
+
+	// SubjectPubkey The visitor's canonical pubkey. Must equal the identity this
+	// challenge-response just authenticated — the grant vouches for
+	// membership of the origin hub, never for identity.
+	SubjectPubkey string `json:"subject_pubkey"`
+}
+
+// AppCommandDef defines model for AppCommandDef.
+type AppCommandDef struct {
+	Args *string `json:"args,omitempty"`
+
+	// CooldownSeconds Per-user, per-command cooldown in seconds (default 3, 0 = none)
+	CooldownSeconds *int64              `json:"cooldown_seconds,omitempty"`
+	Description     string              `json:"description"`
+	Name            string              `json:"name"`
+	Privileged      *bool               `json:"privileged,omitempty"`
+	Scope           *AppCommandDefScope `json:"scope,omitempty"`
+}
+
+// AppCommandDefScope defines model for AppCommandDef.Scope.
+type AppCommandDefScope string
 
 // AppRegistration The caller's own app profile and slash commands (GET /me/app, PUT /me/app/profile). Optional fields are omitted when unset, never null.
 type AppRegistration struct {
@@ -160,11 +204,23 @@ type AppRegistration struct {
 	WebhookUrl  *string `json:"webhook_url,omitempty"`
 }
 
+// AppSubscription defines model for AppSubscription.
+type AppSubscription struct {
+	Channels *[]string `json:"channels,omitempty"`
+	Event    string    `json:"event"`
+}
+
 // Attachment defines model for Attachment.
 type Attachment struct {
-	DataB64 *string `json:"data_b64,omitempty"`
-	Mime    *string `json:"mime,omitempty"`
-	Name    *string `json:"name,omitempty"`
+	DataB64 string `json:"data_b64"`
+	Mime    string `json:"mime"`
+	Name    string `json:"name"`
+}
+
+// AttestationInput defines model for AttestationInput.
+type AttestationInput struct {
+	Attester  string `json:"attester"`
+	Signature string `json:"signature"`
 }
 
 // BadgePayload Canonical badge payload signed by the issuing hub.
@@ -181,14 +237,23 @@ type BadgePayload struct {
 
 // CertPayload Canonical certification payload signed by the issuing hub.
 type CertPayload struct {
-	Capabilities *[]string            `json:"capabilities,omitempty"`
-	ExpiresAt    *int64               `json:"expires_at,omitempty"`
-	IssuedAt     *int64               `json:"issued_at,omitempty"`
-	IssuerPubkey *string              `json:"issuer_pubkey,omitempty"`
-	IssuerUrl    *string              `json:"issuer_url,omitempty"`
-	MemberSince  *int64               `json:"member_since,omitempty"`
-	PowLevel     *int64               `json:"pow_level"`
-	Standing     *CertPayloadStanding `json:"standing,omitempty"`
+	Capabilities *[]string `json:"capabilities,omitempty"`
+
+	// Description Omitted unless set.
+	Description *string `json:"description,omitempty"`
+	ExpiresAt   *int64  `json:"expires_at,omitempty"`
+
+	// Icon Emoji or short icon for the badge. Omitted unless set.
+	Icon         *string `json:"icon,omitempty"`
+	IssuedAt     *int64  `json:"issued_at,omitempty"`
+	IssuerPubkey *string `json:"issuer_pubkey,omitempty"`
+	IssuerUrl    *string `json:"issuer_url,omitempty"`
+
+	// Label Badge display name; present means this cert is an achievement badge. Omitted unless set.
+	Label       *string              `json:"label,omitempty"`
+	MemberSince *int64               `json:"member_since,omitempty"`
+	PowLevel    *int                 `json:"pow_level"`
+	Standing    *CertPayloadStanding `json:"standing,omitempty"`
 
 	// SubjectKind Always 'user'
 	SubjectKind   *string `json:"subject_kind,omitempty"`
@@ -201,8 +266,8 @@ type CertPayloadStanding string
 // Certification Certification envelope (payload + hex Ed25519 hub signature).
 type Certification struct {
 	// Payload Canonical certification payload signed by the issuing hub.
-	Payload   *CertPayload `json:"payload,omitempty"`
-	Signature *string      `json:"signature,omitempty"`
+	Payload   CertPayload `json:"payload"`
+	Signature string      `json:"signature"`
 }
 
 // ChallengePrompt defines model for ChallengePrompt.
@@ -273,17 +338,103 @@ type Conversation struct {
 	Members        *[]string `json:"members,omitempty"`
 }
 
+// CreateSlotRequest defines model for CreateSlotRequest.
+type CreateSlotRequest struct {
+	// Capacity Omit or null = unlimited
+	Capacity *int64 `json:"capacity"`
+	Name     string `json:"name"`
+}
+
 // DmMessage defines model for DmMessage.
 type DmMessage struct {
-	Attachments    *[]Attachment `json:"attachments,omitempty"`
-	Content        *string       `json:"content,omitempty"`
-	ConversationId *string       `json:"conversation_id,omitempty"`
-	CreatedAt      *int64        `json:"created_at,omitempty"`
-	DeliveryFailed *bool         `json:"delivery_failed,omitempty"`
-	Id             *string       `json:"id,omitempty"`
-	IsEncrypted    *bool         `json:"is_encrypted,omitempty"`
-	Sender         *string       `json:"sender,omitempty"`
-	SenderName     *string       `json:"sender_name"`
+	Attachments    []Attachment `json:"attachments"`
+	Content        *string      `json:"content"`
+	ConversationId string       `json:"conversation_id"`
+	CreatedAt      int64        `json:"created_at"`
+	DeliveryFailed bool         `json:"delivery_failed"`
+
+	// EncryptedEnvelope 1-on-1 encrypted envelope (docs/wire-format.md).
+	EncryptedEnvelope *struct {
+		CiphertextHex string `json:"ciphertext_hex"`
+		ConvId        string `json:"conv_id"`
+		DhPubkeyHex   string `json:"dh_pubkey_hex"`
+
+		// MessageIndex Omitted unless set.
+		MessageIndex *int   `json:"message_index,omitempty"`
+		NonceHex     string `json:"nonce_hex"`
+
+		// PrevCount Omitted unless set.
+		PrevCount    *int   `json:"prev_count,omitempty"`
+		SenderPubkey string `json:"sender_pubkey"`
+		SignatureHex string `json:"signature_hex"`
+
+		// SignerCert Device subkey cert when a subkey signed. Omitted unless set.
+		SignerCert *map[string]interface{} `json:"signer_cert,omitempty"`
+		V          int                     `json:"v"`
+	} `json:"encrypted_envelope"`
+
+	// GroupEncryptedEnvelope Group sender-key envelope (docs/wire-format.md).
+	GroupEncryptedEnvelope *struct {
+		CiphertextHex    string `json:"ciphertext_hex"`
+		ConvId           string `json:"conv_id"`
+		Iteration        int    `json:"iteration"`
+		NonceHex         string `json:"nonce_hex"`
+		SenderKeyVersion int    `json:"sender_key_version"`
+		SenderPubkey     string `json:"sender_pubkey"`
+		SignatureHex     string `json:"signature_hex"`
+
+		// SignerCert Device subkey cert when a subkey signed. Omitted unless set.
+		SignerCert *map[string]interface{} `json:"signer_cert,omitempty"`
+	} `json:"group_encrypted_envelope"`
+	Id          string  `json:"id"`
+	IsEncrypted bool    `json:"is_encrypted"`
+	Sender      string  `json:"sender"`
+	SenderName  *string `json:"sender_name"`
+}
+
+// Embed defines model for Embed.
+type Embed struct {
+	Color        *string       `json:"color,omitempty"`
+	Description  *string       `json:"description,omitempty"`
+	Fields       *[]EmbedField `json:"fields,omitempty"`
+	Footer       *EmbedFooter  `json:"footer,omitempty"`
+	ImageUrl     *string       `json:"image_url,omitempty"`
+	ThumbnailUrl *string       `json:"thumbnail_url,omitempty"`
+	Title        *string       `json:"title,omitempty"`
+	Url          *string       `json:"url,omitempty"`
+}
+
+// EmbedField defines model for EmbedField.
+type EmbedField struct {
+	Inline *bool  `json:"inline,omitempty"`
+	Name   string `json:"name"`
+	Value  string `json:"value"`
+}
+
+// EmbedFooter defines model for EmbedFooter.
+type EmbedFooter struct {
+	Text string `json:"text"`
+}
+
+// EncryptedDmEnvelope defines model for EncryptedDmEnvelope.
+type EncryptedDmEnvelope struct {
+	CiphertextHex string      `json:"ciphertext_hex"`
+	ConvId        string      `json:"conv_id"`
+	DhPubkeyHex   string      `json:"dh_pubkey_hex"`
+	MessageIndex  *int        `json:"message_index,omitempty"`
+	NonceHex      string      `json:"nonce_hex"`
+	PrevCount     *int        `json:"prev_count,omitempty"`
+	SenderPubkey  string      `json:"sender_pubkey"`
+	SignatureHex  string      `json:"signature_hex"`
+	SignerCert    *SubkeyCert `json:"signer_cert,omitempty"`
+	V             *int        `json:"v,omitempty"`
+}
+
+// FavoriteHub defines model for FavoriteHub.
+type FavoriteHub struct {
+	Icon *string `json:"icon,omitempty"`
+	Name string  `json:"name"`
+	Url  string  `json:"url"`
 }
 
 // ForumTag defines model for ForumTag.
@@ -296,10 +447,36 @@ type ForumTag struct {
 	Position  *int64  `json:"position,omitempty"`
 }
 
-// HubInfo Only the fields clients branch on are listed; `/info` carries more
-// (badges, LAN trust material, welcome banner, voice endpoint…) and is
-// additive by rule, so ignore what you do not recognise.
+// GameLaunchCard defines model for GameLaunchCard.
+type GameLaunchCard struct {
+	Description  *string `json:"description,omitempty"`
+	EntryUrl     string  `json:"entry_url"`
+	Name         string  `json:"name"`
+	ThumbnailUrl *string `json:"thumbnail_url,omitempty"`
+}
+
+// GroupEncryptedEnvelope defines model for GroupEncryptedEnvelope.
+type GroupEncryptedEnvelope struct {
+	CiphertextHex    string      `json:"ciphertext_hex"`
+	ConvId           string      `json:"conv_id"`
+	Iteration        int         `json:"iteration"`
+	NonceHex         string      `json:"nonce_hex"`
+	SenderKeyVersion int         `json:"sender_key_version"`
+	SenderPubkey     string      `json:"sender_pubkey"`
+	SignatureHex     string      `json:"signature_hex"`
+	SignerCert       *SubkeyCert `json:"signer_cert,omitempty"`
+}
+
+// HubInfo `GET /info`. Additive by rule: ignore fields you do not recognise.
 type HubInfo struct {
+	// Badges Badges other hubs issued to this hub.
+	Badges []struct {
+		// Payload Canonical badge payload signed by the issuing hub.
+		Payload   BadgePayload `json:"payload"`
+		Signature string       `json:"signature"`
+	} `json:"badges"`
+	BirthdaysEnabled bool `json:"birthdays_enabled"`
+
 	// CanonicalUrl The address this hub says clients should use for it. Behind a farm
 	// this is the hub's owner-chosen name (`https://farm.example/hub/
 	// MangiaDaPippo`) and it **changes** when the hub is renamed —
@@ -317,24 +494,71 @@ type HubInfo struct {
 	// predating capability advertising, which reads correctly as "knows
 	// nothing". The list only ever grows — a string never changes
 	// spelling or meaning once published.
-	Capabilities  *[]string             `json:"capabilities,omitempty"`
-	ChallengeMode *HubInfoChallengeMode `json:"challenge_mode,omitempty"`
+	Capabilities []string `json:"capabilities"`
 
-	// FarmUrl When set, send `/auth/*` here instead of to the hub.
-	FarmUrl          *string `json:"farm_url"`
-	Icon             *string `json:"icon"`
-	InviteOnly       *bool   `json:"invite_only,omitempty"`
-	MinPowLevel      *int    `json:"min_pow_level,omitempty"`
-	MinSecurityLevel *int    `json:"min_security_level,omitempty"`
-	Name             *string `json:"name,omitempty"`
+	// CertRequirement What a certificate must show to admit a member. Omitted unless set.
+	CertRequirement *struct {
+		Mode    string `json:"mode"`
+		Require struct {
+			MinMemberSinceDays *int `json:"min_member_since_days"`
+			MinPowLevel        *int `json:"min_pow_level"`
+		} `json:"require"`
+		TrustedIssuers []string `json:"trusted_issuers"`
+	} `json:"cert_requirement,omitempty"`
+	ChallengeMode HubInfoChallengeMode `json:"challenge_mode"`
+	Description   *string              `json:"description"`
+	EmojiCount    int64                `json:"emoji_count"`
+
+	// FarewellLabel Omitted unless set.
+	FarewellLabel *string `json:"farewell_label,omitempty"`
+
+	// FarmUrl When present, send `/auth/*` here instead of to the hub. Omitted unless set.
+	FarmUrl    *string `json:"farm_url,omitempty"`
+	Icon       *string `json:"icon"`
+	InviteOnly bool    `json:"invite_only"`
+
+	// LanFingerprint Omitted unless set.
+	LanFingerprint *string `json:"lan_fingerprint,omitempty"`
+	LanMode        bool    `json:"lan_mode"`
+
+	// LanTls Omitted unless set.
+	LanTls             *string `json:"lan_tls,omitempty"`
+	MaxAttachmentBytes int64   `json:"max_attachment_bytes"`
+	MinPowLevel        int     `json:"min_pow_level"`
+	MinSecurityLevel   int     `json:"min_security_level"`
+	Name               string  `json:"name"`
+	Nsfw               bool    `json:"nsfw"`
 
 	// PublicKey The hub's Ed25519 identity, hex. This is the hub's ID.
-	PublicKey *string `json:"public_key,omitempty"`
+	PublicKey string `json:"public_key"`
+
+	// Rotation Hub key rotation payload during the transition window after a rotate-key ceremony (see `GET /key-rotation`). Omitted when no rotation is in progress.
+	Rotation      *map[string]interface{} `json:"rotation,omitempty"`
+	ScreenShareV2 bool                    `json:"screen_share_v2"`
+	SelfTags      []string                `json:"self_tags"`
+
+	// SfuUrl Omitted unless the hub runs an SFU.
+	SfuUrl *string `json:"sfu_url,omitempty"`
+
+	// Timezone Omitted unless set.
+	Timezone *string `json:"timezone,omitempty"`
 
 	// Version For display and "this hub is very old" warnings **only**. Never
 	// decide whether a feature exists by comparing this — use
 	// `capabilities`.
-	Version *string `json:"version,omitempty"`
+	Version string `json:"version"`
+
+	// VoiceCertHash Omitted unless set.
+	VoiceCertHash *string `json:"voice_cert_hash,omitempty"`
+
+	// VoiceWtUrl WebTransport voice endpoint. Omitted unless set.
+	VoiceWtUrl *string `json:"voice_wt_url,omitempty"`
+
+	// WelcomeInviteUrl Omitted unless set.
+	WelcomeInviteUrl *string `json:"welcome_invite_url,omitempty"`
+
+	// WelcomeLabel Omitted unless set.
+	WelcomeLabel *string `json:"welcome_label,omitempty"`
 }
 
 // HubInfoChallengeMode defines model for HubInfo.ChallengeMode.
@@ -375,16 +599,41 @@ type LobbyStatusStatus string
 
 // MeInfo defines model for MeInfo.
 type MeInfo struct {
-	ApprovalStatus   *MeInfoApprovalStatus `json:"approval_status,omitempty"`
-	Avatar           *string               `json:"avatar"`
-	DisplayName      *string               `json:"display_name"`
-	FindableByAllies *bool                 `json:"findable_by_allies,omitempty"`
-	PublicKey        *string               `json:"public_key,omitempty"`
-	Roles            *[]Role               `json:"roles,omitempty"`
+	AccentColor    *string              `json:"accent_color"`
+	Activities     *string              `json:"activities"`
+	ApprovalStatus MeInfoApprovalStatus `json:"approval_status"`
+	Avatar         *string              `json:"avatar"`
+	Bio            *string              `json:"bio"`
+	Birthday       *string              `json:"birthday"`
+	Cover          *string              `json:"cover"`
+	DisplayName    *string              `json:"display_name"`
+	FavoriteHubs   []struct {
+		Icon *string `json:"icon"`
+		Name string  `json:"name"`
+		Url  string  `json:"url"`
+	} `json:"favorite_hubs"`
+	FindableByAllies bool    `json:"findable_by_allies"`
+	NameColor        *string `json:"name_color"`
+	Pronouns         *string `json:"pronouns"`
+	PublicKey        string  `json:"public_key"`
+	Roles            []Role  `json:"roles"`
+	ShowHubs         bool    `json:"show_hubs"`
+	StatusMessage    *string `json:"status_message"`
 }
 
 // MeInfoApprovalStatus defines model for MeInfo.ApprovalStatus.
 type MeInfoApprovalStatus string
+
+// MemberAdminInfo A member as listed for administrators by `GET /hub/members`.
+type MemberAdminInfo struct {
+	Birthday    *string `json:"birthday"`
+	DisplayName *string `json:"display_name"`
+	FirstSeenAt int64   `json:"first_seen_at"`
+	LastSeenAt  int64   `json:"last_seen_at"`
+	Online      bool    `json:"online"`
+	PublicKey   string  `json:"public_key"`
+	Roles       []Role  `json:"roles"`
+}
 
 // Message defines model for Message.
 type Message struct {
@@ -403,17 +652,38 @@ type Message struct {
 	Reactions *[]Reaction             `json:"reactions,omitempty"`
 
 	// ReplyCount Number of direct replies; non-zero only on thread roots.
-	ReplyCount *int64        `json:"reply_count,omitempty"`
-	ReplyTo    *ReplyContext `json:"reply_to,omitempty"`
-	Sender     *string       `json:"sender,omitempty"`
-	SenderName *string       `json:"sender_name"`
+	ReplyCount *int64           `json:"reply_count,omitempty"`
+	ReplyTo    *Message_ReplyTo `json:"reply_to"`
+	Sender     *string          `json:"sender,omitempty"`
+	SenderName *string          `json:"sender_name"`
 
 	// VisibleToPubkey Omitted unless set. When present, only the named user should see this message (ephemeral bot replies).
 	VisibleToPubkey *string `json:"visible_to_pubkey,omitempty"`
 }
 
+// Message_ReplyTo defines model for Message.ReplyTo.
+type Message_ReplyTo struct {
+	union json.RawMessage
+}
+
+// PollOption defines model for PollOption.
+type PollOption struct {
+	Id   string `json:"id"`
+	Text string `json:"text"`
+}
+
 // PostDetail defines model for PostDetail.
 type PostDetail struct {
+	Attachments *[]struct {
+		Mime string `json:"mime"`
+		Name string `json:"name"`
+		Size int64  `json:"size"`
+		Url  string `json:"url"`
+	} `json:"attachments,omitempty"`
+
+	// AuthorHub Origin hub public key (hex) when the post came in through the alliance forum write-proxy. Hub-asserted, not proven: render it as mediated ("via HubName"). Omitted for local posts.
+	AuthorHub *string `json:"author_hub,omitempty"`
+
 	// AuthorPubkey Null on tombstoned posts for non-moderators
 	AuthorPubkey *string `json:"author_pubkey"`
 	Body         *string `json:"body"`
@@ -427,12 +697,19 @@ type PostDetail struct {
 	IsLocked       *bool        `json:"is_locked,omitempty"`
 	IsPinned       *bool        `json:"is_pinned,omitempty"`
 	LastActivityAt *int64       `json:"last_activity_at,omitempty"`
+	Reactions      *[]Reaction  `json:"reactions,omitempty"`
 	Replies        *[]ReplyView `json:"replies,omitempty"`
 	ReplyCount     *int64       `json:"reply_count,omitempty"`
 
 	// ReplyCursor Omitted when there are no more replies
 	ReplyCursor *string `json:"reply_cursor,omitempty"`
-	Title       *string `json:"title"`
+	Tags        *[]struct {
+		// Color Omitted unless set.
+		Color *string `json:"color,omitempty"`
+		Id    string  `json:"id"`
+		Label string  `json:"label"`
+	} `json:"tags,omitempty"`
+	Title *string `json:"title"`
 
 	// UnreadReplyCount Replies after the viewer's read cursor. Omitted when unauthenticated.
 	UnreadReplyCount *int64 `json:"unread_reply_count,omitempty"`
@@ -440,23 +717,53 @@ type PostDetail struct {
 
 // PostSummary defines model for PostSummary.
 type PostSummary struct {
+	Attachments *[]struct {
+		Mime string `json:"mime"`
+		Name string `json:"name"`
+		Size int64  `json:"size"`
+		Url  string `json:"url"`
+	} `json:"attachments,omitempty"`
+
+	// AuthorHub Origin hub public key (hex) when the post came in through the alliance forum write-proxy. Hub-asserted, not proven: render it as mediated ("via HubName"). Omitted for local posts.
+	AuthorHub *string `json:"author_hub,omitempty"`
+
 	// AuthorPubkey Null on tombstoned posts for non-moderators
 	AuthorPubkey *string `json:"author_pubkey"`
 	ChannelId    *string `json:"channel_id,omitempty"`
 	CreatedAt    *int64  `json:"created_at,omitempty"`
 
 	// EditedAt Omitted when never edited
-	EditedAt       *int64  `json:"edited_at,omitempty"`
-	Id             *string `json:"id,omitempty"`
-	IsDeleted      *bool   `json:"is_deleted,omitempty"`
-	IsLocked       *bool   `json:"is_locked,omitempty"`
-	IsPinned       *bool   `json:"is_pinned,omitempty"`
-	LastActivityAt *int64  `json:"last_activity_at,omitempty"`
-	ReplyCount     *int64  `json:"reply_count,omitempty"`
-	Title          *string `json:"title"`
+	EditedAt       *int64      `json:"edited_at,omitempty"`
+	Id             *string     `json:"id,omitempty"`
+	IsDeleted      *bool       `json:"is_deleted,omitempty"`
+	IsLocked       *bool       `json:"is_locked,omitempty"`
+	IsPinned       *bool       `json:"is_pinned,omitempty"`
+	LastActivityAt *int64      `json:"last_activity_at,omitempty"`
+	Reactions      *[]Reaction `json:"reactions,omitempty"`
+	ReplyCount     *int64      `json:"reply_count,omitempty"`
+	Tags           *[]struct {
+		// Color Omitted unless set.
+		Color *string `json:"color,omitempty"`
+		Id    string  `json:"id"`
+		Label string  `json:"label"`
+	} `json:"tags,omitempty"`
+	Title *string `json:"title"`
 
 	// UnreadReplyCount Replies after the viewer's read cursor. Omitted when unauthenticated.
 	UnreadReplyCount *int64 `json:"unread_reply_count,omitempty"`
+}
+
+// PowProof defines model for PowProof.
+type PowProof struct {
+	Level int    `json:"level"`
+	Nonce string `json:"nonce"`
+}
+
+// PublicHubEntry defines model for PublicHubEntry.
+type PublicHubEntry struct {
+	HubName  string `json:"hub_name"`
+	HubUrl   string `json:"hub_url"`
+	JoinedAt int64  `json:"joined_at"`
 }
 
 // Reaction defines model for Reaction.
@@ -476,17 +783,27 @@ type ReplyContext struct {
 
 // ReplyView defines model for ReplyView.
 type ReplyView struct {
+	Attachments []struct {
+		Mime string `json:"mime"`
+		Name string `json:"name"`
+		Size int64  `json:"size"`
+		Url  string `json:"url"`
+	} `json:"attachments"`
+
+	// AuthorHub Origin hub public key (hex) when authored through the alliance forum write-proxy. Omitted for local replies.
+	AuthorHub    *string `json:"author_hub,omitempty"`
 	AuthorPubkey *string `json:"author_pubkey"`
 
 	// Body Null on tombstoned replies
 	Body      *string `json:"body"`
-	CreatedAt *int64  `json:"created_at,omitempty"`
+	CreatedAt int64   `json:"created_at"`
 
 	// EditedAt Omitted when never edited
-	EditedAt  *int64  `json:"edited_at,omitempty"`
-	Id        *string `json:"id,omitempty"`
-	IsDeleted *bool   `json:"is_deleted,omitempty"`
-	PostId    *string `json:"post_id,omitempty"`
+	EditedAt  *int64     `json:"edited_at,omitempty"`
+	Id        string     `json:"id"`
+	IsDeleted bool       `json:"is_deleted"`
+	PostId    string     `json:"post_id"`
+	Reactions []Reaction `json:"reactions"`
 
 	// ReplyToId Omitted on top-level replies
 	ReplyToId *string `json:"reply_to_id,omitempty"`
@@ -515,6 +832,14 @@ type RoleCategory struct {
 	Position  *int64  `json:"position,omitempty"`
 }
 
+// SenderKeyRecipientBlob defines model for SenderKeyRecipientBlob.
+type SenderKeyRecipientBlob struct {
+	Iteration       int    `json:"iteration"`
+	RecipientPubkey string `json:"recipient_pubkey"`
+	WrapNonceHex    string `json:"wrap_nonce_hex"`
+	WrappedKeyHex   string `json:"wrapped_key_hex"`
+}
+
 // SignedMemberChange The actor's signature over a group add or leave (wire-format.md, "Group DM member change"). Without it the change holds on this hub only; with it the hub carries the change to the other members' hubs. Only on a hub advertising `dms.group.signedmembers`.
 type SignedMemberChange struct {
 	// IssuedAt unix seconds
@@ -522,17 +847,67 @@ type SignedMemberChange struct {
 	Signature string `json:"signature"`
 
 	// SignerCert When the signing key is not the actor's own, the master-signed cert tying the two.
-	SignerCert *map[string]interface{} `json:"signer_cert,omitempty"`
+	SignerCert *SubkeyCert `json:"signer_cert,omitempty"`
 }
 
-// User defines model for User.
-type User struct {
+// SubkeyCert defines model for SubkeyCert.
+type SubkeyCert struct {
+	DeviceLabel  string    `json:"device_label"`
+	FallbackHubs *[]string `json:"fallback_hubs,omitempty"`
+	IssuedAt     int64     `json:"issued_at"`
+	MasterPubkey string    `json:"master_pubkey"`
+	NotAfter     *int64    `json:"not_after,omitempty"`
+	Signature    string    `json:"signature"`
+	SubkeyPubkey string    `json:"subkey_pubkey"`
+}
+
+// SurveyAnswerInput defines model for SurveyAnswerInput.
+type SurveyAnswerInput struct {
+	ChoiceId   *string `json:"choice_id,omitempty"`
+	QuestionId string  `json:"question_id"`
+	TextAnswer *string `json:"text_answer,omitempty"`
+}
+
+// SurveyChoiceAdmin defines model for SurveyChoiceAdmin.
+type SurveyChoiceAdmin struct {
+	DisplayOrder int64    `json:"display_order"`
+	Id           string   `json:"id"`
+	Label        string   `json:"label"`
+	RoleIds      []string `json:"role_ids"`
+}
+
+// SurveyQuestionAdmin defines model for SurveyQuestionAdmin.
+type SurveyQuestionAdmin struct {
+	Choices      *[]SurveyChoiceAdmin `json:"choices,omitempty"`
+	DisplayOrder int64                `json:"display_order"`
+	Id           string               `json:"id"`
+	Kind         string               `json:"kind"`
+	Prompt       string               `json:"prompt"`
+	Required     bool                 `json:"required"`
+}
+
+// UserInfo A member as listed by `GET /users`.
+type UserInfo struct {
 	// Avatar Base64-encoded image
 	Avatar      *string `json:"avatar"`
+	Birthday    *string `json:"birthday"`
 	DisplayName *string `json:"display_name"`
 	GroupRole   *string `json:"group_role"`
-	Online      *bool   `json:"online,omitempty"`
-	PublicKey   *string `json:"public_key,omitempty"`
+	NameColor   *string `json:"name_color"`
+	Online      bool    `json:"online"`
+	PublicKey   string  `json:"public_key"`
+
+	// Status Presence status. Omitted unless set.
+	Status *string `json:"status,omitempty"`
+
+	// StatusCustom Custom status text. Omitted unless set.
+	StatusCustom *string `json:"status_custom,omitempty"`
+}
+
+// WebhookSubscriptionDto defines model for WebhookSubscriptionDto.
+type WebhookSubscriptionDto struct {
+	Channels *[]string `json:"channels,omitempty"`
+	Event    string    `json:"event"`
 }
 
 // ListAdminAuditLogParams defines parameters for ListAdminAuditLog.
@@ -606,6 +981,15 @@ type CreateAdminCertBadgeJSONBody struct {
 	Label string `json:"label"`
 }
 
+// SignAdminDirectoryListingJSONBody defines parameters for SignAdminDirectoryListing.
+type SignAdminDirectoryListingJSONBody struct {
+	Bio        string   `json:"bio"`
+	HubUrl     string   `json:"hub_url"`
+	InviteCode *string  `json:"invite_code,omitempty"`
+	Language   string   `json:"language"`
+	Tags       []string `json:"tags"`
+}
+
 // CreateAdminEmojiJSONBody defines parameters for CreateAdminEmoji.
 type CreateAdminEmojiJSONBody struct {
 	// DataB64 Base64 image data, max ~90KB encoded
@@ -637,10 +1021,7 @@ type ListAdminOutgoingWebhookDeliveriesParams struct {
 
 // SetAdminOutgoingWebhookSubscriptionsJSONBody defines parameters for SetAdminOutgoingWebhookSubscriptions.
 type SetAdminOutgoingWebhookSubscriptionsJSONBody struct {
-	Subscriptions []struct {
-		Channels *[]string `json:"channels,omitempty"`
-		Event    string    `json:"event"`
-	} `json:"subscriptions"`
+	Subscriptions []WebhookSubscriptionDto `json:"subscriptions"`
 }
 
 // ListAdminReportsParams defines parameters for ListAdminReports.
@@ -769,6 +1150,13 @@ type UpdateAdminSettingsTagsJSONBody struct {
 	Tags []string `json:"tags"`
 }
 
+// SetAdminSurveyJSONBody defines parameters for SetAdminSurvey.
+type SetAdminSurveyJSONBody struct {
+	Enabled   bool                  `json:"enabled"`
+	Id        string                `json:"id"`
+	Questions []SurveyQuestionAdmin `json:"questions"`
+}
+
 // CreateAdminWebhookJSONBody defines parameters for CreateAdminWebhook.
 type CreateAdminWebhookJSONBody struct {
 	AvatarUrl   *string `json:"avatar_url,omitempty"`
@@ -780,6 +1168,19 @@ type CreateAdminWebhookJSONBody struct {
 // CreateAllianceJSONBody defines parameters for CreateAlliance.
 type CreateAllianceJSONBody struct {
 	Name string `json:"name"`
+}
+
+// JoinAllianceWithInviteJSONBody defines parameters for JoinAllianceWithInvite.
+type JoinAllianceWithInviteJSONBody struct {
+	AllianceId    string `json:"alliance_id"`
+	InviteToken   string `json:"invite_token"`
+	InviterHubUrl string `json:"inviter_hub_url"`
+	OwnHubUrl     string `json:"own_hub_url"`
+}
+
+// AcceptPendingAllianceInviteJSONBody defines parameters for AcceptPendingAllianceInvite.
+type AcceptPendingAllianceInviteJSONBody struct {
+	OwnHubUrl string `json:"own_hub_url"`
 }
 
 // CreateAllianceChannelJSONBody defines parameters for CreateAllianceChannel.
@@ -802,6 +1203,14 @@ type CreateAllianceChannelJSONBodyForumRemoteWrite string
 // CreateAllianceChannelJSONBodyVoiceRemoteJoin defines parameters for CreateAllianceChannel.
 type CreateAllianceChannelJSONBodyVoiceRemoteJoin string
 
+// CreateAllianceChannelMessageJSONBody defines parameters for CreateAllianceChannelMessage.
+type CreateAllianceChannelMessageJSONBody struct {
+	Attachments *[]Attachment   `json:"attachments,omitempty"`
+	Content     string          `json:"content"`
+	Game        *GameLaunchCard `json:"game,omitempty"`
+	ReplyTo     *string         `json:"reply_to,omitempty"`
+}
+
 // ListAllianceChannelPostsParams defines parameters for ListAllianceChannelPosts.
 type ListAllianceChannelPostsParams struct {
 	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
@@ -810,8 +1219,15 @@ type ListAllianceChannelPostsParams struct {
 
 // CreateAllianceChannelPostJSONBody defines parameters for CreateAllianceChannelPost.
 type CreateAllianceChannelPostJSONBody struct {
-	Body  string `json:"body"`
-	Title string `json:"title"`
+	Attachments *[]struct {
+		Mime string `json:"mime"`
+		Name string `json:"name"`
+		Size int64  `json:"size"`
+		Url  string `json:"url"`
+	} `json:"attachments,omitempty"`
+	Body   string    `json:"body"`
+	TagIds *[]string `json:"tag_ids,omitempty"`
+	Title  string    `json:"title"`
 }
 
 // CreateAllianceChannelPostReactionJSONBody defines parameters for CreateAllianceChannelPostReaction.
@@ -821,6 +1237,12 @@ type CreateAllianceChannelPostReactionJSONBody struct {
 
 // CreateAllianceChannelPostReplyJSONBody defines parameters for CreateAllianceChannelPostReply.
 type CreateAllianceChannelPostReplyJSONBody struct {
+	Attachments *[]struct {
+		Mime string `json:"mime"`
+		Name string `json:"name"`
+		Size int64  `json:"size"`
+		Url  string `json:"url"`
+	} `json:"attachments,omitempty"`
 	Body string `json:"body"`
 
 	// ReplyToId For threaded replies
@@ -887,31 +1309,9 @@ type VerifyAuthJSONBody struct {
 	// caller who is already a member here, who gets their normal session.
 	//
 	// Requires the `voice.alliance` capability on this hub.
-	AllianceVoiceGrant *struct {
-		Payload struct {
-			AllianceId string `json:"alliance_id"`
-			ChannelId  string `json:"channel_id"`
-
-			// DisplayName Roster display only. Hub-vouched, not proven.
-			DisplayName     *string `json:"display_name"`
-			ExpiresAt       int64   `json:"expires_at"`
-			IssuedAt        int64   `json:"issued_at"`
-			OriginHubPubkey string  `json:"origin_hub_pubkey"`
-			OriginHubUrl    string  `json:"origin_hub_url"`
-
-			// OwnerHubPubkey Must be this hub, so a grant cannot be replayed elsewhere
-			OwnerHubPubkey string `json:"owner_hub_pubkey"`
-
-			// SubjectPubkey The visitor's canonical pubkey. Must equal the identity this
-			// challenge-response just authenticated — the grant vouches for
-			// membership of the origin hub, never for identity.
-			SubjectPubkey string `json:"subject_pubkey"`
-		} `json:"payload"`
-
-		// Signature Hex Ed25519 signature by origin_hub_pubkey over the payload JSON
-		Signature string `json:"signature"`
-	} `json:"alliance_voice_grant,omitempty"`
-	Challenge string `json:"challenge"`
+	AllianceVoiceGrant *AllianceVoiceGrant `json:"alliance_voice_grant,omitempty"`
+	Certifications     *[]Certification    `json:"certifications,omitempty"`
+	Challenge          string              `json:"challenge"`
 
 	// ChallengeToken Token from POST /challenge/verify (required when challenge_mode != off)
 	ChallengeToken *string `json:"challenge_token,omitempty"`
@@ -920,8 +1320,9 @@ type VerifyAuthJSONBody struct {
 	InviteCode *string `json:"invite_code,omitempty"`
 
 	// IsHub Set by a hub authenticating to federate; yields a `peer` session unless the key is already a member
-	IsHub     *bool  `json:"is_hub,omitempty"`
-	PublicKey string `json:"public_key"`
+	IsHub     *bool     `json:"is_hub,omitempty"`
+	PowProof  *PowProof `json:"pow_proof,omitempty"`
+	PublicKey string    `json:"public_key"`
 
 	// SecurityLevel Claimed PoW level
 	SecurityLevel *int `json:"security_level,omitempty"`
@@ -933,7 +1334,7 @@ type VerifyAuthJSONBody struct {
 	Signature string `json:"signature"`
 
 	// SubkeyCert Multi-device: links a device subkey to a master key
-	SubkeyCert *map[string]interface{} `json:"subkey_cert,omitempty"`
+	SubkeyCert *SubkeyCert `json:"subkey_cert,omitempty"`
 }
 
 // BeginWebauthnAssertionJSONBody defines parameters for BeginWebauthnAssertion.
@@ -973,16 +1374,43 @@ type ListCertsRevocationsParams struct {
 // VerifyChallengeJSONBody defines parameters for VerifyChallenge.
 type VerifyChallengeJSONBody struct {
 	// Answer Numeric answer for puzzle mode; omit for click-only
-	Answer      *string `json:"answer,omitempty"`
-	ChallengeId string  `json:"challenge_id"`
+	Answer *string `json:"answer,omitempty"`
+	Id     string  `json:"id"`
+	Pubkey string  `json:"pubkey"`
 }
 
 // CreateChannelJSONBody defines parameters for CreateChannel.
 type CreateChannelJSONBody struct {
-	Description *string `json:"description,omitempty"`
-	IsCategory  *bool   `json:"is_category,omitempty"`
-	Name        string  `json:"name"`
-	ParentId    *string `json:"parent_id"`
+	BannerFileId        *string `json:"banner_file_id,omitempty"`
+	BannerUrl           *string `json:"banner_url,omitempty"`
+	ChannelType         *string `json:"channel_type,omitempty"`
+	Description         *string `json:"description,omitempty"`
+	IsCategory          *bool   `json:"is_category,omitempty"`
+	Name                string  `json:"name"`
+	Nsfw                *bool   `json:"nsfw,omitempty"`
+	ParentId            *string `json:"parent_id"`
+	SpawnerNameTemplate *string `json:"spawner_name_template,omitempty"`
+}
+
+// ReorderChannelsJSONBody defines parameters for ReorderChannels.
+type ReorderChannelsJSONBody struct {
+	ChannelIds []string `json:"channel_ids"`
+}
+
+// UpdateChannelJSONBody defines parameters for UpdateChannel.
+type UpdateChannelJSONBody struct {
+	BannerFileId    *string `json:"banner_file_id,omitempty"`
+	BannerUrl       *string `json:"banner_url,omitempty"`
+	Color           *string `json:"color"`
+	CustomIconSvg   *string `json:"custom_icon_svg"`
+	Description     *string `json:"description,omitempty"`
+	ForumRequireTag *bool   `json:"forum_require_tag,omitempty"`
+	Icon            *string `json:"icon"`
+	MinTalkPower    *int64  `json:"min_talk_power,omitempty"`
+	Name            *string `json:"name,omitempty"`
+	Nsfw            *bool   `json:"nsfw,omitempty"`
+	ParentId        *string `json:"parent_id"`
+	RetentionDays   *int64  `json:"retention_days"`
 }
 
 // CreateChannelBanJSONBody defines parameters for CreateChannelBan.
@@ -1000,8 +1428,9 @@ type ListChannelMessagesParams struct {
 
 // CreateChannelMessageJSONBody defines parameters for CreateChannelMessage.
 type CreateChannelMessageJSONBody struct {
-	Attachments *[]Attachment `json:"attachments,omitempty"`
-	Content     string        `json:"content"`
+	Attachments *[]Attachment   `json:"attachments,omitempty"`
+	Content     string          `json:"content"`
+	Game        *GameLaunchCard `json:"game,omitempty"`
 
 	// ReplyTo Message ID being replied to
 	ReplyTo *string `json:"reply_to,omitempty"`
@@ -1009,7 +1438,8 @@ type CreateChannelMessageJSONBody struct {
 
 // UpdateChannelMessageJSONBody defines parameters for UpdateChannelMessage.
 type UpdateChannelMessageJSONBody struct {
-	Content *string `json:"content,omitempty"`
+	Content string   `json:"content"`
+	Embeds  *[]Embed `json:"embeds,omitempty"`
 }
 
 // CreateChannelMessageReactionJSONBody defines parameters for CreateChannelMessageReaction.
@@ -1043,13 +1473,10 @@ type ListChannelPollsParams struct {
 
 // CreateChannelPollJSONBody defines parameters for CreateChannelPoll.
 type CreateChannelPollJSONBody struct {
-	EndsAt     *int64 `json:"ends_at"`
-	MaxChoices *int64 `json:"max_choices,omitempty"`
-	Options    []struct {
-		Id   string `json:"id"`
-		Text string `json:"text"`
-	} `json:"options"`
-	Question string `json:"question"`
+	EndsAt     *int64       `json:"ends_at"`
+	MaxChoices *int64       `json:"max_choices,omitempty"`
+	Options    []PollOption `json:"options"`
+	Question   string       `json:"question"`
 }
 
 // ListChannelPostsParams defines parameters for ListChannelPosts.
@@ -1061,8 +1488,15 @@ type ListChannelPostsParams struct {
 
 // CreateChannelPostJSONBody defines parameters for CreateChannelPost.
 type CreateChannelPostJSONBody struct {
-	Body  string `json:"body"`
-	Title string `json:"title"`
+	Attachments *[]struct {
+		Mime string `json:"mime"`
+		Name string `json:"name"`
+		Size int64  `json:"size"`
+		Url  string `json:"url"`
+	} `json:"attachments,omitempty"`
+	Body   string    `json:"body"`
+	TagIds *[]string `json:"tag_ids,omitempty"`
+	Title  string    `json:"title"`
 }
 
 // SearchChannelPostsParams defines parameters for SearchChannelPosts.
@@ -1079,8 +1513,9 @@ type GetChannelPostParams struct {
 
 // UpdateChannelPostJSONBody defines parameters for UpdateChannelPost.
 type UpdateChannelPostJSONBody struct {
-	Body  *string `json:"body,omitempty"`
-	Title *string `json:"title,omitempty"`
+	Body   *string   `json:"body,omitempty"`
+	TagIds *[]string `json:"tag_ids,omitempty"`
+	Title  *string   `json:"title,omitempty"`
 }
 
 // CreateChannelPostReactionJSONBody defines parameters for CreateChannelPostReaction.
@@ -1091,6 +1526,12 @@ type CreateChannelPostReactionJSONBody struct {
 
 // CreateChannelPostReplyJSONBody defines parameters for CreateChannelPostReply.
 type CreateChannelPostReplyJSONBody struct {
+	Attachments *[]struct {
+		Mime string `json:"mime"`
+		Name string `json:"name"`
+		Size int64  `json:"size"`
+		Url  string `json:"url"`
+	} `json:"attachments,omitempty"`
 	Body string `json:"body"`
 
 	// ReplyToId Optional parent reply within the same post
@@ -1117,6 +1558,11 @@ type CreateChannelTagJSONBody struct {
 	Position *int64 `json:"position,omitempty"`
 }
 
+// SetChannelTalkPowerJSONBody defines parameters for SetChannelTalkPower.
+type SetChannelTalkPowerJSONBody struct {
+	MinTalkPower int64 `json:"min_talk_power"`
+}
+
 // UploadChannelFileMultipartBody defines parameters for UploadChannelFile.
 type UploadChannelFileMultipartBody struct {
 	File *openapi_types.File `json:"file,omitempty"`
@@ -1138,12 +1584,17 @@ type ListConversationsParams struct {
 
 // CreateConversationJSONBody defines parameters for CreateConversation.
 type CreateConversationJSONBody struct {
-	Members []string `json:"members"`
+	MemberHubs    *map[string]string `json:"member_hubs,omitempty"`
+	MemberMasters *map[string]string `json:"member_masters,omitempty"`
+	Members       []string           `json:"members"`
 }
 
 // CreateConversationMemberJSONBody defines parameters for CreateConversationMember.
 type CreateConversationMemberJSONBody struct {
 	PublicKey string `json:"public_key"`
+
+	// Signed The actor's signature over a group add or leave (wire-format.md, "Group DM member change"). Without it the change holds on this hub only; with it the hub carries the change to the other members' hubs. Only on a hub advertising `dms.group.signedmembers`.
+	Signed *SignedMemberChange `json:"signed,omitempty"`
 }
 
 // ListConversationMessagesParams defines parameters for ListConversationMessages.
@@ -1157,32 +1608,28 @@ type ListConversationMessagesParams struct {
 
 // CreateConversationMessageJSONBody defines parameters for CreateConversationMessage.
 type CreateConversationMessageJSONBody struct {
-	Attachments *[]Attachment `json:"attachments,omitempty"`
-	Content     string        `json:"content"`
-	IsEncrypted *bool         `json:"is_encrypted,omitempty"`
+	Attachments            *[]Attachment           `json:"attachments,omitempty"`
+	Content                *string                 `json:"content,omitempty"`
+	EncryptedEnvelope      *EncryptedDmEnvelope    `json:"encrypted_envelope,omitempty"`
+	GroupEncryptedEnvelope *GroupEncryptedEnvelope `json:"group_encrypted_envelope,omitempty"`
 
 	// PlaintextSignature Hex Ed25519 signature over the federated plaintext DM bytes (wire-format.md). A recipient on another hub refuses an unsigned plaintext DM.
 	PlaintextSignature *string `json:"plaintext_signature,omitempty"`
 
 	// PlaintextSignerCert When the signing key is not the sender's canonical key: the master-signed cert tying the two. Only on a hub advertising `dms.plaintext.signercert`.
-	PlaintextSignerCert *map[string]interface{} `json:"plaintext_signer_cert,omitempty"`
+	PlaintextSignerCert *SubkeyCert `json:"plaintext_signer_cert,omitempty"`
 }
 
 // SetConversationSenderKeysJSONBody defines parameters for SetConversationSenderKeys.
 type SetConversationSenderKeysJSONBody struct {
-	Recipients []struct {
-		Iteration       int64  `json:"iteration"`
-		RecipientPubkey string `json:"recipient_pubkey"`
-		WrapNonceHex    string `json:"wrap_nonce_hex"`
-		WrappedKeyHex   string `json:"wrapped_key_hex"`
-	} `json:"recipients"`
-	SenderKeyVersion int64 `json:"sender_key_version"`
+	Recipients       []SenderKeyRecipientBlob `json:"recipients"`
+	SenderKeyVersion int                      `json:"sender_key_version"`
 
 	// SignatureHex Ed25519 signature over canonical bytes
 	SignatureHex string `json:"signature_hex"`
 
 	// SignerCert Present when a paired device's subkey signed the distribution. The signature is then checked against signer_cert.subkey_pubkey, and the cert's master against the authenticated session. Absent means the canonical key signed for itself.
-	SignerCert *map[string]interface{} `json:"signer_cert,omitempty"`
+	SignerCert *SubkeyCert `json:"signer_cert,omitempty"`
 }
 
 // ListEventsParams defines parameters for ListEvents.
@@ -1197,10 +1644,14 @@ type ListEventsParams struct {
 
 // CreateEventJSONBody defines parameters for CreateEvent.
 type CreateEventJSONBody struct {
-	ChannelId   string  `json:"channel_id"`
-	Description *string `json:"description,omitempty"`
-	EndsAt      *int64  `json:"ends_at,omitempty"`
-	Location    *string `json:"location,omitempty"`
+	ChannelId           string               `json:"channel_id"`
+	Description         *string              `json:"description,omitempty"`
+	EndsAt              *int64               `json:"ends_at,omitempty"`
+	HubWide             *bool                `json:"hub_wide,omitempty"`
+	Location            *string              `json:"location,omitempty"`
+	PropagateToChildren *bool                `json:"propagate_to_children,omitempty"`
+	ReminderMinutes     *int64               `json:"reminder_minutes,omitempty"`
+	Slots               *[]CreateSlotRequest `json:"slots,omitempty"`
 
 	// StartsAt Unix timestamp
 	StartsAt int64  `json:"starts_at"`
@@ -1209,27 +1660,23 @@ type CreateEventJSONBody struct {
 
 // SetEventJSONBody defines parameters for SetEvent.
 type SetEventJSONBody struct {
-	Description *string `json:"description,omitempty"`
-	EndsAt      *int64  `json:"ends_at,omitempty"`
-	Location    *string `json:"location,omitempty"`
-	StartsAt    *int64  `json:"starts_at,omitempty"`
-	Title       *string `json:"title,omitempty"`
+	Description     *string `json:"description,omitempty"`
+	EndsAt          *int64  `json:"ends_at,omitempty"`
+	HubWide         *bool   `json:"hub_wide,omitempty"`
+	Location        *string `json:"location,omitempty"`
+	ReminderMinutes *int64  `json:"reminder_minutes"`
+	StartsAt        *int64  `json:"starts_at,omitempty"`
+	Title           *string `json:"title,omitempty"`
 }
 
 // RsvpEventJSONBody defines parameters for RsvpEvent.
 type RsvpEventJSONBody struct {
+	SlotId *string                 `json:"slot_id,omitempty"`
 	Status RsvpEventJSONBodyStatus `json:"status"`
 }
 
 // RsvpEventJSONBodyStatus defines parameters for RsvpEvent.
 type RsvpEventJSONBodyStatus string
-
-// CreateEventSlotJSONBody defines parameters for CreateEventSlot.
-type CreateEventSlotJSONBody struct {
-	// Capacity Omit or null = unlimited
-	Capacity *int64 `json:"capacity"`
-	Name     string `json:"name"`
-}
 
 // UpdateEventSlotJSONBody defines parameters for UpdateEventSlot.
 type UpdateEventSlotJSONBody struct {
@@ -1241,6 +1688,31 @@ type UpdateEventSlotJSONBody struct {
 type CreateEventSquadRoomJSONBody struct {
 	Count      int64   `json:"count"`
 	NamePrefix *string `json:"name_prefix,omitempty"`
+}
+
+// CreateFederationAllianceInviteJSONBody defines parameters for CreateFederationAllianceInvite.
+type CreateFederationAllianceInviteJSONBody struct {
+	AllianceId       string  `json:"alliance_id"`
+	AllianceName     string  `json:"alliance_name"`
+	FromHubName      string  `json:"from_hub_name"`
+	FromHubPublicKey string  `json:"from_hub_public_key"`
+	FromHubUrl       string  `json:"from_hub_url"`
+	Id               string  `json:"id"`
+	InviteToken      string  `json:"invite_token"`
+	Message          *string `json:"message,omitempty"`
+}
+
+// DeleteFederationAllianceMemberJSONBody defines parameters for DeleteFederationAllianceMember.
+type DeleteFederationAllianceMemberJSONBody struct {
+	AllianceId string `json:"alliance_id"`
+}
+
+// CreateFederationAllianceMemberJSONBody defines parameters for CreateFederationAllianceMember.
+type CreateFederationAllianceMemberJSONBody struct {
+	AllianceId       string `json:"alliance_id"`
+	HubUrl           string `json:"hub_url"`
+	InviterPublicKey string `json:"inviter_public_key"`
+	Voucher          string `json:"voucher"`
 }
 
 // CreateFederationBadgeOfferJSONBody defines parameters for CreateFederationBadgeOffer.
@@ -1263,6 +1735,24 @@ type ListFederationBadgeRevocationsParams struct {
 	Since *string `form:"since,omitempty" json:"since,omitempty"`
 }
 
+// CreateFederationDmJSONBody defines parameters for CreateFederationDm.
+type CreateFederationDmJSONBody struct {
+	Attachments            *[]Attachment           `json:"attachments,omitempty"`
+	Content                *string                 `json:"content,omitempty"`
+	ConvType               string                  `json:"conv_type"`
+	ConversationId         string                  `json:"conversation_id"`
+	CreatedAt              int64                   `json:"created_at"`
+	EncryptedEnvelope      *EncryptedDmEnvelope    `json:"encrypted_envelope,omitempty"`
+	GroupEncryptedEnvelope *GroupEncryptedEnvelope `json:"group_encrypted_envelope,omitempty"`
+	Members                []string                `json:"members"`
+	MessageId              string                  `json:"message_id"`
+	Mirror                 *bool                   `json:"mirror,omitempty"`
+	Sender                 string                  `json:"sender"`
+	SenderHubUrl           *string                 `json:"sender_hub_url,omitempty"`
+	Signature              *string                 `json:"signature,omitempty"`
+	SignerCert             *SubkeyCert             `json:"signer_cert,omitempty"`
+}
+
 // CreateFederationDmMemberChangeJSONBody defines parameters for CreateFederationDmMemberChange.
 type CreateFederationDmMemberChangeJSONBody struct {
 	Actor          string    `json:"actor"`
@@ -1275,7 +1765,7 @@ type CreateFederationDmMemberChangeJSONBody struct {
 	Signature string    `json:"signature"`
 
 	// SignerCert When the signing key is not the actor's own, the master-signed cert tying the two.
-	SignerCert *map[string]interface{} `json:"signer_cert,omitempty"`
+	SignerCert *SubkeyCert `json:"signer_cert,omitempty"`
 }
 
 // CreateFederationForumChannelPostJSONBody defines parameters for CreateFederationForumChannelPost.
@@ -1311,20 +1801,50 @@ type DeleteFederationForumChannelPostReplyJSONBody struct {
 	AuthorPubkey string `json:"author_pubkey"`
 }
 
+// CreateFederationPeerJSONBody defines parameters for CreateFederationPeer.
+type CreateFederationPeerJSONBody struct {
+	Url string `json:"url"`
+}
+
 // CreateFriendJSONBody defines parameters for CreateFriend.
 type CreateFriendJSONBody struct {
-	// HubUrl Required for federated (cross-hub) friends
-	HubUrl    *string `json:"hub_url,omitempty"`
-	PublicKey string  `json:"public_key"`
+	DisplayName *string `json:"display_name,omitempty"`
 
-	// Signed The actor's signature over a group add or leave (wire-format.md, "Group DM member change"). Without it the change holds on this hub only; with it the hub carries the change to the other members' hubs. Only on a hub advertising `dms.group.signedmembers`.
-	Signed *SignedMemberChange `json:"signed,omitempty"`
+	// HubUrl Required for federated (cross-hub) friends
+	HubUrl          *string `json:"hub_url,omitempty"`
+	TargetPublicKey string  `json:"target_public_key"`
 }
 
 // UpdateHubJSONBody defines parameters for UpdateHub.
 type UpdateHubJSONBody struct {
-	HubIcon *string `json:"hub_icon"`
-	HubName *string `json:"hub_name,omitempty"`
+	AfkChannelId        *string `json:"afk_channel_id,omitempty"`
+	AfkTimeoutSecs      *int    `json:"afk_timeout_secs,omitempty"`
+	BirthdaysEnabled    *bool   `json:"birthdays_enabled,omitempty"`
+	DefaultInviteRoleId *string `json:"default_invite_role_id,omitempty"`
+	Description         *string `json:"description,omitempty"`
+	FarewellLabel       *string `json:"farewell_label,omitempty"`
+	Icon                *string `json:"icon,omitempty"`
+	MaxAttachmentBytes  *int64  `json:"max_attachment_bytes,omitempty"`
+	MaxChannelDepth     *int    `json:"max_channel_depth,omitempty"`
+	MaxUploadBytes      *int64  `json:"max_upload_bytes,omitempty"`
+	MinSecurityLevel    *int    `json:"min_security_level,omitempty"`
+	Name                *string `json:"name,omitempty"`
+	NameColorMode       *string `json:"name_color_mode,omitempty"`
+	RequireApproval     *bool   `json:"require_approval,omitempty"`
+	Timezone            *string `json:"timezone,omitempty"`
+	WelcomeInviteUrl    *string `json:"welcome_invite_url,omitempty"`
+	WelcomeLabel        *string `json:"welcome_label,omitempty"`
+}
+
+// CreateHubIconJSONBody defines parameters for CreateHubIcon.
+type CreateHubIconJSONBody struct {
+	Name       string `json:"name"`
+	SvgContent string `json:"svg_content"`
+}
+
+// UpdateHubIconJSONBody defines parameters for UpdateHubIcon.
+type UpdateHubIconJSONBody struct {
+	Name string `json:"name"`
 }
 
 // ListHubPendingParams defines parameters for ListHubPending.
@@ -1338,7 +1858,8 @@ type ListHubPendingParams struct {
 
 // SetHubSettingsChallengeJSONBody defines parameters for SetHubSettingsChallenge.
 type SetHubSettingsChallengeJSONBody struct {
-	ChallengeMode *SetHubSettingsChallengeJSONBodyChallengeMode `json:"challenge_mode,omitempty"`
+	ChallengeDifficulty string                                       `json:"challenge_difficulty"`
+	ChallengeMode       SetHubSettingsChallengeJSONBodyChallengeMode `json:"challenge_mode"`
 }
 
 // SetHubSettingsChallengeJSONBodyChallengeMode defines parameters for SetHubSettingsChallenge.
@@ -1346,14 +1867,70 @@ type SetHubSettingsChallengeJSONBodyChallengeMode string
 
 // SetHubSettingsLobbyJSONBody defines parameters for SetHubSettingsLobby.
 type SetHubSettingsLobbyJSONBody struct {
-	Enabled          *bool   `json:"enabled,omitempty"`
-	MinSecurityLevel *int    `json:"min_security_level,omitempty"`
-	WelcomeMd        *string `json:"welcome_md"`
+	LobbyEnabled bool    `json:"lobby_enabled"`
+	WelcomeMd    *string `json:"welcome_md"`
 }
 
 // SetIdentityDmBlocksJSONBody defines parameters for SetIdentityDmBlocks.
 type SetIdentityDmBlocksJSONBody struct {
 	Pubkeys []string `json:"pubkeys"`
+}
+
+// ClaimIdentityPairingJSONBody defines parameters for ClaimIdentityPairing.
+type ClaimIdentityPairingJSONBody struct {
+	DeviceLabel  string `json:"device_label"`
+	PairingToken string `json:"pairing_token"`
+	Proof        string `json:"proof"`
+	SubkeyPubkey string `json:"subkey_pubkey"`
+}
+
+// CompleteIdentityPairingJSONBody defines parameters for CompleteIdentityPairing.
+type CompleteIdentityPairingJSONBody struct {
+	Cert              SubkeyCert `json:"cert"`
+	PairingToken      string     `json:"pairing_token"`
+	WrappedBlobKeyHex string     `json:"wrapped_blob_key_hex"`
+	WrappedDhSeedHex  *string    `json:"wrapped_dh_seed_hex,omitempty"`
+}
+
+// CreateIdentityPairingOfferJSONBody defines parameters for CreateIdentityPairingOffer.
+type CreateIdentityPairingOfferJSONBody struct {
+	ExpiresAt    int64    `json:"expires_at"`
+	HomeHubs     []string `json:"home_hubs"`
+	IssuedAt     int64    `json:"issued_at"`
+	MasterPubkey string   `json:"master_pubkey"`
+	PairingToken string   `json:"pairing_token"`
+	Signature    string   `json:"signature"`
+}
+
+// CreateIdentityDesignationJSONBody defines parameters for CreateIdentityDesignation.
+type CreateIdentityDesignationJSONBody struct {
+	Hubs         []string `json:"hubs"`
+	IssuedAt     int64    `json:"issued_at"`
+	MasterPubkey string   `json:"master_pubkey"`
+	Sequence     int64    `json:"sequence"`
+	Signature    string   `json:"signature"`
+}
+
+// SetIdentityPrefsJSONBody defines parameters for SetIdentityPrefs.
+type SetIdentityPrefsJSONBody struct {
+	BlobVersion   int64  `json:"blob_version"`
+	CiphertextHex string `json:"ciphertext_hex"`
+	MasterPubkey  string `json:"master_pubkey"`
+	Signature     string `json:"signature"`
+}
+
+// CreateIdentityRevocationJSONBody defines parameters for CreateIdentityRevocation.
+type CreateIdentityRevocationJSONBody struct {
+	MasterPubkey string `json:"master_pubkey"`
+	RevokedAt    int64  `json:"revoked_at"`
+	Signature    string `json:"signature"`
+	SubkeyPubkey string `json:"subkey_pubkey"`
+}
+
+// SetIdentityDhKeyJSONBody defines parameters for SetIdentityDhKey.
+type SetIdentityDhKeyJSONBody struct {
+	DhPubkeyHex  string `json:"dh_pubkey_hex"`
+	SignatureHex string `json:"signature_hex"`
 }
 
 // ListInvitesParams defines parameters for ListInvites.
@@ -1383,50 +1960,44 @@ type CreateInviteJSONBody struct {
 
 // SubmitLobbyPowJSONBody defines parameters for SubmitLobbyPow.
 type SubmitLobbyPowJSONBody struct {
-	ClaimedLevel int   `json:"claimed_level"`
-	Nonce        int64 `json:"nonce"`
+	PowProof string `json:"pow_proof"`
 }
 
 // UpdateMeJSONBody defines parameters for UpdateMe.
 type UpdateMeJSONBody struct {
-	Avatar      *string `json:"avatar"`
-	DisplayName *string `json:"display_name,omitempty"`
+	AccentColor  *string        `json:"accent_color,omitempty"`
+	Activities   *string        `json:"activities,omitempty"`
+	Avatar       *string        `json:"avatar"`
+	Bio          *string        `json:"bio,omitempty"`
+	Birthday     *string        `json:"birthday,omitempty"`
+	Cover        *string        `json:"cover,omitempty"`
+	DisplayName  *string        `json:"display_name,omitempty"`
+	FavoriteHubs *[]FavoriteHub `json:"favorite_hubs,omitempty"`
 
 	// FindableByAllies List me to members of allied hubs (see `GET /alliances/{alliance_id}/people`). Per hub, off by default; only takes effect while the alliance's own `people_visible` switch is on. Hubs advertising `alliance.people`.
-	FindableByAllies *bool `json:"findable_by_allies,omitempty"`
+	FindableByAllies *bool   `json:"findable_by_allies,omitempty"`
+	NameColor        *string `json:"name_color,omitempty"`
+	Pronouns         *string `json:"pronouns,omitempty"`
+	ShowHubs         *bool   `json:"show_hubs,omitempty"`
+	StatusMessage    *string `json:"status_message,omitempty"`
 }
 
 // SetMeAppCommandsJSONBody defines parameters for SetMeAppCommands.
 type SetMeAppCommandsJSONBody struct {
-	Commands []struct {
-		Args *string `json:"args,omitempty"`
-
-		// CooldownSeconds Per-user, per-command cooldown in seconds (default 3, 0 = none)
-		CooldownSeconds *int64                                 `json:"cooldown_seconds,omitempty"`
-		Description     string                                 `json:"description"`
-		Name            string                                 `json:"name"`
-		Privileged      *bool                                  `json:"privileged,omitempty"`
-		Scope           *SetMeAppCommandsJSONBodyCommandsScope `json:"scope,omitempty"`
-	} `json:"commands"`
+	Commands []AppCommandDef `json:"commands"`
 }
-
-// SetMeAppCommandsJSONBodyCommandsScope defines parameters for SetMeAppCommands.
-type SetMeAppCommandsJSONBodyCommandsScope string
 
 // SetMeAppProfileJSONBody defines parameters for SetMeAppProfile.
 type SetMeAppProfileJSONBody struct {
-	AvatarUrl   *string `json:"avatar_url,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Game        *struct {
-		Description  *string `json:"description,omitempty"`
-		EntryUrl     *string `json:"entry_url,omitempty"`
-		Name         *string `json:"name,omitempty"`
-		ThumbnailUrl *string `json:"thumbnail_url,omitempty"`
-	} `json:"game,omitempty"`
-	HomepageUrl    *string `json:"homepage_url,omitempty"`
-	MiniAppUrl     *string `json:"mini_app_url,omitempty"`
-	Name           string  `json:"name"`
-	RequiresCamera *bool   `json:"requires_camera,omitempty"`
+	AvatarUrl      *string          `json:"avatar_url,omitempty"`
+	Capabilities   *[]string        `json:"capabilities,omitempty"`
+	Commands       *[]AppCommandDef `json:"commands,omitempty"`
+	Description    *string          `json:"description,omitempty"`
+	Game           *GameLaunchCard  `json:"game,omitempty"`
+	HomepageUrl    *string          `json:"homepage_url,omitempty"`
+	MiniAppUrl     *string          `json:"mini_app_url,omitempty"`
+	Name           string           `json:"name"`
+	RequiresCamera *bool            `json:"requires_camera,omitempty"`
 
 	// WebhookUrl https only; receives slash invocations
 	WebhookUrl *string `json:"webhook_url,omitempty"`
@@ -1434,10 +2005,7 @@ type SetMeAppProfileJSONBody struct {
 
 // SetMeAppSubscriptionsJSONBody defines parameters for SetMeAppSubscriptions.
 type SetMeAppSubscriptionsJSONBody struct {
-	Subscriptions []struct {
-		Channels *[]string `json:"channels,omitempty"`
-		Event    string    `json:"event"`
-	} `json:"subscriptions"`
+	Subscriptions []AppSubscription `json:"subscriptions"`
 }
 
 // UpdateMeCredentialJSONBody defines parameters for UpdateMeCredential.
@@ -1447,7 +2015,7 @@ type UpdateMeCredentialJSONBody struct {
 
 // AckMeEventsJSONBody defines parameters for AckMeEvents.
 type AckMeEventsJSONBody struct {
-	Ids *[]string `json:"ids,omitempty"`
+	Ids []string `json:"ids"`
 }
 
 // ListMeEventsParams defines parameters for ListMeEvents.
@@ -1478,6 +2046,11 @@ type CreateModerationBanJSONBody struct {
 	TargetPublicKey string  `json:"target_public_key"`
 }
 
+// KickUserJSONBody defines parameters for KickUser.
+type KickUserJSONBody struct {
+	TargetPublicKey string `json:"target_public_key"`
+}
+
 // ListModerationMutesParams defines parameters for ListModerationMutes.
 type ListModerationMutesParams struct {
 	// Limit Page size, clamped to 1..500.
@@ -1485,6 +2058,25 @@ type ListModerationMutesParams struct {
 
 	// Cursor Keyset cursor — the `target_public_key` of the previous page's last row.
 	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+}
+
+// CreateModerationMuteJSONBody defines parameters for CreateModerationMute.
+type CreateModerationMuteJSONBody struct {
+	Reason          *string `json:"reason,omitempty"`
+	TargetPublicKey string  `json:"target_public_key"`
+}
+
+// TimeoutUserJSONBody defines parameters for TimeoutUser.
+type TimeoutUserJSONBody struct {
+	DurationSeconds int64   `json:"duration_seconds"`
+	Reason          *string `json:"reason,omitempty"`
+	TargetPublicKey string  `json:"target_public_key"`
+}
+
+// CreateModerationVoiceMuteJSONBody defines parameters for CreateModerationVoiceMute.
+type CreateModerationVoiceMuteJSONBody struct {
+	Reason          *string `json:"reason,omitempty"`
+	TargetPublicKey string  `json:"target_public_key"`
 }
 
 // VotePollJSONBody defines parameters for VotePoll.
@@ -1498,21 +2090,29 @@ type GetPreviewParams struct {
 	Url string `form:"url" json:"url"`
 }
 
+// SetProfileJSONBody defines parameters for SetProfile.
+type SetProfileJSONBody struct {
+	Avatar      *string          `json:"avatar,omitempty"`
+	DisplayName string           `json:"display_name"`
+	IssuedAt    int64            `json:"issued_at"`
+	Pubkey      string           `json:"pubkey"`
+	PublicHubs  []PublicHubEntry `json:"public_hubs"`
+	Signature   string           `json:"signature"`
+}
+
 // SetRecoveryContactsJSONBody defines parameters for SetRecoveryContacts.
 type SetRecoveryContactsJSONBody struct {
 	Contacts  []string `json:"contacts"`
-	Threshold int64    `json:"threshold"`
+	Threshold int      `json:"threshold"`
 }
 
 // RotateRecoveryKeyJSONBody defines parameters for RotateRecoveryKey.
 type RotateRecoveryKeyJSONBody struct {
-	Attestations []struct {
-		Attester  string `json:"attester"`
-		Signature string `json:"signature"`
-	} `json:"attestations"`
-	NewPubkey string  `json:"new_pubkey"`
-	OldPubkey string  `json:"old_pubkey"`
-	Reason    *string `json:"reason,omitempty"`
+	Attestations    *[]AttestationInput `json:"attestations,omitempty"`
+	NewKeySignature string              `json:"new_key_signature"`
+	NewPubkey       string              `json:"new_pubkey"`
+	OldPubkey       string              `json:"old_pubkey"`
+	Reason          *string             `json:"reason,omitempty"`
 }
 
 // AttestRecoveryRotationRequestJSONBody defines parameters for AttestRecoveryRotationRequest.
@@ -1545,8 +2145,22 @@ type UpdateRoleCategoryJSONBody struct {
 
 // CreateRoleJSONBody defines parameters for CreateRole.
 type CreateRoleJSONBody struct {
+	CategoryId        *string  `json:"category_id,omitempty"`
+	Color             *string  `json:"color,omitempty"`
+	DisplaySeparately *bool    `json:"display_separately,omitempty"`
+	Icon              *string  `json:"icon,omitempty"`
+	Name              string   `json:"name"`
+	Permissions       []string `json:"permissions"`
+	Priority          int64    `json:"priority"`
+}
+
+// UpdateRoleJSONBody defines parameters for UpdateRole.
+type UpdateRoleJSONBody struct {
+	CategoryId        *string   `json:"category_id"`
+	Color             *string   `json:"color"`
 	DisplaySeparately *bool     `json:"display_separately,omitempty"`
-	Name              string    `json:"name"`
+	Icon              *string   `json:"icon"`
+	Name              *string   `json:"name,omitempty"`
 	Permissions       *[]string `json:"permissions,omitempty"`
 	Priority          *int64    `json:"priority,omitempty"`
 }
@@ -1583,6 +2197,12 @@ type CreateSoundboardSoundMultipartBody struct {
 // MarkSoundboardSoundPlayedJSONBody defines parameters for MarkSoundboardSoundPlayed.
 type MarkSoundboardSoundPlayedJSONBody struct {
 	ChannelId string `json:"channel_id"`
+}
+
+// SubmitSurveyJSONBody defines parameters for SubmitSurvey.
+type SubmitSurveyJSONBody struct {
+	Answers  []SurveyAnswerInput `json:"answers"`
+	SurveyId string              `json:"survey_id"`
 }
 
 // UpdateTagJSONBody defines parameters for UpdateTag.
@@ -1651,6 +2271,9 @@ type CreateAdminBanlistSourceJSONRequestBody CreateAdminBanlistSourceJSONBody
 // CreateAdminCertBadgeJSONRequestBody defines body for CreateAdminCertBadge for application/json ContentType.
 type CreateAdminCertBadgeJSONRequestBody CreateAdminCertBadgeJSONBody
 
+// SignAdminDirectoryListingJSONRequestBody defines body for SignAdminDirectoryListing for application/json ContentType.
+type SignAdminDirectoryListingJSONRequestBody SignAdminDirectoryListingJSONBody
+
 // CreateAdminEmojiJSONRequestBody defines body for CreateAdminEmoji for application/json ContentType.
 type CreateAdminEmojiJSONRequestBody CreateAdminEmojiJSONBody
 
@@ -1684,14 +2307,26 @@ type UpdateAdminSettingsPowJSONRequestBody UpdateAdminSettingsPowJSONBody
 // UpdateAdminSettingsTagsJSONRequestBody defines body for UpdateAdminSettingsTags for application/json ContentType.
 type UpdateAdminSettingsTagsJSONRequestBody UpdateAdminSettingsTagsJSONBody
 
+// SetAdminSurveyJSONRequestBody defines body for SetAdminSurvey for application/json ContentType.
+type SetAdminSurveyJSONRequestBody SetAdminSurveyJSONBody
+
 // CreateAdminWebhookJSONRequestBody defines body for CreateAdminWebhook for application/json ContentType.
 type CreateAdminWebhookJSONRequestBody CreateAdminWebhookJSONBody
 
 // CreateAllianceJSONRequestBody defines body for CreateAlliance for application/json ContentType.
 type CreateAllianceJSONRequestBody CreateAllianceJSONBody
 
+// JoinAllianceWithInviteJSONRequestBody defines body for JoinAllianceWithInvite for application/json ContentType.
+type JoinAllianceWithInviteJSONRequestBody JoinAllianceWithInviteJSONBody
+
+// AcceptPendingAllianceInviteJSONRequestBody defines body for AcceptPendingAllianceInvite for application/json ContentType.
+type AcceptPendingAllianceInviteJSONRequestBody AcceptPendingAllianceInviteJSONBody
+
 // CreateAllianceChannelJSONRequestBody defines body for CreateAllianceChannel for application/json ContentType.
 type CreateAllianceChannelJSONRequestBody CreateAllianceChannelJSONBody
+
+// CreateAllianceChannelMessageJSONRequestBody defines body for CreateAllianceChannelMessage for application/json ContentType.
+type CreateAllianceChannelMessageJSONRequestBody CreateAllianceChannelMessageJSONBody
 
 // CreateAllianceChannelPostJSONRequestBody defines body for CreateAllianceChannelPost for application/json ContentType.
 type CreateAllianceChannelPostJSONRequestBody CreateAllianceChannelPostJSONBody
@@ -1744,6 +2379,12 @@ type VerifyChallengeJSONRequestBody VerifyChallengeJSONBody
 // CreateChannelJSONRequestBody defines body for CreateChannel for application/json ContentType.
 type CreateChannelJSONRequestBody CreateChannelJSONBody
 
+// ReorderChannelsJSONRequestBody defines body for ReorderChannels for application/json ContentType.
+type ReorderChannelsJSONRequestBody ReorderChannelsJSONBody
+
+// UpdateChannelJSONRequestBody defines body for UpdateChannel for application/json ContentType.
+type UpdateChannelJSONRequestBody UpdateChannelJSONBody
+
 // CreateChannelBanJSONRequestBody defines body for CreateChannelBan for application/json ContentType.
 type CreateChannelBanJSONRequestBody CreateChannelBanJSONBody
 
@@ -1783,6 +2424,9 @@ type CreateChannelPostReplyReactionJSONRequestBody CreateChannelPostReplyReactio
 // CreateChannelTagJSONRequestBody defines body for CreateChannelTag for application/json ContentType.
 type CreateChannelTagJSONRequestBody CreateChannelTagJSONBody
 
+// SetChannelTalkPowerJSONRequestBody defines body for SetChannelTalkPower for application/json ContentType.
+type SetChannelTalkPowerJSONRequestBody SetChannelTalkPowerJSONBody
+
 // UploadChannelFileMultipartRequestBody defines body for UploadChannelFile for multipart/form-data ContentType.
 type UploadChannelFileMultipartRequestBody UploadChannelFileMultipartBody
 
@@ -1814,7 +2458,7 @@ type SetEventJSONRequestBody SetEventJSONBody
 type RsvpEventJSONRequestBody RsvpEventJSONBody
 
 // CreateEventSlotJSONRequestBody defines body for CreateEventSlot for application/json ContentType.
-type CreateEventSlotJSONRequestBody CreateEventSlotJSONBody
+type CreateEventSlotJSONRequestBody = CreateSlotRequest
 
 // UpdateEventSlotJSONRequestBody defines body for UpdateEventSlot for application/json ContentType.
 type UpdateEventSlotJSONRequestBody UpdateEventSlotJSONBody
@@ -1822,8 +2466,20 @@ type UpdateEventSlotJSONRequestBody UpdateEventSlotJSONBody
 // CreateEventSquadRoomJSONRequestBody defines body for CreateEventSquadRoom for application/json ContentType.
 type CreateEventSquadRoomJSONRequestBody CreateEventSquadRoomJSONBody
 
+// CreateFederationAllianceInviteJSONRequestBody defines body for CreateFederationAllianceInvite for application/json ContentType.
+type CreateFederationAllianceInviteJSONRequestBody CreateFederationAllianceInviteJSONBody
+
+// DeleteFederationAllianceMemberJSONRequestBody defines body for DeleteFederationAllianceMember for application/json ContentType.
+type DeleteFederationAllianceMemberJSONRequestBody DeleteFederationAllianceMemberJSONBody
+
+// CreateFederationAllianceMemberJSONRequestBody defines body for CreateFederationAllianceMember for application/json ContentType.
+type CreateFederationAllianceMemberJSONRequestBody CreateFederationAllianceMemberJSONBody
+
 // CreateFederationBadgeOfferJSONRequestBody defines body for CreateFederationBadgeOffer for application/json ContentType.
 type CreateFederationBadgeOfferJSONRequestBody CreateFederationBadgeOfferJSONBody
+
+// CreateFederationDmJSONRequestBody defines body for CreateFederationDm for application/json ContentType.
+type CreateFederationDmJSONRequestBody CreateFederationDmJSONBody
 
 // CreateFederationDmMemberChangeJSONRequestBody defines body for CreateFederationDmMemberChange for application/json ContentType.
 type CreateFederationDmMemberChangeJSONRequestBody CreateFederationDmMemberChangeJSONBody
@@ -1843,11 +2499,20 @@ type CreateFederationForumChannelPostReplyJSONRequestBody CreateFederationForumC
 // DeleteFederationForumChannelPostReplyJSONRequestBody defines body for DeleteFederationForumChannelPostReply for application/json ContentType.
 type DeleteFederationForumChannelPostReplyJSONRequestBody DeleteFederationForumChannelPostReplyJSONBody
 
+// CreateFederationPeerJSONRequestBody defines body for CreateFederationPeer for application/json ContentType.
+type CreateFederationPeerJSONRequestBody CreateFederationPeerJSONBody
+
 // CreateFriendJSONRequestBody defines body for CreateFriend for application/json ContentType.
 type CreateFriendJSONRequestBody CreateFriendJSONBody
 
 // UpdateHubJSONRequestBody defines body for UpdateHub for application/json ContentType.
 type UpdateHubJSONRequestBody UpdateHubJSONBody
+
+// CreateHubIconJSONRequestBody defines body for CreateHubIcon for application/json ContentType.
+type CreateHubIconJSONRequestBody CreateHubIconJSONBody
+
+// UpdateHubIconJSONRequestBody defines body for UpdateHubIcon for application/json ContentType.
+type UpdateHubIconJSONRequestBody UpdateHubIconJSONBody
 
 // SetHubSettingsChallengeJSONRequestBody defines body for SetHubSettingsChallenge for application/json ContentType.
 type SetHubSettingsChallengeJSONRequestBody SetHubSettingsChallengeJSONBody
@@ -1857,6 +2522,30 @@ type SetHubSettingsLobbyJSONRequestBody SetHubSettingsLobbyJSONBody
 
 // SetIdentityDmBlocksJSONRequestBody defines body for SetIdentityDmBlocks for application/json ContentType.
 type SetIdentityDmBlocksJSONRequestBody SetIdentityDmBlocksJSONBody
+
+// ClaimIdentityPairingJSONRequestBody defines body for ClaimIdentityPairing for application/json ContentType.
+type ClaimIdentityPairingJSONRequestBody ClaimIdentityPairingJSONBody
+
+// CompleteIdentityPairingJSONRequestBody defines body for CompleteIdentityPairing for application/json ContentType.
+type CompleteIdentityPairingJSONRequestBody CompleteIdentityPairingJSONBody
+
+// CreateIdentityPairingOfferJSONRequestBody defines body for CreateIdentityPairingOffer for application/json ContentType.
+type CreateIdentityPairingOfferJSONRequestBody CreateIdentityPairingOfferJSONBody
+
+// CreateIdentityDesignationJSONRequestBody defines body for CreateIdentityDesignation for application/json ContentType.
+type CreateIdentityDesignationJSONRequestBody CreateIdentityDesignationJSONBody
+
+// CreateIdentityDeviceJSONRequestBody defines body for CreateIdentityDevice for application/json ContentType.
+type CreateIdentityDeviceJSONRequestBody = SubkeyCert
+
+// SetIdentityPrefsJSONRequestBody defines body for SetIdentityPrefs for application/json ContentType.
+type SetIdentityPrefsJSONRequestBody SetIdentityPrefsJSONBody
+
+// CreateIdentityRevocationJSONRequestBody defines body for CreateIdentityRevocation for application/json ContentType.
+type CreateIdentityRevocationJSONRequestBody CreateIdentityRevocationJSONBody
+
+// SetIdentityDhKeyJSONRequestBody defines body for SetIdentityDhKey for application/json ContentType.
+type SetIdentityDhKeyJSONRequestBody SetIdentityDhKeyJSONBody
 
 // CreateInviteJSONRequestBody defines body for CreateInvite for application/json ContentType.
 type CreateInviteJSONRequestBody CreateInviteJSONBody
@@ -1888,8 +2577,23 @@ type ReportMessageJSONRequestBody ReportMessageJSONBody
 // CreateModerationBanJSONRequestBody defines body for CreateModerationBan for application/json ContentType.
 type CreateModerationBanJSONRequestBody CreateModerationBanJSONBody
 
+// KickUserJSONRequestBody defines body for KickUser for application/json ContentType.
+type KickUserJSONRequestBody KickUserJSONBody
+
+// CreateModerationMuteJSONRequestBody defines body for CreateModerationMute for application/json ContentType.
+type CreateModerationMuteJSONRequestBody CreateModerationMuteJSONBody
+
+// TimeoutUserJSONRequestBody defines body for TimeoutUser for application/json ContentType.
+type TimeoutUserJSONRequestBody TimeoutUserJSONBody
+
+// CreateModerationVoiceMuteJSONRequestBody defines body for CreateModerationVoiceMute for application/json ContentType.
+type CreateModerationVoiceMuteJSONRequestBody CreateModerationVoiceMuteJSONBody
+
 // VotePollJSONRequestBody defines body for VotePoll for application/json ContentType.
 type VotePollJSONRequestBody VotePollJSONBody
+
+// SetProfileJSONRequestBody defines body for SetProfile for application/json ContentType.
+type SetProfileJSONRequestBody SetProfileJSONBody
 
 // SetRecoveryContactsJSONRequestBody defines body for SetRecoveryContacts for application/json ContentType.
 type SetRecoveryContactsJSONRequestBody SetRecoveryContactsJSONBody
@@ -1909,6 +2613,9 @@ type UpdateRoleCategoryJSONRequestBody UpdateRoleCategoryJSONBody
 // CreateRoleJSONRequestBody defines body for CreateRole for application/json ContentType.
 type CreateRoleJSONRequestBody CreateRoleJSONBody
 
+// UpdateRoleJSONRequestBody defines body for UpdateRole for application/json ContentType.
+type UpdateRoleJSONRequestBody UpdateRoleJSONBody
+
 // StartScreenshareJSONRequestBody defines body for StartScreenshare for application/json ContentType.
 type StartScreenshareJSONRequestBody StartScreenshareJSONBody
 
@@ -1921,6 +2628,9 @@ type CreateSoundboardSoundMultipartRequestBody CreateSoundboardSoundMultipartBod
 // MarkSoundboardSoundPlayedJSONRequestBody defines body for MarkSoundboardSoundPlayed for application/json ContentType.
 type MarkSoundboardSoundPlayedJSONRequestBody MarkSoundboardSoundPlayedJSONBody
 
+// SubmitSurveyJSONRequestBody defines body for SubmitSurvey for application/json ContentType.
+type SubmitSurveyJSONRequestBody SubmitSurveyJSONBody
+
 // UpdateTagJSONRequestBody defines body for UpdateTag for application/json ContentType.
 type UpdateTagJSONRequestBody UpdateTagJSONBody
 
@@ -1929,6 +2639,42 @@ type LeaveVoiceJSONRequestBody LeaveVoiceJSONBody
 
 // ExecuteWebhookJSONRequestBody defines body for ExecuteWebhook for application/json ContentType.
 type ExecuteWebhookJSONRequestBody ExecuteWebhookJSONBody
+
+// AsReplyContext returns the union data inside the Message_ReplyTo as a ReplyContext
+func (t Message_ReplyTo) AsReplyContext() (ReplyContext, error) {
+	var body ReplyContext
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromReplyContext overwrites any union data inside the Message_ReplyTo as the provided ReplyContext
+func (t *Message_ReplyTo) FromReplyContext(v ReplyContext) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeReplyContext performs a merge with any union data inside the Message_ReplyTo, using the provided ReplyContext
+func (t *Message_ReplyTo) MergeReplyContext(v ReplyContext) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Message_ReplyTo) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Message_ReplyTo) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -2063,8 +2809,10 @@ type ClientInterface interface {
 	// RevokeAdminCert request
 	RevokeAdminCert(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SignAdminDirectoryListing request
-	SignAdminDirectoryListing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// SignAdminDirectoryListingWithBody request with any body
+	SignAdminDirectoryListingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SignAdminDirectoryListing(ctx context.Context, body SignAdminDirectoryListingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateAdminEmojiWithBody request with any body
 	CreateAdminEmojiWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2172,8 +2920,10 @@ type ClientInterface interface {
 	// GetAdminSurvey request
 	GetAdminSurvey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SetAdminSurvey request
-	SetAdminSurvey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// SetAdminSurveyWithBody request with any body
+	SetAdminSurveyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetAdminSurvey(ctx context.Context, body SetAdminSurveyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListAdminSurveyResponses request
 	ListAdminSurveyResponses(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2197,8 +2947,10 @@ type ClientInterface interface {
 
 	CreateAlliance(ctx context.Context, body CreateAllianceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// JoinAllianceWithInvite request
-	JoinAllianceWithInvite(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// JoinAllianceWithInviteWithBody request with any body
+	JoinAllianceWithInviteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	JoinAllianceWithInvite(ctx context.Context, body JoinAllianceWithInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListPendingAllianceInvites request
 	ListPendingAllianceInvites(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2206,8 +2958,10 @@ type ClientInterface interface {
 	// DeclinePendingAllianceInvite request
 	DeclinePendingAllianceInvite(ctx context.Context, inviteId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// AcceptPendingAllianceInvite request
-	AcceptPendingAllianceInvite(ctx context.Context, inviteId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// AcceptPendingAllianceInviteWithBody request with any body
+	AcceptPendingAllianceInviteWithBody(ctx context.Context, inviteId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AcceptPendingAllianceInvite(ctx context.Context, inviteId string, body AcceptPendingAllianceInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetAlliance request
 	GetAlliance(ctx context.Context, allianceId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2226,8 +2980,10 @@ type ClientInterface interface {
 	// ListAllianceChannelMessages request
 	ListAllianceChannelMessages(ctx context.Context, allianceId string, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateAllianceChannelMessage request
-	CreateAllianceChannelMessage(ctx context.Context, allianceId string, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateAllianceChannelMessageWithBody request with any body
+	CreateAllianceChannelMessageWithBody(ctx context.Context, allianceId string, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateAllianceChannelMessage(ctx context.Context, allianceId string, channelId string, body CreateAllianceChannelMessageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListAllianceChannelPosts request
 	ListAllianceChannelPosts(ctx context.Context, allianceId string, channelId string, params *ListAllianceChannelPostsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2371,8 +3127,10 @@ type ClientInterface interface {
 
 	CreateChannel(ctx context.Context, body CreateChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ReorderChannels request
-	ReorderChannels(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// ReorderChannelsWithBody request with any body
+	ReorderChannelsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ReorderChannels(ctx context.Context, body ReorderChannelsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListUnreadChannels request
 	ListUnreadChannels(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2380,8 +3138,10 @@ type ClientInterface interface {
 	// DeleteChannel request
 	DeleteChannel(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// UpdateChannel request
-	UpdateChannel(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// UpdateChannelWithBody request with any body
+	UpdateChannelWithBody(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateChannel(ctx context.Context, channelId string, body UpdateChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListChannelBans request
 	ListChannelBans(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2541,8 +3301,10 @@ type ClientInterface interface {
 	// GetChannelTalkPower request
 	GetChannelTalkPower(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SetChannelTalkPower request
-	SetChannelTalkPower(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// SetChannelTalkPowerWithBody request with any body
+	SetChannelTalkPowerWithBody(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetChannelTalkPower(ctx context.Context, channelId string, body SetChannelTalkPowerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// UploadChannelFileWithBody request with any body
 	UploadChannelFileWithBody(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2649,14 +3411,20 @@ type ClientInterface interface {
 
 	CreateEventSquadRoom(ctx context.Context, eventId string, body CreateEventSquadRoomJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateFederationAllianceInvite request
-	CreateFederationAllianceInvite(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateFederationAllianceInviteWithBody request with any body
+	CreateFederationAllianceInviteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeleteFederationAllianceMember request
-	DeleteFederationAllianceMember(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateFederationAllianceInvite(ctx context.Context, body CreateFederationAllianceInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateFederationAllianceMember request
-	CreateFederationAllianceMember(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DeleteFederationAllianceMemberWithBody request with any body
+	DeleteFederationAllianceMemberWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DeleteFederationAllianceMember(ctx context.Context, body DeleteFederationAllianceMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateFederationAllianceMemberWithBody request with any body
+	CreateFederationAllianceMemberWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateFederationAllianceMember(ctx context.Context, body CreateFederationAllianceMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateFederationBadgeOfferWithBody request with any body
 	CreateFederationBadgeOfferWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2669,8 +3437,10 @@ type ClientInterface interface {
 	// GetFederationBanlist request
 	GetFederationBanlist(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateFederationDm request
-	CreateFederationDm(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateFederationDmWithBody request with any body
+	CreateFederationDmWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateFederationDm(ctx context.Context, body CreateFederationDmJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateFederationDmMemberChangeWithBody request with any body
 	CreateFederationDmMemberChangeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2708,8 +3478,10 @@ type ClientInterface interface {
 	// ListFederationPeers request
 	ListFederationPeers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateFederationPeer request
-	CreateFederationPeer(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateFederationPeerWithBody request with any body
+	CreateFederationPeerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateFederationPeer(ctx context.Context, body CreateFederationPeerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListFriends request
 	ListFriends(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2739,14 +3511,18 @@ type ClientInterface interface {
 	// ListHubIcons request
 	ListHubIcons(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateHubIcon request
-	CreateHubIcon(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateHubIconWithBody request with any body
+	CreateHubIconWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateHubIcon(ctx context.Context, body CreateHubIconJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteHubIcon request
 	DeleteHubIcon(ctx context.Context, iconId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// UpdateHubIcon request
-	UpdateHubIcon(ctx context.Context, iconId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// UpdateHubIconWithBody request with any body
+	UpdateHubIconWithBody(ctx context.Context, iconId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateHubIcon(ctx context.Context, iconId string, body UpdateHubIconJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListHubMembers request
 	ListHubMembers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2778,14 +3554,20 @@ type ClientInterface interface {
 
 	SetIdentityDmBlocks(ctx context.Context, body SetIdentityDmBlocksJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ClaimIdentityPairing request
-	ClaimIdentityPairing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// ClaimIdentityPairingWithBody request with any body
+	ClaimIdentityPairingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CompleteIdentityPairing request
-	CompleteIdentityPairing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ClaimIdentityPairing(ctx context.Context, body ClaimIdentityPairingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateIdentityPairingOffer request
-	CreateIdentityPairingOffer(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CompleteIdentityPairingWithBody request with any body
+	CompleteIdentityPairingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CompleteIdentityPairing(ctx context.Context, body CompleteIdentityPairingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateIdentityPairingOfferWithBody request with any body
+	CreateIdentityPairingOfferWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateIdentityPairingOffer(ctx context.Context, body CreateIdentityPairingOfferJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetIdentityPairingStatus request
 	GetIdentityPairingStatus(ctx context.Context, token string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2793,26 +3575,34 @@ type ClientInterface interface {
 	// GetIdentityDesignation request
 	GetIdentityDesignation(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateIdentityDesignation request
-	CreateIdentityDesignation(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateIdentityDesignationWithBody request with any body
+	CreateIdentityDesignationWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateIdentityDesignation(ctx context.Context, master string, body CreateIdentityDesignationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListIdentityDevices request
 	ListIdentityDevices(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateIdentityDevice request
-	CreateIdentityDevice(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateIdentityDeviceWithBody request with any body
+	CreateIdentityDeviceWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateIdentityDevice(ctx context.Context, master string, body CreateIdentityDeviceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetIdentityPrefs request
 	GetIdentityPrefs(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SetIdentityPrefs request
-	SetIdentityPrefs(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// SetIdentityPrefsWithBody request with any body
+	SetIdentityPrefsWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetIdentityPrefs(ctx context.Context, master string, body SetIdentityPrefsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListIdentityRevocations request
 	ListIdentityRevocations(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateIdentityRevocation request
-	CreateIdentityRevocation(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateIdentityRevocationWithBody request with any body
+	CreateIdentityRevocationWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateIdentityRevocation(ctx context.Context, master string, body CreateIdentityRevocationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListIdentityCerts request
 	ListIdentityCerts(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2820,8 +3610,10 @@ type ClientInterface interface {
 	// GetIdentityDhKey request
 	GetIdentityDhKey(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SetIdentityDhKey request
-	SetIdentityDhKey(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// SetIdentityDhKeyWithBody request with any body
+	SetIdentityDhKeyWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetIdentityDhKey(ctx context.Context, pubkey string, body SetIdentityDhKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetInfo request
 	GetInfo(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2933,26 +3725,34 @@ type ClientInterface interface {
 	// GetModerationHistory request
 	GetModerationHistory(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// KickUser request
-	KickUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// KickUserWithBody request with any body
+	KickUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	KickUser(ctx context.Context, body KickUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListModerationMutes request
 	ListModerationMutes(ctx context.Context, params *ListModerationMutesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateModerationMute request
-	CreateModerationMute(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateModerationMuteWithBody request with any body
+	CreateModerationMuteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateModerationMute(ctx context.Context, body CreateModerationMuteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteModerationMute request
 	DeleteModerationMute(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// TimeoutUser request
-	TimeoutUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// TimeoutUserWithBody request with any body
+	TimeoutUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	TimeoutUser(ctx context.Context, body TimeoutUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListModerationVoiceMutes request
 	ListModerationVoiceMutes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateModerationVoiceMute request
-	CreateModerationVoiceMute(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateModerationVoiceMuteWithBody request with any body
+	CreateModerationVoiceMuteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateModerationVoiceMute(ctx context.Context, body CreateModerationVoiceMuteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteModerationVoiceMute request
 	DeleteModerationVoiceMute(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2977,8 +3777,10 @@ type ClientInterface interface {
 	// GetProfile request
 	GetProfile(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SetProfile request
-	SetProfile(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// SetProfileWithBody request with any body
+	SetProfileWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetProfile(ctx context.Context, pubkey string, body SetProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListRecoveryContacts request
 	ListRecoveryContacts(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3034,8 +3836,10 @@ type ClientInterface interface {
 	// DeleteRole request
 	DeleteRole(ctx context.Context, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// UpdateRole request
-	UpdateRole(ctx context.Context, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// UpdateRoleWithBody request with any body
+	UpdateRoleWithBody(ctx context.Context, roleId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateRole(ctx context.Context, roleId string, body UpdateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListRoleMembers request
 	ListRoleMembers(ctx context.Context, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3073,8 +3877,10 @@ type ClientInterface interface {
 	// GetSurveyCurrent request
 	GetSurveyCurrent(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SubmitSurvey request
-	SubmitSurvey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// SubmitSurveyWithBody request with any body
+	SubmitSurveyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SubmitSurvey(ctx context.Context, body SubmitSurveyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteTag request
 	DeleteTag(ctx context.Context, tagId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3392,8 +4198,20 @@ func (c *Client) RevokeAdminCert(ctx context.Context, pubkey string, reqEditors 
 	return c.Client.Do(req)
 }
 
-func (c *Client) SignAdminDirectoryListing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSignAdminDirectoryListingRequest(c.Server)
+func (c *Client) SignAdminDirectoryListingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignAdminDirectoryListingRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SignAdminDirectoryListing(ctx context.Context, body SignAdminDirectoryListingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignAdminDirectoryListingRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -3872,8 +4690,20 @@ func (c *Client) GetAdminSurvey(ctx context.Context, reqEditors ...RequestEditor
 	return c.Client.Do(req)
 }
 
-func (c *Client) SetAdminSurvey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetAdminSurveyRequest(c.Server)
+func (c *Client) SetAdminSurveyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAdminSurveyRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAdminSurvey(ctx context.Context, body SetAdminSurveyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAdminSurveyRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -3980,8 +4810,20 @@ func (c *Client) CreateAlliance(ctx context.Context, body CreateAllianceJSONRequ
 	return c.Client.Do(req)
 }
 
-func (c *Client) JoinAllianceWithInvite(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewJoinAllianceWithInviteRequest(c.Server)
+func (c *Client) JoinAllianceWithInviteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewJoinAllianceWithInviteRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) JoinAllianceWithInvite(ctx context.Context, body JoinAllianceWithInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewJoinAllianceWithInviteRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4016,8 +4858,20 @@ func (c *Client) DeclinePendingAllianceInvite(ctx context.Context, inviteId stri
 	return c.Client.Do(req)
 }
 
-func (c *Client) AcceptPendingAllianceInvite(ctx context.Context, inviteId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAcceptPendingAllianceInviteRequest(c.Server, inviteId)
+func (c *Client) AcceptPendingAllianceInviteWithBody(ctx context.Context, inviteId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAcceptPendingAllianceInviteRequestWithBody(c.Server, inviteId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AcceptPendingAllianceInvite(ctx context.Context, inviteId string, body AcceptPendingAllianceInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAcceptPendingAllianceInviteRequest(c.Server, inviteId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4100,8 +4954,20 @@ func (c *Client) ListAllianceChannelMessages(ctx context.Context, allianceId str
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateAllianceChannelMessage(ctx context.Context, allianceId string, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateAllianceChannelMessageRequest(c.Server, allianceId, channelId)
+func (c *Client) CreateAllianceChannelMessageWithBody(ctx context.Context, allianceId string, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAllianceChannelMessageRequestWithBody(c.Server, allianceId, channelId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAllianceChannelMessage(ctx context.Context, allianceId string, channelId string, body CreateAllianceChannelMessageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAllianceChannelMessageRequest(c.Server, allianceId, channelId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4748,8 +5614,20 @@ func (c *Client) CreateChannel(ctx context.Context, body CreateChannelJSONReques
 	return c.Client.Do(req)
 }
 
-func (c *Client) ReorderChannels(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewReorderChannelsRequest(c.Server)
+func (c *Client) ReorderChannelsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewReorderChannelsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ReorderChannels(ctx context.Context, body ReorderChannelsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewReorderChannelsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4784,8 +5662,20 @@ func (c *Client) DeleteChannel(ctx context.Context, channelId string, reqEditors
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdateChannel(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateChannelRequest(c.Server, channelId)
+func (c *Client) UpdateChannelWithBody(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateChannelRequestWithBody(c.Server, channelId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateChannel(ctx context.Context, channelId string, body UpdateChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateChannelRequest(c.Server, channelId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5480,8 +6370,20 @@ func (c *Client) GetChannelTalkPower(ctx context.Context, channelId string, reqE
 	return c.Client.Do(req)
 }
 
-func (c *Client) SetChannelTalkPower(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetChannelTalkPowerRequest(c.Server, channelId)
+func (c *Client) SetChannelTalkPowerWithBody(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetChannelTalkPowerRequestWithBody(c.Server, channelId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetChannelTalkPower(ctx context.Context, channelId string, body SetChannelTalkPowerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetChannelTalkPowerRequest(c.Server, channelId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5960,8 +6862,8 @@ func (c *Client) CreateEventSquadRoom(ctx context.Context, eventId string, body 
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateFederationAllianceInvite(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateFederationAllianceInviteRequest(c.Server)
+func (c *Client) CreateFederationAllianceInviteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFederationAllianceInviteRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5972,8 +6874,8 @@ func (c *Client) CreateFederationAllianceInvite(ctx context.Context, reqEditors 
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteFederationAllianceMember(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteFederationAllianceMemberRequest(c.Server)
+func (c *Client) CreateFederationAllianceInvite(ctx context.Context, body CreateFederationAllianceInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFederationAllianceInviteRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5984,8 +6886,44 @@ func (c *Client) DeleteFederationAllianceMember(ctx context.Context, reqEditors 
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateFederationAllianceMember(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateFederationAllianceMemberRequest(c.Server)
+func (c *Client) DeleteFederationAllianceMemberWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteFederationAllianceMemberRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteFederationAllianceMember(ctx context.Context, body DeleteFederationAllianceMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteFederationAllianceMemberRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateFederationAllianceMemberWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFederationAllianceMemberRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateFederationAllianceMember(ctx context.Context, body CreateFederationAllianceMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFederationAllianceMemberRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6044,8 +6982,20 @@ func (c *Client) GetFederationBanlist(ctx context.Context, reqEditors ...Request
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateFederationDm(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateFederationDmRequest(c.Server)
+func (c *Client) CreateFederationDmWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFederationDmRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateFederationDm(ctx context.Context, body CreateFederationDmJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFederationDmRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6224,8 +7174,20 @@ func (c *Client) ListFederationPeers(ctx context.Context, reqEditors ...RequestE
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateFederationPeer(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateFederationPeerRequest(c.Server)
+func (c *Client) CreateFederationPeerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFederationPeerRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateFederationPeer(ctx context.Context, body CreateFederationPeerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFederationPeerRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6356,8 +7318,20 @@ func (c *Client) ListHubIcons(ctx context.Context, reqEditors ...RequestEditorFn
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateHubIcon(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateHubIconRequest(c.Server)
+func (c *Client) CreateHubIconWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateHubIconRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateHubIcon(ctx context.Context, body CreateHubIconJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateHubIconRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6380,8 +7354,20 @@ func (c *Client) DeleteHubIcon(ctx context.Context, iconId string, reqEditors ..
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdateHubIcon(ctx context.Context, iconId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateHubIconRequest(c.Server, iconId)
+func (c *Client) UpdateHubIconWithBody(ctx context.Context, iconId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateHubIconRequestWithBody(c.Server, iconId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateHubIcon(ctx context.Context, iconId string, body UpdateHubIconJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateHubIconRequest(c.Server, iconId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6524,8 +7510,8 @@ func (c *Client) SetIdentityDmBlocks(ctx context.Context, body SetIdentityDmBloc
 	return c.Client.Do(req)
 }
 
-func (c *Client) ClaimIdentityPairing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewClaimIdentityPairingRequest(c.Server)
+func (c *Client) ClaimIdentityPairingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClaimIdentityPairingRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6536,8 +7522,8 @@ func (c *Client) ClaimIdentityPairing(ctx context.Context, reqEditors ...Request
 	return c.Client.Do(req)
 }
 
-func (c *Client) CompleteIdentityPairing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCompleteIdentityPairingRequest(c.Server)
+func (c *Client) ClaimIdentityPairing(ctx context.Context, body ClaimIdentityPairingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClaimIdentityPairingRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6548,8 +7534,44 @@ func (c *Client) CompleteIdentityPairing(ctx context.Context, reqEditors ...Requ
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateIdentityPairingOffer(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateIdentityPairingOfferRequest(c.Server)
+func (c *Client) CompleteIdentityPairingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCompleteIdentityPairingRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CompleteIdentityPairing(ctx context.Context, body CompleteIdentityPairingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCompleteIdentityPairingRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateIdentityPairingOfferWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityPairingOfferRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateIdentityPairingOffer(ctx context.Context, body CreateIdentityPairingOfferJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityPairingOfferRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6584,8 +7606,20 @@ func (c *Client) GetIdentityDesignation(ctx context.Context, master string, reqE
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateIdentityDesignation(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateIdentityDesignationRequest(c.Server, master)
+func (c *Client) CreateIdentityDesignationWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityDesignationRequestWithBody(c.Server, master, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateIdentityDesignation(ctx context.Context, master string, body CreateIdentityDesignationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityDesignationRequest(c.Server, master, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6608,8 +7642,20 @@ func (c *Client) ListIdentityDevices(ctx context.Context, master string, reqEdit
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateIdentityDevice(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateIdentityDeviceRequest(c.Server, master)
+func (c *Client) CreateIdentityDeviceWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityDeviceRequestWithBody(c.Server, master, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateIdentityDevice(ctx context.Context, master string, body CreateIdentityDeviceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityDeviceRequest(c.Server, master, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6632,8 +7678,20 @@ func (c *Client) GetIdentityPrefs(ctx context.Context, master string, reqEditors
 	return c.Client.Do(req)
 }
 
-func (c *Client) SetIdentityPrefs(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetIdentityPrefsRequest(c.Server, master)
+func (c *Client) SetIdentityPrefsWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetIdentityPrefsRequestWithBody(c.Server, master, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetIdentityPrefs(ctx context.Context, master string, body SetIdentityPrefsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetIdentityPrefsRequest(c.Server, master, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6656,8 +7714,20 @@ func (c *Client) ListIdentityRevocations(ctx context.Context, master string, req
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateIdentityRevocation(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateIdentityRevocationRequest(c.Server, master)
+func (c *Client) CreateIdentityRevocationWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityRevocationRequestWithBody(c.Server, master, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateIdentityRevocation(ctx context.Context, master string, body CreateIdentityRevocationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityRevocationRequest(c.Server, master, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6692,8 +7762,20 @@ func (c *Client) GetIdentityDhKey(ctx context.Context, pubkey string, reqEditors
 	return c.Client.Do(req)
 }
 
-func (c *Client) SetIdentityDhKey(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetIdentityDhKeyRequest(c.Server, pubkey)
+func (c *Client) SetIdentityDhKeyWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetIdentityDhKeyRequestWithBody(c.Server, pubkey, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetIdentityDhKey(ctx context.Context, pubkey string, body SetIdentityDhKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetIdentityDhKeyRequest(c.Server, pubkey, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7184,8 +8266,20 @@ func (c *Client) GetModerationHistory(ctx context.Context, pubkey string, reqEdi
 	return c.Client.Do(req)
 }
 
-func (c *Client) KickUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewKickUserRequest(c.Server)
+func (c *Client) KickUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewKickUserRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) KickUser(ctx context.Context, body KickUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewKickUserRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7208,8 +8302,20 @@ func (c *Client) ListModerationMutes(ctx context.Context, params *ListModeration
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateModerationMute(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateModerationMuteRequest(c.Server)
+func (c *Client) CreateModerationMuteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateModerationMuteRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateModerationMute(ctx context.Context, body CreateModerationMuteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateModerationMuteRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7232,8 +8338,20 @@ func (c *Client) DeleteModerationMute(ctx context.Context, targetKey string, req
 	return c.Client.Do(req)
 }
 
-func (c *Client) TimeoutUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewTimeoutUserRequest(c.Server)
+func (c *Client) TimeoutUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTimeoutUserRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) TimeoutUser(ctx context.Context, body TimeoutUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTimeoutUserRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7256,8 +8374,20 @@ func (c *Client) ListModerationVoiceMutes(ctx context.Context, reqEditors ...Req
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateModerationVoiceMute(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateModerationVoiceMuteRequest(c.Server)
+func (c *Client) CreateModerationVoiceMuteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateModerationVoiceMuteRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateModerationVoiceMute(ctx context.Context, body CreateModerationVoiceMuteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateModerationVoiceMuteRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7364,8 +8494,20 @@ func (c *Client) GetProfile(ctx context.Context, pubkey string, reqEditors ...Re
 	return c.Client.Do(req)
 }
 
-func (c *Client) SetProfile(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetProfileRequest(c.Server, pubkey)
+func (c *Client) SetProfileWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetProfileRequestWithBody(c.Server, pubkey, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetProfile(ctx context.Context, pubkey string, body SetProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetProfileRequest(c.Server, pubkey, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7616,8 +8758,20 @@ func (c *Client) DeleteRole(ctx context.Context, roleId string, reqEditors ...Re
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdateRole(ctx context.Context, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateRoleRequest(c.Server, roleId)
+func (c *Client) UpdateRoleWithBody(ctx context.Context, roleId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateRoleRequestWithBody(c.Server, roleId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateRole(ctx context.Context, roleId string, body UpdateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateRoleRequest(c.Server, roleId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7784,8 +8938,20 @@ func (c *Client) GetSurveyCurrent(ctx context.Context, reqEditors ...RequestEdit
 	return c.Client.Do(req)
 }
 
-func (c *Client) SubmitSurvey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSubmitSurveyRequest(c.Server)
+func (c *Client) SubmitSurveyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSubmitSurveyRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SubmitSurvey(ctx context.Context, body SubmitSurveyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSubmitSurveyRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8665,8 +9831,19 @@ func NewRevokeAdminCertRequest(server string, pubkey string) (*http.Request, err
 	return req, nil
 }
 
-// NewSignAdminDirectoryListingRequest generates requests for SignAdminDirectoryListing
-func NewSignAdminDirectoryListingRequest(server string) (*http.Request, error) {
+// NewSignAdminDirectoryListingRequest calls the generic SignAdminDirectoryListing builder with application/json body
+func NewSignAdminDirectoryListingRequest(server string, body SignAdminDirectoryListingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSignAdminDirectoryListingRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSignAdminDirectoryListingRequestWithBody generates requests for SignAdminDirectoryListing with any type of body
+func NewSignAdminDirectoryListingRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -8684,10 +9861,12 @@ func NewSignAdminDirectoryListingRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -9792,8 +10971,19 @@ func NewGetAdminSurveyRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewSetAdminSurveyRequest generates requests for SetAdminSurvey
-func NewSetAdminSurveyRequest(server string) (*http.Request, error) {
+// NewSetAdminSurveyRequest calls the generic SetAdminSurvey builder with application/json body
+func NewSetAdminSurveyRequest(server string, body SetAdminSurveyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetAdminSurveyRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSetAdminSurveyRequestWithBody generates requests for SetAdminSurvey with any type of body
+func NewSetAdminSurveyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -9811,10 +11001,12 @@ func NewSetAdminSurveyRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", queryURL.String(), nil)
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -10021,8 +11213,19 @@ func NewCreateAllianceRequestWithBody(server string, contentType string, body io
 	return req, nil
 }
 
-// NewJoinAllianceWithInviteRequest generates requests for JoinAllianceWithInvite
-func NewJoinAllianceWithInviteRequest(server string) (*http.Request, error) {
+// NewJoinAllianceWithInviteRequest calls the generic JoinAllianceWithInvite builder with application/json body
+func NewJoinAllianceWithInviteRequest(server string, body JoinAllianceWithInviteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewJoinAllianceWithInviteRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewJoinAllianceWithInviteRequestWithBody generates requests for JoinAllianceWithInvite with any type of body
+func NewJoinAllianceWithInviteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -10040,10 +11243,12 @@ func NewJoinAllianceWithInviteRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -10109,8 +11314,19 @@ func NewDeclinePendingAllianceInviteRequest(server string, inviteId string) (*ht
 	return req, nil
 }
 
-// NewAcceptPendingAllianceInviteRequest generates requests for AcceptPendingAllianceInvite
-func NewAcceptPendingAllianceInviteRequest(server string, inviteId string) (*http.Request, error) {
+// NewAcceptPendingAllianceInviteRequest calls the generic AcceptPendingAllianceInvite builder with application/json body
+func NewAcceptPendingAllianceInviteRequest(server string, inviteId string, body AcceptPendingAllianceInviteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAcceptPendingAllianceInviteRequestWithBody(server, inviteId, "application/json", bodyReader)
+}
+
+// NewAcceptPendingAllianceInviteRequestWithBody generates requests for AcceptPendingAllianceInvite with any type of body
+func NewAcceptPendingAllianceInviteRequestWithBody(server string, inviteId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -10135,10 +11351,12 @@ func NewAcceptPendingAllianceInviteRequest(server string, inviteId string) (*htt
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -10340,8 +11558,19 @@ func NewListAllianceChannelMessagesRequest(server string, allianceId string, cha
 	return req, nil
 }
 
-// NewCreateAllianceChannelMessageRequest generates requests for CreateAllianceChannelMessage
-func NewCreateAllianceChannelMessageRequest(server string, allianceId string, channelId string) (*http.Request, error) {
+// NewCreateAllianceChannelMessageRequest calls the generic CreateAllianceChannelMessage builder with application/json body
+func NewCreateAllianceChannelMessageRequest(server string, allianceId string, channelId string, body CreateAllianceChannelMessageJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateAllianceChannelMessageRequestWithBody(server, allianceId, channelId, "application/json", bodyReader)
+}
+
+// NewCreateAllianceChannelMessageRequestWithBody generates requests for CreateAllianceChannelMessage with any type of body
+func NewCreateAllianceChannelMessageRequestWithBody(server string, allianceId string, channelId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -10373,10 +11602,12 @@ func NewCreateAllianceChannelMessageRequest(server string, allianceId string, ch
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -11949,8 +13180,19 @@ func NewCreateChannelRequestWithBody(server string, contentType string, body io.
 	return req, nil
 }
 
-// NewReorderChannelsRequest generates requests for ReorderChannels
-func NewReorderChannelsRequest(server string) (*http.Request, error) {
+// NewReorderChannelsRequest calls the generic ReorderChannels builder with application/json body
+func NewReorderChannelsRequest(server string, body ReorderChannelsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewReorderChannelsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewReorderChannelsRequestWithBody generates requests for ReorderChannels with any type of body
+func NewReorderChannelsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11968,10 +13210,12 @@ func NewReorderChannelsRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -12037,8 +13281,19 @@ func NewDeleteChannelRequest(server string, channelId string) (*http.Request, er
 	return req, nil
 }
 
-// NewUpdateChannelRequest generates requests for UpdateChannel
-func NewUpdateChannelRequest(server string, channelId string) (*http.Request, error) {
+// NewUpdateChannelRequest calls the generic UpdateChannel builder with application/json body
+func NewUpdateChannelRequest(server string, channelId string, body UpdateChannelJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateChannelRequestWithBody(server, channelId, "application/json", bodyReader)
+}
+
+// NewUpdateChannelRequestWithBody generates requests for UpdateChannel with any type of body
+func NewUpdateChannelRequestWithBody(server string, channelId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -12063,10 +13318,12 @@ func NewUpdateChannelRequest(server string, channelId string) (*http.Request, er
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PATCH", queryURL.String(), nil)
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -14175,8 +15432,19 @@ func NewGetChannelTalkPowerRequest(server string, channelId string) (*http.Reque
 	return req, nil
 }
 
-// NewSetChannelTalkPowerRequest generates requests for SetChannelTalkPower
-func NewSetChannelTalkPowerRequest(server string, channelId string) (*http.Request, error) {
+// NewSetChannelTalkPowerRequest calls the generic SetChannelTalkPower builder with application/json body
+func NewSetChannelTalkPowerRequest(server string, channelId string, body SetChannelTalkPowerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetChannelTalkPowerRequestWithBody(server, channelId, "application/json", bodyReader)
+}
+
+// NewSetChannelTalkPowerRequestWithBody generates requests for SetChannelTalkPower with any type of body
+func NewSetChannelTalkPowerRequestWithBody(server string, channelId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -14201,10 +15469,12 @@ func NewSetChannelTalkPowerRequest(server string, channelId string) (*http.Reque
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -15408,8 +16678,19 @@ func NewCreateEventSquadRoomRequestWithBody(server string, eventId string, conte
 	return req, nil
 }
 
-// NewCreateFederationAllianceInviteRequest generates requests for CreateFederationAllianceInvite
-func NewCreateFederationAllianceInviteRequest(server string) (*http.Request, error) {
+// NewCreateFederationAllianceInviteRequest calls the generic CreateFederationAllianceInvite builder with application/json body
+func NewCreateFederationAllianceInviteRequest(server string, body CreateFederationAllianceInviteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateFederationAllianceInviteRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateFederationAllianceInviteRequestWithBody generates requests for CreateFederationAllianceInvite with any type of body
+func NewCreateFederationAllianceInviteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -15427,16 +16708,29 @@ func NewCreateFederationAllianceInviteRequest(server string) (*http.Request, err
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
 
+	req.Header.Add("Content-Type", contentType)
+
 	return req, nil
 }
 
-// NewDeleteFederationAllianceMemberRequest generates requests for DeleteFederationAllianceMember
-func NewDeleteFederationAllianceMemberRequest(server string) (*http.Request, error) {
+// NewDeleteFederationAllianceMemberRequest calls the generic DeleteFederationAllianceMember builder with application/json body
+func NewDeleteFederationAllianceMemberRequest(server string, body DeleteFederationAllianceMemberJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDeleteFederationAllianceMemberRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewDeleteFederationAllianceMemberRequestWithBody generates requests for DeleteFederationAllianceMember with any type of body
+func NewDeleteFederationAllianceMemberRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -15454,16 +16748,29 @@ func NewDeleteFederationAllianceMemberRequest(server string) (*http.Request, err
 		return nil, err
 	}
 
-	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	req, err := http.NewRequest("DELETE", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
 
+	req.Header.Add("Content-Type", contentType)
+
 	return req, nil
 }
 
-// NewCreateFederationAllianceMemberRequest generates requests for CreateFederationAllianceMember
-func NewCreateFederationAllianceMemberRequest(server string) (*http.Request, error) {
+// NewCreateFederationAllianceMemberRequest calls the generic CreateFederationAllianceMember builder with application/json body
+func NewCreateFederationAllianceMemberRequest(server string, body CreateFederationAllianceMemberJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateFederationAllianceMemberRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateFederationAllianceMemberRequestWithBody generates requests for CreateFederationAllianceMember with any type of body
+func NewCreateFederationAllianceMemberRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -15481,10 +16788,12 @@ func NewCreateFederationAllianceMemberRequest(server string) (*http.Request, err
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -15605,8 +16914,19 @@ func NewGetFederationBanlistRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewCreateFederationDmRequest generates requests for CreateFederationDm
-func NewCreateFederationDmRequest(server string) (*http.Request, error) {
+// NewCreateFederationDmRequest calls the generic CreateFederationDm builder with application/json body
+func NewCreateFederationDmRequest(server string, body CreateFederationDmJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateFederationDmRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateFederationDmRequestWithBody generates requests for CreateFederationDm with any type of body
+func NewCreateFederationDmRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -15624,10 +16944,12 @@ func NewCreateFederationDmRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -15996,8 +17318,19 @@ func NewListFederationPeersRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewCreateFederationPeerRequest generates requests for CreateFederationPeer
-func NewCreateFederationPeerRequest(server string) (*http.Request, error) {
+// NewCreateFederationPeerRequest calls the generic CreateFederationPeer builder with application/json body
+func NewCreateFederationPeerRequest(server string, body CreateFederationPeerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateFederationPeerRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateFederationPeerRequestWithBody generates requests for CreateFederationPeer with any type of body
+func NewCreateFederationPeerRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -16015,10 +17348,12 @@ func NewCreateFederationPeerRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -16279,8 +17614,19 @@ func NewListHubIconsRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewCreateHubIconRequest generates requests for CreateHubIcon
-func NewCreateHubIconRequest(server string) (*http.Request, error) {
+// NewCreateHubIconRequest calls the generic CreateHubIcon builder with application/json body
+func NewCreateHubIconRequest(server string, body CreateHubIconJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateHubIconRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateHubIconRequestWithBody generates requests for CreateHubIcon with any type of body
+func NewCreateHubIconRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -16298,10 +17644,12 @@ func NewCreateHubIconRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -16340,8 +17688,19 @@ func NewDeleteHubIconRequest(server string, iconId string) (*http.Request, error
 	return req, nil
 }
 
-// NewUpdateHubIconRequest generates requests for UpdateHubIcon
-func NewUpdateHubIconRequest(server string, iconId string) (*http.Request, error) {
+// NewUpdateHubIconRequest calls the generic UpdateHubIcon builder with application/json body
+func NewUpdateHubIconRequest(server string, iconId string, body UpdateHubIconJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateHubIconRequestWithBody(server, iconId, "application/json", bodyReader)
+}
+
+// NewUpdateHubIconRequestWithBody generates requests for UpdateHubIcon with any type of body
+func NewUpdateHubIconRequestWithBody(server string, iconId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -16366,10 +17725,12 @@ func NewUpdateHubIconRequest(server string, iconId string) (*http.Request, error
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PATCH", queryURL.String(), nil)
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -16674,8 +18035,19 @@ func NewSetIdentityDmBlocksRequestWithBody(server string, contentType string, bo
 	return req, nil
 }
 
-// NewClaimIdentityPairingRequest generates requests for ClaimIdentityPairing
-func NewClaimIdentityPairingRequest(server string) (*http.Request, error) {
+// NewClaimIdentityPairingRequest calls the generic ClaimIdentityPairing builder with application/json body
+func NewClaimIdentityPairingRequest(server string, body ClaimIdentityPairingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewClaimIdentityPairingRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewClaimIdentityPairingRequestWithBody generates requests for ClaimIdentityPairing with any type of body
+func NewClaimIdentityPairingRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -16693,16 +18065,29 @@ func NewClaimIdentityPairingRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
 
+	req.Header.Add("Content-Type", contentType)
+
 	return req, nil
 }
 
-// NewCompleteIdentityPairingRequest generates requests for CompleteIdentityPairing
-func NewCompleteIdentityPairingRequest(server string) (*http.Request, error) {
+// NewCompleteIdentityPairingRequest calls the generic CompleteIdentityPairing builder with application/json body
+func NewCompleteIdentityPairingRequest(server string, body CompleteIdentityPairingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCompleteIdentityPairingRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCompleteIdentityPairingRequestWithBody generates requests for CompleteIdentityPairing with any type of body
+func NewCompleteIdentityPairingRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -16720,16 +18105,29 @@ func NewCompleteIdentityPairingRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
 
+	req.Header.Add("Content-Type", contentType)
+
 	return req, nil
 }
 
-// NewCreateIdentityPairingOfferRequest generates requests for CreateIdentityPairingOffer
-func NewCreateIdentityPairingOfferRequest(server string) (*http.Request, error) {
+// NewCreateIdentityPairingOfferRequest calls the generic CreateIdentityPairingOffer builder with application/json body
+func NewCreateIdentityPairingOfferRequest(server string, body CreateIdentityPairingOfferJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateIdentityPairingOfferRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateIdentityPairingOfferRequestWithBody generates requests for CreateIdentityPairingOffer with any type of body
+func NewCreateIdentityPairingOfferRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -16747,10 +18145,12 @@ func NewCreateIdentityPairingOfferRequest(server string) (*http.Request, error) 
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -16823,8 +18223,19 @@ func NewGetIdentityDesignationRequest(server string, master string) (*http.Reque
 	return req, nil
 }
 
-// NewCreateIdentityDesignationRequest generates requests for CreateIdentityDesignation
-func NewCreateIdentityDesignationRequest(server string, master string) (*http.Request, error) {
+// NewCreateIdentityDesignationRequest calls the generic CreateIdentityDesignation builder with application/json body
+func NewCreateIdentityDesignationRequest(server string, master string, body CreateIdentityDesignationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateIdentityDesignationRequestWithBody(server, master, "application/json", bodyReader)
+}
+
+// NewCreateIdentityDesignationRequestWithBody generates requests for CreateIdentityDesignation with any type of body
+func NewCreateIdentityDesignationRequestWithBody(server string, master string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -16849,10 +18260,12 @@ func NewCreateIdentityDesignationRequest(server string, master string) (*http.Re
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -16891,8 +18304,19 @@ func NewListIdentityDevicesRequest(server string, master string) (*http.Request,
 	return req, nil
 }
 
-// NewCreateIdentityDeviceRequest generates requests for CreateIdentityDevice
-func NewCreateIdentityDeviceRequest(server string, master string) (*http.Request, error) {
+// NewCreateIdentityDeviceRequest calls the generic CreateIdentityDevice builder with application/json body
+func NewCreateIdentityDeviceRequest(server string, master string, body CreateIdentityDeviceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateIdentityDeviceRequestWithBody(server, master, "application/json", bodyReader)
+}
+
+// NewCreateIdentityDeviceRequestWithBody generates requests for CreateIdentityDevice with any type of body
+func NewCreateIdentityDeviceRequestWithBody(server string, master string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -16917,10 +18341,12 @@ func NewCreateIdentityDeviceRequest(server string, master string) (*http.Request
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -16959,8 +18385,19 @@ func NewGetIdentityPrefsRequest(server string, master string) (*http.Request, er
 	return req, nil
 }
 
-// NewSetIdentityPrefsRequest generates requests for SetIdentityPrefs
-func NewSetIdentityPrefsRequest(server string, master string) (*http.Request, error) {
+// NewSetIdentityPrefsRequest calls the generic SetIdentityPrefs builder with application/json body
+func NewSetIdentityPrefsRequest(server string, master string, body SetIdentityPrefsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetIdentityPrefsRequestWithBody(server, master, "application/json", bodyReader)
+}
+
+// NewSetIdentityPrefsRequestWithBody generates requests for SetIdentityPrefs with any type of body
+func NewSetIdentityPrefsRequestWithBody(server string, master string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -16985,10 +18422,12 @@ func NewSetIdentityPrefsRequest(server string, master string) (*http.Request, er
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", queryURL.String(), nil)
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -17027,8 +18466,19 @@ func NewListIdentityRevocationsRequest(server string, master string) (*http.Requ
 	return req, nil
 }
 
-// NewCreateIdentityRevocationRequest generates requests for CreateIdentityRevocation
-func NewCreateIdentityRevocationRequest(server string, master string) (*http.Request, error) {
+// NewCreateIdentityRevocationRequest calls the generic CreateIdentityRevocation builder with application/json body
+func NewCreateIdentityRevocationRequest(server string, master string, body CreateIdentityRevocationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateIdentityRevocationRequestWithBody(server, master, "application/json", bodyReader)
+}
+
+// NewCreateIdentityRevocationRequestWithBody generates requests for CreateIdentityRevocation with any type of body
+func NewCreateIdentityRevocationRequestWithBody(server string, master string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -17053,10 +18503,12 @@ func NewCreateIdentityRevocationRequest(server string, master string) (*http.Req
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -17129,8 +18581,19 @@ func NewGetIdentityDhKeyRequest(server string, pubkey string) (*http.Request, er
 	return req, nil
 }
 
-// NewSetIdentityDhKeyRequest generates requests for SetIdentityDhKey
-func NewSetIdentityDhKeyRequest(server string, pubkey string) (*http.Request, error) {
+// NewSetIdentityDhKeyRequest calls the generic SetIdentityDhKey builder with application/json body
+func NewSetIdentityDhKeyRequest(server string, pubkey string, body SetIdentityDhKeyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetIdentityDhKeyRequestWithBody(server, pubkey, "application/json", bodyReader)
+}
+
+// NewSetIdentityDhKeyRequestWithBody generates requests for SetIdentityDhKey with any type of body
+func NewSetIdentityDhKeyRequestWithBody(server string, pubkey string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -17155,10 +18618,12 @@ func NewSetIdentityDhKeyRequest(server string, pubkey string) (*http.Request, er
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", queryURL.String(), nil)
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -18280,8 +19745,19 @@ func NewGetModerationHistoryRequest(server string, pubkey string) (*http.Request
 	return req, nil
 }
 
-// NewKickUserRequest generates requests for KickUser
-func NewKickUserRequest(server string) (*http.Request, error) {
+// NewKickUserRequest calls the generic KickUser builder with application/json body
+func NewKickUserRequest(server string, body KickUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewKickUserRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewKickUserRequestWithBody generates requests for KickUser with any type of body
+func NewKickUserRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -18299,10 +19775,12 @@ func NewKickUserRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -18372,8 +19850,19 @@ func NewListModerationMutesRequest(server string, params *ListModerationMutesPar
 	return req, nil
 }
 
-// NewCreateModerationMuteRequest generates requests for CreateModerationMute
-func NewCreateModerationMuteRequest(server string) (*http.Request, error) {
+// NewCreateModerationMuteRequest calls the generic CreateModerationMute builder with application/json body
+func NewCreateModerationMuteRequest(server string, body CreateModerationMuteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateModerationMuteRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateModerationMuteRequestWithBody generates requests for CreateModerationMute with any type of body
+func NewCreateModerationMuteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -18391,10 +19880,12 @@ func NewCreateModerationMuteRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -18433,8 +19924,19 @@ func NewDeleteModerationMuteRequest(server string, targetKey string) (*http.Requ
 	return req, nil
 }
 
-// NewTimeoutUserRequest generates requests for TimeoutUser
-func NewTimeoutUserRequest(server string) (*http.Request, error) {
+// NewTimeoutUserRequest calls the generic TimeoutUser builder with application/json body
+func NewTimeoutUserRequest(server string, body TimeoutUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewTimeoutUserRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewTimeoutUserRequestWithBody generates requests for TimeoutUser with any type of body
+func NewTimeoutUserRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -18452,10 +19954,12 @@ func NewTimeoutUserRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -18487,8 +19991,19 @@ func NewListModerationVoiceMutesRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewCreateModerationVoiceMuteRequest generates requests for CreateModerationVoiceMute
-func NewCreateModerationVoiceMuteRequest(server string) (*http.Request, error) {
+// NewCreateModerationVoiceMuteRequest calls the generic CreateModerationVoiceMute builder with application/json body
+func NewCreateModerationVoiceMuteRequest(server string, body CreateModerationVoiceMuteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateModerationVoiceMuteRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateModerationVoiceMuteRequestWithBody generates requests for CreateModerationVoiceMute with any type of body
+func NewCreateModerationVoiceMuteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -18506,10 +20021,12 @@ func NewCreateModerationVoiceMuteRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -18769,8 +20286,19 @@ func NewGetProfileRequest(server string, pubkey string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewSetProfileRequest generates requests for SetProfile
-func NewSetProfileRequest(server string, pubkey string) (*http.Request, error) {
+// NewSetProfileRequest calls the generic SetProfile builder with application/json body
+func NewSetProfileRequest(server string, pubkey string, body SetProfileJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetProfileRequestWithBody(server, pubkey, "application/json", bodyReader)
+}
+
+// NewSetProfileRequestWithBody generates requests for SetProfile with any type of body
+func NewSetProfileRequestWithBody(server string, pubkey string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18795,10 +20323,12 @@ func NewSetProfileRequest(server string, pubkey string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", queryURL.String(), nil)
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -19301,8 +20831,19 @@ func NewDeleteRoleRequest(server string, roleId string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewUpdateRoleRequest generates requests for UpdateRole
-func NewUpdateRoleRequest(server string, roleId string) (*http.Request, error) {
+// NewUpdateRoleRequest calls the generic UpdateRole builder with application/json body
+func NewUpdateRoleRequest(server string, roleId string, body UpdateRoleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateRoleRequestWithBody(server, roleId, "application/json", bodyReader)
+}
+
+// NewUpdateRoleRequestWithBody generates requests for UpdateRole with any type of body
+func NewUpdateRoleRequestWithBody(server string, roleId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -19327,10 +20868,12 @@ func NewUpdateRoleRequest(server string, roleId string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PATCH", queryURL.String(), nil)
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -19708,8 +21251,19 @@ func NewGetSurveyCurrentRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewSubmitSurveyRequest generates requests for SubmitSurvey
-func NewSubmitSurveyRequest(server string) (*http.Request, error) {
+// NewSubmitSurveyRequest calls the generic SubmitSurvey builder with application/json body
+func NewSubmitSurveyRequest(server string, body SubmitSurveyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSubmitSurveyRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSubmitSurveyRequestWithBody generates requests for SubmitSurvey with any type of body
+func NewSubmitSurveyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -19727,10 +21281,12 @@ func NewSubmitSurveyRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -20472,8 +22028,10 @@ type ClientWithResponsesInterface interface {
 	// RevokeAdminCertWithResponse request
 	RevokeAdminCertWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*RevokeAdminCertResponse, error)
 
-	// SignAdminDirectoryListingWithResponse request
-	SignAdminDirectoryListingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SignAdminDirectoryListingResponse, error)
+	// SignAdminDirectoryListingWithBodyWithResponse request with any body
+	SignAdminDirectoryListingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignAdminDirectoryListingResponse, error)
+
+	SignAdminDirectoryListingWithResponse(ctx context.Context, body SignAdminDirectoryListingJSONRequestBody, reqEditors ...RequestEditorFn) (*SignAdminDirectoryListingResponse, error)
 
 	// CreateAdminEmojiWithBodyWithResponse request with any body
 	CreateAdminEmojiWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAdminEmojiResponse, error)
@@ -20581,8 +22139,10 @@ type ClientWithResponsesInterface interface {
 	// GetAdminSurveyWithResponse request
 	GetAdminSurveyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminSurveyResponse, error)
 
-	// SetAdminSurveyWithResponse request
-	SetAdminSurveyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SetAdminSurveyResponse, error)
+	// SetAdminSurveyWithBodyWithResponse request with any body
+	SetAdminSurveyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAdminSurveyResponse, error)
+
+	SetAdminSurveyWithResponse(ctx context.Context, body SetAdminSurveyJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAdminSurveyResponse, error)
 
 	// ListAdminSurveyResponsesWithResponse request
 	ListAdminSurveyResponsesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminSurveyResponsesResponse, error)
@@ -20606,8 +22166,10 @@ type ClientWithResponsesInterface interface {
 
 	CreateAllianceWithResponse(ctx context.Context, body CreateAllianceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAllianceResponse, error)
 
-	// JoinAllianceWithInviteWithResponse request
-	JoinAllianceWithInviteWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*JoinAllianceWithInviteResponse, error)
+	// JoinAllianceWithInviteWithBodyWithResponse request with any body
+	JoinAllianceWithInviteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*JoinAllianceWithInviteResponse, error)
+
+	JoinAllianceWithInviteWithResponse(ctx context.Context, body JoinAllianceWithInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*JoinAllianceWithInviteResponse, error)
 
 	// ListPendingAllianceInvitesWithResponse request
 	ListPendingAllianceInvitesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListPendingAllianceInvitesResponse, error)
@@ -20615,8 +22177,10 @@ type ClientWithResponsesInterface interface {
 	// DeclinePendingAllianceInviteWithResponse request
 	DeclinePendingAllianceInviteWithResponse(ctx context.Context, inviteId string, reqEditors ...RequestEditorFn) (*DeclinePendingAllianceInviteResponse, error)
 
-	// AcceptPendingAllianceInviteWithResponse request
-	AcceptPendingAllianceInviteWithResponse(ctx context.Context, inviteId string, reqEditors ...RequestEditorFn) (*AcceptPendingAllianceInviteResponse, error)
+	// AcceptPendingAllianceInviteWithBodyWithResponse request with any body
+	AcceptPendingAllianceInviteWithBodyWithResponse(ctx context.Context, inviteId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AcceptPendingAllianceInviteResponse, error)
+
+	AcceptPendingAllianceInviteWithResponse(ctx context.Context, inviteId string, body AcceptPendingAllianceInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*AcceptPendingAllianceInviteResponse, error)
 
 	// GetAllianceWithResponse request
 	GetAllianceWithResponse(ctx context.Context, allianceId string, reqEditors ...RequestEditorFn) (*GetAllianceResponse, error)
@@ -20635,8 +22199,10 @@ type ClientWithResponsesInterface interface {
 	// ListAllianceChannelMessagesWithResponse request
 	ListAllianceChannelMessagesWithResponse(ctx context.Context, allianceId string, channelId string, reqEditors ...RequestEditorFn) (*ListAllianceChannelMessagesResponse, error)
 
-	// CreateAllianceChannelMessageWithResponse request
-	CreateAllianceChannelMessageWithResponse(ctx context.Context, allianceId string, channelId string, reqEditors ...RequestEditorFn) (*CreateAllianceChannelMessageResponse, error)
+	// CreateAllianceChannelMessageWithBodyWithResponse request with any body
+	CreateAllianceChannelMessageWithBodyWithResponse(ctx context.Context, allianceId string, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAllianceChannelMessageResponse, error)
+
+	CreateAllianceChannelMessageWithResponse(ctx context.Context, allianceId string, channelId string, body CreateAllianceChannelMessageJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAllianceChannelMessageResponse, error)
 
 	// ListAllianceChannelPostsWithResponse request
 	ListAllianceChannelPostsWithResponse(ctx context.Context, allianceId string, channelId string, params *ListAllianceChannelPostsParams, reqEditors ...RequestEditorFn) (*ListAllianceChannelPostsResponse, error)
@@ -20780,8 +22346,10 @@ type ClientWithResponsesInterface interface {
 
 	CreateChannelWithResponse(ctx context.Context, body CreateChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateChannelResponse, error)
 
-	// ReorderChannelsWithResponse request
-	ReorderChannelsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ReorderChannelsResponse, error)
+	// ReorderChannelsWithBodyWithResponse request with any body
+	ReorderChannelsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ReorderChannelsResponse, error)
+
+	ReorderChannelsWithResponse(ctx context.Context, body ReorderChannelsJSONRequestBody, reqEditors ...RequestEditorFn) (*ReorderChannelsResponse, error)
 
 	// ListUnreadChannelsWithResponse request
 	ListUnreadChannelsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListUnreadChannelsResponse, error)
@@ -20789,8 +22357,10 @@ type ClientWithResponsesInterface interface {
 	// DeleteChannelWithResponse request
 	DeleteChannelWithResponse(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*DeleteChannelResponse, error)
 
-	// UpdateChannelWithResponse request
-	UpdateChannelWithResponse(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*UpdateChannelResponse, error)
+	// UpdateChannelWithBodyWithResponse request with any body
+	UpdateChannelWithBodyWithResponse(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateChannelResponse, error)
+
+	UpdateChannelWithResponse(ctx context.Context, channelId string, body UpdateChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateChannelResponse, error)
 
 	// ListChannelBansWithResponse request
 	ListChannelBansWithResponse(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*ListChannelBansResponse, error)
@@ -20950,8 +22520,10 @@ type ClientWithResponsesInterface interface {
 	// GetChannelTalkPowerWithResponse request
 	GetChannelTalkPowerWithResponse(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*GetChannelTalkPowerResponse, error)
 
-	// SetChannelTalkPowerWithResponse request
-	SetChannelTalkPowerWithResponse(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*SetChannelTalkPowerResponse, error)
+	// SetChannelTalkPowerWithBodyWithResponse request with any body
+	SetChannelTalkPowerWithBodyWithResponse(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetChannelTalkPowerResponse, error)
+
+	SetChannelTalkPowerWithResponse(ctx context.Context, channelId string, body SetChannelTalkPowerJSONRequestBody, reqEditors ...RequestEditorFn) (*SetChannelTalkPowerResponse, error)
 
 	// UploadChannelFileWithBodyWithResponse request with any body
 	UploadChannelFileWithBodyWithResponse(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UploadChannelFileResponse, error)
@@ -21058,14 +22630,20 @@ type ClientWithResponsesInterface interface {
 
 	CreateEventSquadRoomWithResponse(ctx context.Context, eventId string, body CreateEventSquadRoomJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEventSquadRoomResponse, error)
 
-	// CreateFederationAllianceInviteWithResponse request
-	CreateFederationAllianceInviteWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateFederationAllianceInviteResponse, error)
+	// CreateFederationAllianceInviteWithBodyWithResponse request with any body
+	CreateFederationAllianceInviteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationAllianceInviteResponse, error)
 
-	// DeleteFederationAllianceMemberWithResponse request
-	DeleteFederationAllianceMemberWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DeleteFederationAllianceMemberResponse, error)
+	CreateFederationAllianceInviteWithResponse(ctx context.Context, body CreateFederationAllianceInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFederationAllianceInviteResponse, error)
 
-	// CreateFederationAllianceMemberWithResponse request
-	CreateFederationAllianceMemberWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateFederationAllianceMemberResponse, error)
+	// DeleteFederationAllianceMemberWithBodyWithResponse request with any body
+	DeleteFederationAllianceMemberWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteFederationAllianceMemberResponse, error)
+
+	DeleteFederationAllianceMemberWithResponse(ctx context.Context, body DeleteFederationAllianceMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*DeleteFederationAllianceMemberResponse, error)
+
+	// CreateFederationAllianceMemberWithBodyWithResponse request with any body
+	CreateFederationAllianceMemberWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationAllianceMemberResponse, error)
+
+	CreateFederationAllianceMemberWithResponse(ctx context.Context, body CreateFederationAllianceMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFederationAllianceMemberResponse, error)
 
 	// CreateFederationBadgeOfferWithBodyWithResponse request with any body
 	CreateFederationBadgeOfferWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationBadgeOfferResponse, error)
@@ -21078,8 +22656,10 @@ type ClientWithResponsesInterface interface {
 	// GetFederationBanlistWithResponse request
 	GetFederationBanlistWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetFederationBanlistResponse, error)
 
-	// CreateFederationDmWithResponse request
-	CreateFederationDmWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateFederationDmResponse, error)
+	// CreateFederationDmWithBodyWithResponse request with any body
+	CreateFederationDmWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationDmResponse, error)
+
+	CreateFederationDmWithResponse(ctx context.Context, body CreateFederationDmJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFederationDmResponse, error)
 
 	// CreateFederationDmMemberChangeWithBodyWithResponse request with any body
 	CreateFederationDmMemberChangeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationDmMemberChangeResponse, error)
@@ -21117,8 +22697,10 @@ type ClientWithResponsesInterface interface {
 	// ListFederationPeersWithResponse request
 	ListFederationPeersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListFederationPeersResponse, error)
 
-	// CreateFederationPeerWithResponse request
-	CreateFederationPeerWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error)
+	// CreateFederationPeerWithBodyWithResponse request with any body
+	CreateFederationPeerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error)
+
+	CreateFederationPeerWithResponse(ctx context.Context, body CreateFederationPeerJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error)
 
 	// ListFriendsWithResponse request
 	ListFriendsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListFriendsResponse, error)
@@ -21148,14 +22730,18 @@ type ClientWithResponsesInterface interface {
 	// ListHubIconsWithResponse request
 	ListHubIconsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListHubIconsResponse, error)
 
-	// CreateHubIconWithResponse request
-	CreateHubIconWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateHubIconResponse, error)
+	// CreateHubIconWithBodyWithResponse request with any body
+	CreateHubIconWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateHubIconResponse, error)
+
+	CreateHubIconWithResponse(ctx context.Context, body CreateHubIconJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateHubIconResponse, error)
 
 	// DeleteHubIconWithResponse request
 	DeleteHubIconWithResponse(ctx context.Context, iconId string, reqEditors ...RequestEditorFn) (*DeleteHubIconResponse, error)
 
-	// UpdateHubIconWithResponse request
-	UpdateHubIconWithResponse(ctx context.Context, iconId string, reqEditors ...RequestEditorFn) (*UpdateHubIconResponse, error)
+	// UpdateHubIconWithBodyWithResponse request with any body
+	UpdateHubIconWithBodyWithResponse(ctx context.Context, iconId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateHubIconResponse, error)
+
+	UpdateHubIconWithResponse(ctx context.Context, iconId string, body UpdateHubIconJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateHubIconResponse, error)
 
 	// ListHubMembersWithResponse request
 	ListHubMembersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListHubMembersResponse, error)
@@ -21187,14 +22773,20 @@ type ClientWithResponsesInterface interface {
 
 	SetIdentityDmBlocksWithResponse(ctx context.Context, body SetIdentityDmBlocksJSONRequestBody, reqEditors ...RequestEditorFn) (*SetIdentityDmBlocksResponse, error)
 
-	// ClaimIdentityPairingWithResponse request
-	ClaimIdentityPairingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ClaimIdentityPairingResponse, error)
+	// ClaimIdentityPairingWithBodyWithResponse request with any body
+	ClaimIdentityPairingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClaimIdentityPairingResponse, error)
 
-	// CompleteIdentityPairingWithResponse request
-	CompleteIdentityPairingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CompleteIdentityPairingResponse, error)
+	ClaimIdentityPairingWithResponse(ctx context.Context, body ClaimIdentityPairingJSONRequestBody, reqEditors ...RequestEditorFn) (*ClaimIdentityPairingResponse, error)
 
-	// CreateIdentityPairingOfferWithResponse request
-	CreateIdentityPairingOfferWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateIdentityPairingOfferResponse, error)
+	// CompleteIdentityPairingWithBodyWithResponse request with any body
+	CompleteIdentityPairingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CompleteIdentityPairingResponse, error)
+
+	CompleteIdentityPairingWithResponse(ctx context.Context, body CompleteIdentityPairingJSONRequestBody, reqEditors ...RequestEditorFn) (*CompleteIdentityPairingResponse, error)
+
+	// CreateIdentityPairingOfferWithBodyWithResponse request with any body
+	CreateIdentityPairingOfferWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityPairingOfferResponse, error)
+
+	CreateIdentityPairingOfferWithResponse(ctx context.Context, body CreateIdentityPairingOfferJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityPairingOfferResponse, error)
 
 	// GetIdentityPairingStatusWithResponse request
 	GetIdentityPairingStatusWithResponse(ctx context.Context, token string, reqEditors ...RequestEditorFn) (*GetIdentityPairingStatusResponse, error)
@@ -21202,26 +22794,34 @@ type ClientWithResponsesInterface interface {
 	// GetIdentityDesignationWithResponse request
 	GetIdentityDesignationWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*GetIdentityDesignationResponse, error)
 
-	// CreateIdentityDesignationWithResponse request
-	CreateIdentityDesignationWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error)
+	// CreateIdentityDesignationWithBodyWithResponse request with any body
+	CreateIdentityDesignationWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error)
+
+	CreateIdentityDesignationWithResponse(ctx context.Context, master string, body CreateIdentityDesignationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error)
 
 	// ListIdentityDevicesWithResponse request
 	ListIdentityDevicesWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*ListIdentityDevicesResponse, error)
 
-	// CreateIdentityDeviceWithResponse request
-	CreateIdentityDeviceWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error)
+	// CreateIdentityDeviceWithBodyWithResponse request with any body
+	CreateIdentityDeviceWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error)
+
+	CreateIdentityDeviceWithResponse(ctx context.Context, master string, body CreateIdentityDeviceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error)
 
 	// GetIdentityPrefsWithResponse request
 	GetIdentityPrefsWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*GetIdentityPrefsResponse, error)
 
-	// SetIdentityPrefsWithResponse request
-	SetIdentityPrefsWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error)
+	// SetIdentityPrefsWithBodyWithResponse request with any body
+	SetIdentityPrefsWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error)
+
+	SetIdentityPrefsWithResponse(ctx context.Context, master string, body SetIdentityPrefsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error)
 
 	// ListIdentityRevocationsWithResponse request
 	ListIdentityRevocationsWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*ListIdentityRevocationsResponse, error)
 
-	// CreateIdentityRevocationWithResponse request
-	CreateIdentityRevocationWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error)
+	// CreateIdentityRevocationWithBodyWithResponse request with any body
+	CreateIdentityRevocationWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error)
+
+	CreateIdentityRevocationWithResponse(ctx context.Context, master string, body CreateIdentityRevocationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error)
 
 	// ListIdentityCertsWithResponse request
 	ListIdentityCertsWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*ListIdentityCertsResponse, error)
@@ -21229,8 +22829,10 @@ type ClientWithResponsesInterface interface {
 	// GetIdentityDhKeyWithResponse request
 	GetIdentityDhKeyWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetIdentityDhKeyResponse, error)
 
-	// SetIdentityDhKeyWithResponse request
-	SetIdentityDhKeyWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*SetIdentityDhKeyResponse, error)
+	// SetIdentityDhKeyWithBodyWithResponse request with any body
+	SetIdentityDhKeyWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetIdentityDhKeyResponse, error)
+
+	SetIdentityDhKeyWithResponse(ctx context.Context, pubkey string, body SetIdentityDhKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*SetIdentityDhKeyResponse, error)
 
 	// GetInfoWithResponse request
 	GetInfoWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetInfoResponse, error)
@@ -21342,26 +22944,34 @@ type ClientWithResponsesInterface interface {
 	// GetModerationHistoryWithResponse request
 	GetModerationHistoryWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetModerationHistoryResponse, error)
 
-	// KickUserWithResponse request
-	KickUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*KickUserResponse, error)
+	// KickUserWithBodyWithResponse request with any body
+	KickUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*KickUserResponse, error)
+
+	KickUserWithResponse(ctx context.Context, body KickUserJSONRequestBody, reqEditors ...RequestEditorFn) (*KickUserResponse, error)
 
 	// ListModerationMutesWithResponse request
 	ListModerationMutesWithResponse(ctx context.Context, params *ListModerationMutesParams, reqEditors ...RequestEditorFn) (*ListModerationMutesResponse, error)
 
-	// CreateModerationMuteWithResponse request
-	CreateModerationMuteWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateModerationMuteResponse, error)
+	// CreateModerationMuteWithBodyWithResponse request with any body
+	CreateModerationMuteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateModerationMuteResponse, error)
+
+	CreateModerationMuteWithResponse(ctx context.Context, body CreateModerationMuteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateModerationMuteResponse, error)
 
 	// DeleteModerationMuteWithResponse request
 	DeleteModerationMuteWithResponse(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*DeleteModerationMuteResponse, error)
 
-	// TimeoutUserWithResponse request
-	TimeoutUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*TimeoutUserResponse, error)
+	// TimeoutUserWithBodyWithResponse request with any body
+	TimeoutUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TimeoutUserResponse, error)
+
+	TimeoutUserWithResponse(ctx context.Context, body TimeoutUserJSONRequestBody, reqEditors ...RequestEditorFn) (*TimeoutUserResponse, error)
 
 	// ListModerationVoiceMutesWithResponse request
 	ListModerationVoiceMutesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListModerationVoiceMutesResponse, error)
 
-	// CreateModerationVoiceMuteWithResponse request
-	CreateModerationVoiceMuteWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateModerationVoiceMuteResponse, error)
+	// CreateModerationVoiceMuteWithBodyWithResponse request with any body
+	CreateModerationVoiceMuteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateModerationVoiceMuteResponse, error)
+
+	CreateModerationVoiceMuteWithResponse(ctx context.Context, body CreateModerationVoiceMuteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateModerationVoiceMuteResponse, error)
 
 	// DeleteModerationVoiceMuteWithResponse request
 	DeleteModerationVoiceMuteWithResponse(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*DeleteModerationVoiceMuteResponse, error)
@@ -21386,8 +22996,10 @@ type ClientWithResponsesInterface interface {
 	// GetProfileWithResponse request
 	GetProfileWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetProfileResponse, error)
 
-	// SetProfileWithResponse request
-	SetProfileWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*SetProfileResponse, error)
+	// SetProfileWithBodyWithResponse request with any body
+	SetProfileWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetProfileResponse, error)
+
+	SetProfileWithResponse(ctx context.Context, pubkey string, body SetProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*SetProfileResponse, error)
 
 	// ListRecoveryContactsWithResponse request
 	ListRecoveryContactsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRecoveryContactsResponse, error)
@@ -21443,8 +23055,10 @@ type ClientWithResponsesInterface interface {
 	// DeleteRoleWithResponse request
 	DeleteRoleWithResponse(ctx context.Context, roleId string, reqEditors ...RequestEditorFn) (*DeleteRoleResponse, error)
 
-	// UpdateRoleWithResponse request
-	UpdateRoleWithResponse(ctx context.Context, roleId string, reqEditors ...RequestEditorFn) (*UpdateRoleResponse, error)
+	// UpdateRoleWithBodyWithResponse request with any body
+	UpdateRoleWithBodyWithResponse(ctx context.Context, roleId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateRoleResponse, error)
+
+	UpdateRoleWithResponse(ctx context.Context, roleId string, body UpdateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateRoleResponse, error)
 
 	// ListRoleMembersWithResponse request
 	ListRoleMembersWithResponse(ctx context.Context, roleId string, reqEditors ...RequestEditorFn) (*ListRoleMembersResponse, error)
@@ -21482,8 +23096,10 @@ type ClientWithResponsesInterface interface {
 	// GetSurveyCurrentWithResponse request
 	GetSurveyCurrentWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSurveyCurrentResponse, error)
 
-	// SubmitSurveyWithResponse request
-	SubmitSurveyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SubmitSurveyResponse, error)
+	// SubmitSurveyWithBodyWithResponse request with any body
+	SubmitSurveyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SubmitSurveyResponse, error)
+
+	SubmitSurveyWithResponse(ctx context.Context, body SubmitSurveyJSONRequestBody, reqEditors ...RequestEditorFn) (*SubmitSurveyResponse, error)
 
 	// DeleteTagWithResponse request
 	DeleteTagWithResponse(ctx context.Context, tagId string, reqEditors ...RequestEditorFn) (*DeleteTagResponse, error)
@@ -26280,7 +27896,7 @@ func (r UpdateHubIconResponse) StatusCode() int {
 type ListHubMembersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]User
+	JSON200      *[]MemberAdminInfo
 }
 
 // Status returns HTTPResponse.Status
@@ -28489,7 +30105,7 @@ func (r GetUploadResponse) StatusCode() int {
 type ListUsersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]User
+	JSON200      *[]UserInfo
 }
 
 // Status returns HTTPResponse.Status
@@ -28966,9 +30582,17 @@ func (c *ClientWithResponses) RevokeAdminCertWithResponse(ctx context.Context, p
 	return ParseRevokeAdminCertResponse(rsp)
 }
 
-// SignAdminDirectoryListingWithResponse request returning *SignAdminDirectoryListingResponse
-func (c *ClientWithResponses) SignAdminDirectoryListingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SignAdminDirectoryListingResponse, error) {
-	rsp, err := c.SignAdminDirectoryListing(ctx, reqEditors...)
+// SignAdminDirectoryListingWithBodyWithResponse request with arbitrary body returning *SignAdminDirectoryListingResponse
+func (c *ClientWithResponses) SignAdminDirectoryListingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignAdminDirectoryListingResponse, error) {
+	rsp, err := c.SignAdminDirectoryListingWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignAdminDirectoryListingResponse(rsp)
+}
+
+func (c *ClientWithResponses) SignAdminDirectoryListingWithResponse(ctx context.Context, body SignAdminDirectoryListingJSONRequestBody, reqEditors ...RequestEditorFn) (*SignAdminDirectoryListingResponse, error) {
+	rsp, err := c.SignAdminDirectoryListing(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -29315,9 +30939,17 @@ func (c *ClientWithResponses) GetAdminSurveyWithResponse(ctx context.Context, re
 	return ParseGetAdminSurveyResponse(rsp)
 }
 
-// SetAdminSurveyWithResponse request returning *SetAdminSurveyResponse
-func (c *ClientWithResponses) SetAdminSurveyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SetAdminSurveyResponse, error) {
-	rsp, err := c.SetAdminSurvey(ctx, reqEditors...)
+// SetAdminSurveyWithBodyWithResponse request with arbitrary body returning *SetAdminSurveyResponse
+func (c *ClientWithResponses) SetAdminSurveyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAdminSurveyResponse, error) {
+	rsp, err := c.SetAdminSurveyWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAdminSurveyResponse(rsp)
+}
+
+func (c *ClientWithResponses) SetAdminSurveyWithResponse(ctx context.Context, body SetAdminSurveyJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAdminSurveyResponse, error) {
+	rsp, err := c.SetAdminSurvey(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -29394,9 +31026,17 @@ func (c *ClientWithResponses) CreateAllianceWithResponse(ctx context.Context, bo
 	return ParseCreateAllianceResponse(rsp)
 }
 
-// JoinAllianceWithInviteWithResponse request returning *JoinAllianceWithInviteResponse
-func (c *ClientWithResponses) JoinAllianceWithInviteWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*JoinAllianceWithInviteResponse, error) {
-	rsp, err := c.JoinAllianceWithInvite(ctx, reqEditors...)
+// JoinAllianceWithInviteWithBodyWithResponse request with arbitrary body returning *JoinAllianceWithInviteResponse
+func (c *ClientWithResponses) JoinAllianceWithInviteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*JoinAllianceWithInviteResponse, error) {
+	rsp, err := c.JoinAllianceWithInviteWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseJoinAllianceWithInviteResponse(rsp)
+}
+
+func (c *ClientWithResponses) JoinAllianceWithInviteWithResponse(ctx context.Context, body JoinAllianceWithInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*JoinAllianceWithInviteResponse, error) {
+	rsp, err := c.JoinAllianceWithInvite(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -29421,9 +31061,17 @@ func (c *ClientWithResponses) DeclinePendingAllianceInviteWithResponse(ctx conte
 	return ParseDeclinePendingAllianceInviteResponse(rsp)
 }
 
-// AcceptPendingAllianceInviteWithResponse request returning *AcceptPendingAllianceInviteResponse
-func (c *ClientWithResponses) AcceptPendingAllianceInviteWithResponse(ctx context.Context, inviteId string, reqEditors ...RequestEditorFn) (*AcceptPendingAllianceInviteResponse, error) {
-	rsp, err := c.AcceptPendingAllianceInvite(ctx, inviteId, reqEditors...)
+// AcceptPendingAllianceInviteWithBodyWithResponse request with arbitrary body returning *AcceptPendingAllianceInviteResponse
+func (c *ClientWithResponses) AcceptPendingAllianceInviteWithBodyWithResponse(ctx context.Context, inviteId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AcceptPendingAllianceInviteResponse, error) {
+	rsp, err := c.AcceptPendingAllianceInviteWithBody(ctx, inviteId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAcceptPendingAllianceInviteResponse(rsp)
+}
+
+func (c *ClientWithResponses) AcceptPendingAllianceInviteWithResponse(ctx context.Context, inviteId string, body AcceptPendingAllianceInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*AcceptPendingAllianceInviteResponse, error) {
+	rsp, err := c.AcceptPendingAllianceInvite(ctx, inviteId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -29483,9 +31131,17 @@ func (c *ClientWithResponses) ListAllianceChannelMessagesWithResponse(ctx contex
 	return ParseListAllianceChannelMessagesResponse(rsp)
 }
 
-// CreateAllianceChannelMessageWithResponse request returning *CreateAllianceChannelMessageResponse
-func (c *ClientWithResponses) CreateAllianceChannelMessageWithResponse(ctx context.Context, allianceId string, channelId string, reqEditors ...RequestEditorFn) (*CreateAllianceChannelMessageResponse, error) {
-	rsp, err := c.CreateAllianceChannelMessage(ctx, allianceId, channelId, reqEditors...)
+// CreateAllianceChannelMessageWithBodyWithResponse request with arbitrary body returning *CreateAllianceChannelMessageResponse
+func (c *ClientWithResponses) CreateAllianceChannelMessageWithBodyWithResponse(ctx context.Context, allianceId string, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAllianceChannelMessageResponse, error) {
+	rsp, err := c.CreateAllianceChannelMessageWithBody(ctx, allianceId, channelId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAllianceChannelMessageResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateAllianceChannelMessageWithResponse(ctx context.Context, allianceId string, channelId string, body CreateAllianceChannelMessageJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAllianceChannelMessageResponse, error) {
+	rsp, err := c.CreateAllianceChannelMessage(ctx, allianceId, channelId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -29952,9 +31608,17 @@ func (c *ClientWithResponses) CreateChannelWithResponse(ctx context.Context, bod
 	return ParseCreateChannelResponse(rsp)
 }
 
-// ReorderChannelsWithResponse request returning *ReorderChannelsResponse
-func (c *ClientWithResponses) ReorderChannelsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ReorderChannelsResponse, error) {
-	rsp, err := c.ReorderChannels(ctx, reqEditors...)
+// ReorderChannelsWithBodyWithResponse request with arbitrary body returning *ReorderChannelsResponse
+func (c *ClientWithResponses) ReorderChannelsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ReorderChannelsResponse, error) {
+	rsp, err := c.ReorderChannelsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseReorderChannelsResponse(rsp)
+}
+
+func (c *ClientWithResponses) ReorderChannelsWithResponse(ctx context.Context, body ReorderChannelsJSONRequestBody, reqEditors ...RequestEditorFn) (*ReorderChannelsResponse, error) {
+	rsp, err := c.ReorderChannels(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -29979,9 +31643,17 @@ func (c *ClientWithResponses) DeleteChannelWithResponse(ctx context.Context, cha
 	return ParseDeleteChannelResponse(rsp)
 }
 
-// UpdateChannelWithResponse request returning *UpdateChannelResponse
-func (c *ClientWithResponses) UpdateChannelWithResponse(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*UpdateChannelResponse, error) {
-	rsp, err := c.UpdateChannel(ctx, channelId, reqEditors...)
+// UpdateChannelWithBodyWithResponse request with arbitrary body returning *UpdateChannelResponse
+func (c *ClientWithResponses) UpdateChannelWithBodyWithResponse(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateChannelResponse, error) {
+	rsp, err := c.UpdateChannelWithBody(ctx, channelId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateChannelResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateChannelWithResponse(ctx context.Context, channelId string, body UpdateChannelJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateChannelResponse, error) {
+	rsp, err := c.UpdateChannel(ctx, channelId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -30488,9 +32160,17 @@ func (c *ClientWithResponses) GetChannelTalkPowerWithResponse(ctx context.Contex
 	return ParseGetChannelTalkPowerResponse(rsp)
 }
 
-// SetChannelTalkPowerWithResponse request returning *SetChannelTalkPowerResponse
-func (c *ClientWithResponses) SetChannelTalkPowerWithResponse(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*SetChannelTalkPowerResponse, error) {
-	rsp, err := c.SetChannelTalkPower(ctx, channelId, reqEditors...)
+// SetChannelTalkPowerWithBodyWithResponse request with arbitrary body returning *SetChannelTalkPowerResponse
+func (c *ClientWithResponses) SetChannelTalkPowerWithBodyWithResponse(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetChannelTalkPowerResponse, error) {
+	rsp, err := c.SetChannelTalkPowerWithBody(ctx, channelId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetChannelTalkPowerResponse(rsp)
+}
+
+func (c *ClientWithResponses) SetChannelTalkPowerWithResponse(ctx context.Context, channelId string, body SetChannelTalkPowerJSONRequestBody, reqEditors ...RequestEditorFn) (*SetChannelTalkPowerResponse, error) {
+	rsp, err := c.SetChannelTalkPower(ctx, channelId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -30836,27 +32516,51 @@ func (c *ClientWithResponses) CreateEventSquadRoomWithResponse(ctx context.Conte
 	return ParseCreateEventSquadRoomResponse(rsp)
 }
 
-// CreateFederationAllianceInviteWithResponse request returning *CreateFederationAllianceInviteResponse
-func (c *ClientWithResponses) CreateFederationAllianceInviteWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateFederationAllianceInviteResponse, error) {
-	rsp, err := c.CreateFederationAllianceInvite(ctx, reqEditors...)
+// CreateFederationAllianceInviteWithBodyWithResponse request with arbitrary body returning *CreateFederationAllianceInviteResponse
+func (c *ClientWithResponses) CreateFederationAllianceInviteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationAllianceInviteResponse, error) {
+	rsp, err := c.CreateFederationAllianceInviteWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseCreateFederationAllianceInviteResponse(rsp)
 }
 
-// DeleteFederationAllianceMemberWithResponse request returning *DeleteFederationAllianceMemberResponse
-func (c *ClientWithResponses) DeleteFederationAllianceMemberWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DeleteFederationAllianceMemberResponse, error) {
-	rsp, err := c.DeleteFederationAllianceMember(ctx, reqEditors...)
+func (c *ClientWithResponses) CreateFederationAllianceInviteWithResponse(ctx context.Context, body CreateFederationAllianceInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFederationAllianceInviteResponse, error) {
+	rsp, err := c.CreateFederationAllianceInvite(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateFederationAllianceInviteResponse(rsp)
+}
+
+// DeleteFederationAllianceMemberWithBodyWithResponse request with arbitrary body returning *DeleteFederationAllianceMemberResponse
+func (c *ClientWithResponses) DeleteFederationAllianceMemberWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteFederationAllianceMemberResponse, error) {
+	rsp, err := c.DeleteFederationAllianceMemberWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseDeleteFederationAllianceMemberResponse(rsp)
 }
 
-// CreateFederationAllianceMemberWithResponse request returning *CreateFederationAllianceMemberResponse
-func (c *ClientWithResponses) CreateFederationAllianceMemberWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateFederationAllianceMemberResponse, error) {
-	rsp, err := c.CreateFederationAllianceMember(ctx, reqEditors...)
+func (c *ClientWithResponses) DeleteFederationAllianceMemberWithResponse(ctx context.Context, body DeleteFederationAllianceMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*DeleteFederationAllianceMemberResponse, error) {
+	rsp, err := c.DeleteFederationAllianceMember(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteFederationAllianceMemberResponse(rsp)
+}
+
+// CreateFederationAllianceMemberWithBodyWithResponse request with arbitrary body returning *CreateFederationAllianceMemberResponse
+func (c *ClientWithResponses) CreateFederationAllianceMemberWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationAllianceMemberResponse, error) {
+	rsp, err := c.CreateFederationAllianceMemberWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateFederationAllianceMemberResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateFederationAllianceMemberWithResponse(ctx context.Context, body CreateFederationAllianceMemberJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFederationAllianceMemberResponse, error) {
+	rsp, err := c.CreateFederationAllianceMember(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -30898,9 +32602,17 @@ func (c *ClientWithResponses) GetFederationBanlistWithResponse(ctx context.Conte
 	return ParseGetFederationBanlistResponse(rsp)
 }
 
-// CreateFederationDmWithResponse request returning *CreateFederationDmResponse
-func (c *ClientWithResponses) CreateFederationDmWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateFederationDmResponse, error) {
-	rsp, err := c.CreateFederationDm(ctx, reqEditors...)
+// CreateFederationDmWithBodyWithResponse request with arbitrary body returning *CreateFederationDmResponse
+func (c *ClientWithResponses) CreateFederationDmWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationDmResponse, error) {
+	rsp, err := c.CreateFederationDmWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateFederationDmResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateFederationDmWithResponse(ctx context.Context, body CreateFederationDmJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFederationDmResponse, error) {
+	rsp, err := c.CreateFederationDm(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31027,9 +32739,17 @@ func (c *ClientWithResponses) ListFederationPeersWithResponse(ctx context.Contex
 	return ParseListFederationPeersResponse(rsp)
 }
 
-// CreateFederationPeerWithResponse request returning *CreateFederationPeerResponse
-func (c *ClientWithResponses) CreateFederationPeerWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error) {
-	rsp, err := c.CreateFederationPeer(ctx, reqEditors...)
+// CreateFederationPeerWithBodyWithResponse request with arbitrary body returning *CreateFederationPeerResponse
+func (c *ClientWithResponses) CreateFederationPeerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error) {
+	rsp, err := c.CreateFederationPeerWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateFederationPeerResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateFederationPeerWithResponse(ctx context.Context, body CreateFederationPeerJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error) {
+	rsp, err := c.CreateFederationPeer(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31124,9 +32844,17 @@ func (c *ClientWithResponses) ListHubIconsWithResponse(ctx context.Context, reqE
 	return ParseListHubIconsResponse(rsp)
 }
 
-// CreateHubIconWithResponse request returning *CreateHubIconResponse
-func (c *ClientWithResponses) CreateHubIconWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateHubIconResponse, error) {
-	rsp, err := c.CreateHubIcon(ctx, reqEditors...)
+// CreateHubIconWithBodyWithResponse request with arbitrary body returning *CreateHubIconResponse
+func (c *ClientWithResponses) CreateHubIconWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateHubIconResponse, error) {
+	rsp, err := c.CreateHubIconWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateHubIconResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateHubIconWithResponse(ctx context.Context, body CreateHubIconJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateHubIconResponse, error) {
+	rsp, err := c.CreateHubIcon(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31142,9 +32870,17 @@ func (c *ClientWithResponses) DeleteHubIconWithResponse(ctx context.Context, ico
 	return ParseDeleteHubIconResponse(rsp)
 }
 
-// UpdateHubIconWithResponse request returning *UpdateHubIconResponse
-func (c *ClientWithResponses) UpdateHubIconWithResponse(ctx context.Context, iconId string, reqEditors ...RequestEditorFn) (*UpdateHubIconResponse, error) {
-	rsp, err := c.UpdateHubIcon(ctx, iconId, reqEditors...)
+// UpdateHubIconWithBodyWithResponse request with arbitrary body returning *UpdateHubIconResponse
+func (c *ClientWithResponses) UpdateHubIconWithBodyWithResponse(ctx context.Context, iconId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateHubIconResponse, error) {
+	rsp, err := c.UpdateHubIconWithBody(ctx, iconId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateHubIconResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateHubIconWithResponse(ctx context.Context, iconId string, body UpdateHubIconJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateHubIconResponse, error) {
+	rsp, err := c.UpdateHubIcon(ctx, iconId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31247,27 +32983,51 @@ func (c *ClientWithResponses) SetIdentityDmBlocksWithResponse(ctx context.Contex
 	return ParseSetIdentityDmBlocksResponse(rsp)
 }
 
-// ClaimIdentityPairingWithResponse request returning *ClaimIdentityPairingResponse
-func (c *ClientWithResponses) ClaimIdentityPairingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ClaimIdentityPairingResponse, error) {
-	rsp, err := c.ClaimIdentityPairing(ctx, reqEditors...)
+// ClaimIdentityPairingWithBodyWithResponse request with arbitrary body returning *ClaimIdentityPairingResponse
+func (c *ClientWithResponses) ClaimIdentityPairingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClaimIdentityPairingResponse, error) {
+	rsp, err := c.ClaimIdentityPairingWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseClaimIdentityPairingResponse(rsp)
 }
 
-// CompleteIdentityPairingWithResponse request returning *CompleteIdentityPairingResponse
-func (c *ClientWithResponses) CompleteIdentityPairingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CompleteIdentityPairingResponse, error) {
-	rsp, err := c.CompleteIdentityPairing(ctx, reqEditors...)
+func (c *ClientWithResponses) ClaimIdentityPairingWithResponse(ctx context.Context, body ClaimIdentityPairingJSONRequestBody, reqEditors ...RequestEditorFn) (*ClaimIdentityPairingResponse, error) {
+	rsp, err := c.ClaimIdentityPairing(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseClaimIdentityPairingResponse(rsp)
+}
+
+// CompleteIdentityPairingWithBodyWithResponse request with arbitrary body returning *CompleteIdentityPairingResponse
+func (c *ClientWithResponses) CompleteIdentityPairingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CompleteIdentityPairingResponse, error) {
+	rsp, err := c.CompleteIdentityPairingWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseCompleteIdentityPairingResponse(rsp)
 }
 
-// CreateIdentityPairingOfferWithResponse request returning *CreateIdentityPairingOfferResponse
-func (c *ClientWithResponses) CreateIdentityPairingOfferWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateIdentityPairingOfferResponse, error) {
-	rsp, err := c.CreateIdentityPairingOffer(ctx, reqEditors...)
+func (c *ClientWithResponses) CompleteIdentityPairingWithResponse(ctx context.Context, body CompleteIdentityPairingJSONRequestBody, reqEditors ...RequestEditorFn) (*CompleteIdentityPairingResponse, error) {
+	rsp, err := c.CompleteIdentityPairing(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCompleteIdentityPairingResponse(rsp)
+}
+
+// CreateIdentityPairingOfferWithBodyWithResponse request with arbitrary body returning *CreateIdentityPairingOfferResponse
+func (c *ClientWithResponses) CreateIdentityPairingOfferWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityPairingOfferResponse, error) {
+	rsp, err := c.CreateIdentityPairingOfferWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateIdentityPairingOfferResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateIdentityPairingOfferWithResponse(ctx context.Context, body CreateIdentityPairingOfferJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityPairingOfferResponse, error) {
+	rsp, err := c.CreateIdentityPairingOffer(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31292,9 +33052,17 @@ func (c *ClientWithResponses) GetIdentityDesignationWithResponse(ctx context.Con
 	return ParseGetIdentityDesignationResponse(rsp)
 }
 
-// CreateIdentityDesignationWithResponse request returning *CreateIdentityDesignationResponse
-func (c *ClientWithResponses) CreateIdentityDesignationWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error) {
-	rsp, err := c.CreateIdentityDesignation(ctx, master, reqEditors...)
+// CreateIdentityDesignationWithBodyWithResponse request with arbitrary body returning *CreateIdentityDesignationResponse
+func (c *ClientWithResponses) CreateIdentityDesignationWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error) {
+	rsp, err := c.CreateIdentityDesignationWithBody(ctx, master, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateIdentityDesignationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateIdentityDesignationWithResponse(ctx context.Context, master string, body CreateIdentityDesignationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error) {
+	rsp, err := c.CreateIdentityDesignation(ctx, master, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31310,9 +33078,17 @@ func (c *ClientWithResponses) ListIdentityDevicesWithResponse(ctx context.Contex
 	return ParseListIdentityDevicesResponse(rsp)
 }
 
-// CreateIdentityDeviceWithResponse request returning *CreateIdentityDeviceResponse
-func (c *ClientWithResponses) CreateIdentityDeviceWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error) {
-	rsp, err := c.CreateIdentityDevice(ctx, master, reqEditors...)
+// CreateIdentityDeviceWithBodyWithResponse request with arbitrary body returning *CreateIdentityDeviceResponse
+func (c *ClientWithResponses) CreateIdentityDeviceWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error) {
+	rsp, err := c.CreateIdentityDeviceWithBody(ctx, master, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateIdentityDeviceResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateIdentityDeviceWithResponse(ctx context.Context, master string, body CreateIdentityDeviceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error) {
+	rsp, err := c.CreateIdentityDevice(ctx, master, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31328,9 +33104,17 @@ func (c *ClientWithResponses) GetIdentityPrefsWithResponse(ctx context.Context, 
 	return ParseGetIdentityPrefsResponse(rsp)
 }
 
-// SetIdentityPrefsWithResponse request returning *SetIdentityPrefsResponse
-func (c *ClientWithResponses) SetIdentityPrefsWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error) {
-	rsp, err := c.SetIdentityPrefs(ctx, master, reqEditors...)
+// SetIdentityPrefsWithBodyWithResponse request with arbitrary body returning *SetIdentityPrefsResponse
+func (c *ClientWithResponses) SetIdentityPrefsWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error) {
+	rsp, err := c.SetIdentityPrefsWithBody(ctx, master, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetIdentityPrefsResponse(rsp)
+}
+
+func (c *ClientWithResponses) SetIdentityPrefsWithResponse(ctx context.Context, master string, body SetIdentityPrefsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error) {
+	rsp, err := c.SetIdentityPrefs(ctx, master, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31346,9 +33130,17 @@ func (c *ClientWithResponses) ListIdentityRevocationsWithResponse(ctx context.Co
 	return ParseListIdentityRevocationsResponse(rsp)
 }
 
-// CreateIdentityRevocationWithResponse request returning *CreateIdentityRevocationResponse
-func (c *ClientWithResponses) CreateIdentityRevocationWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error) {
-	rsp, err := c.CreateIdentityRevocation(ctx, master, reqEditors...)
+// CreateIdentityRevocationWithBodyWithResponse request with arbitrary body returning *CreateIdentityRevocationResponse
+func (c *ClientWithResponses) CreateIdentityRevocationWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error) {
+	rsp, err := c.CreateIdentityRevocationWithBody(ctx, master, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateIdentityRevocationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateIdentityRevocationWithResponse(ctx context.Context, master string, body CreateIdentityRevocationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error) {
+	rsp, err := c.CreateIdentityRevocation(ctx, master, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31373,9 +33165,17 @@ func (c *ClientWithResponses) GetIdentityDhKeyWithResponse(ctx context.Context, 
 	return ParseGetIdentityDhKeyResponse(rsp)
 }
 
-// SetIdentityDhKeyWithResponse request returning *SetIdentityDhKeyResponse
-func (c *ClientWithResponses) SetIdentityDhKeyWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*SetIdentityDhKeyResponse, error) {
-	rsp, err := c.SetIdentityDhKey(ctx, pubkey, reqEditors...)
+// SetIdentityDhKeyWithBodyWithResponse request with arbitrary body returning *SetIdentityDhKeyResponse
+func (c *ClientWithResponses) SetIdentityDhKeyWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetIdentityDhKeyResponse, error) {
+	rsp, err := c.SetIdentityDhKeyWithBody(ctx, pubkey, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetIdentityDhKeyResponse(rsp)
+}
+
+func (c *ClientWithResponses) SetIdentityDhKeyWithResponse(ctx context.Context, pubkey string, body SetIdentityDhKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*SetIdentityDhKeyResponse, error) {
+	rsp, err := c.SetIdentityDhKey(ctx, pubkey, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31732,9 +33532,17 @@ func (c *ClientWithResponses) GetModerationHistoryWithResponse(ctx context.Conte
 	return ParseGetModerationHistoryResponse(rsp)
 }
 
-// KickUserWithResponse request returning *KickUserResponse
-func (c *ClientWithResponses) KickUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*KickUserResponse, error) {
-	rsp, err := c.KickUser(ctx, reqEditors...)
+// KickUserWithBodyWithResponse request with arbitrary body returning *KickUserResponse
+func (c *ClientWithResponses) KickUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*KickUserResponse, error) {
+	rsp, err := c.KickUserWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseKickUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) KickUserWithResponse(ctx context.Context, body KickUserJSONRequestBody, reqEditors ...RequestEditorFn) (*KickUserResponse, error) {
+	rsp, err := c.KickUser(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31750,9 +33558,17 @@ func (c *ClientWithResponses) ListModerationMutesWithResponse(ctx context.Contex
 	return ParseListModerationMutesResponse(rsp)
 }
 
-// CreateModerationMuteWithResponse request returning *CreateModerationMuteResponse
-func (c *ClientWithResponses) CreateModerationMuteWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateModerationMuteResponse, error) {
-	rsp, err := c.CreateModerationMute(ctx, reqEditors...)
+// CreateModerationMuteWithBodyWithResponse request with arbitrary body returning *CreateModerationMuteResponse
+func (c *ClientWithResponses) CreateModerationMuteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateModerationMuteResponse, error) {
+	rsp, err := c.CreateModerationMuteWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateModerationMuteResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateModerationMuteWithResponse(ctx context.Context, body CreateModerationMuteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateModerationMuteResponse, error) {
+	rsp, err := c.CreateModerationMute(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31768,9 +33584,17 @@ func (c *ClientWithResponses) DeleteModerationMuteWithResponse(ctx context.Conte
 	return ParseDeleteModerationMuteResponse(rsp)
 }
 
-// TimeoutUserWithResponse request returning *TimeoutUserResponse
-func (c *ClientWithResponses) TimeoutUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*TimeoutUserResponse, error) {
-	rsp, err := c.TimeoutUser(ctx, reqEditors...)
+// TimeoutUserWithBodyWithResponse request with arbitrary body returning *TimeoutUserResponse
+func (c *ClientWithResponses) TimeoutUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TimeoutUserResponse, error) {
+	rsp, err := c.TimeoutUserWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTimeoutUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) TimeoutUserWithResponse(ctx context.Context, body TimeoutUserJSONRequestBody, reqEditors ...RequestEditorFn) (*TimeoutUserResponse, error) {
+	rsp, err := c.TimeoutUser(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31786,9 +33610,17 @@ func (c *ClientWithResponses) ListModerationVoiceMutesWithResponse(ctx context.C
 	return ParseListModerationVoiceMutesResponse(rsp)
 }
 
-// CreateModerationVoiceMuteWithResponse request returning *CreateModerationVoiceMuteResponse
-func (c *ClientWithResponses) CreateModerationVoiceMuteWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateModerationVoiceMuteResponse, error) {
-	rsp, err := c.CreateModerationVoiceMute(ctx, reqEditors...)
+// CreateModerationVoiceMuteWithBodyWithResponse request with arbitrary body returning *CreateModerationVoiceMuteResponse
+func (c *ClientWithResponses) CreateModerationVoiceMuteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateModerationVoiceMuteResponse, error) {
+	rsp, err := c.CreateModerationVoiceMuteWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateModerationVoiceMuteResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateModerationVoiceMuteWithResponse(ctx context.Context, body CreateModerationVoiceMuteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateModerationVoiceMuteResponse, error) {
+	rsp, err := c.CreateModerationVoiceMute(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31866,9 +33698,17 @@ func (c *ClientWithResponses) GetProfileWithResponse(ctx context.Context, pubkey
 	return ParseGetProfileResponse(rsp)
 }
 
-// SetProfileWithResponse request returning *SetProfileResponse
-func (c *ClientWithResponses) SetProfileWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*SetProfileResponse, error) {
-	rsp, err := c.SetProfile(ctx, pubkey, reqEditors...)
+// SetProfileWithBodyWithResponse request with arbitrary body returning *SetProfileResponse
+func (c *ClientWithResponses) SetProfileWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetProfileResponse, error) {
+	rsp, err := c.SetProfileWithBody(ctx, pubkey, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetProfileResponse(rsp)
+}
+
+func (c *ClientWithResponses) SetProfileWithResponse(ctx context.Context, pubkey string, body SetProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*SetProfileResponse, error) {
+	rsp, err := c.SetProfile(ctx, pubkey, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -32049,9 +33889,17 @@ func (c *ClientWithResponses) DeleteRoleWithResponse(ctx context.Context, roleId
 	return ParseDeleteRoleResponse(rsp)
 }
 
-// UpdateRoleWithResponse request returning *UpdateRoleResponse
-func (c *ClientWithResponses) UpdateRoleWithResponse(ctx context.Context, roleId string, reqEditors ...RequestEditorFn) (*UpdateRoleResponse, error) {
-	rsp, err := c.UpdateRole(ctx, roleId, reqEditors...)
+// UpdateRoleWithBodyWithResponse request with arbitrary body returning *UpdateRoleResponse
+func (c *ClientWithResponses) UpdateRoleWithBodyWithResponse(ctx context.Context, roleId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateRoleResponse, error) {
+	rsp, err := c.UpdateRoleWithBody(ctx, roleId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateRoleResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateRoleWithResponse(ctx context.Context, roleId string, body UpdateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateRoleResponse, error) {
+	rsp, err := c.UpdateRole(ctx, roleId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -32172,9 +34020,17 @@ func (c *ClientWithResponses) GetSurveyCurrentWithResponse(ctx context.Context, 
 	return ParseGetSurveyCurrentResponse(rsp)
 }
 
-// SubmitSurveyWithResponse request returning *SubmitSurveyResponse
-func (c *ClientWithResponses) SubmitSurveyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SubmitSurveyResponse, error) {
-	rsp, err := c.SubmitSurvey(ctx, reqEditors...)
+// SubmitSurveyWithBodyWithResponse request with arbitrary body returning *SubmitSurveyResponse
+func (c *ClientWithResponses) SubmitSurveyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SubmitSurveyResponse, error) {
+	rsp, err := c.SubmitSurveyWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSubmitSurveyResponse(rsp)
+}
+
+func (c *ClientWithResponses) SubmitSurveyWithResponse(ctx context.Context, body SubmitSurveyJSONRequestBody, reqEditors ...RequestEditorFn) (*SubmitSurveyResponse, error) {
+	rsp, err := c.SubmitSurvey(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -36913,7 +38769,7 @@ func ParseListHubMembersResponse(rsp *http.Response) (*ListHubMembersResponse, e
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []User
+		var dest []MemberAdminInfo
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -38966,7 +40822,7 @@ func ParseListUsersResponse(rsp *http.Response) (*ListUsersResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []User
+		var dest []UserInfo
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

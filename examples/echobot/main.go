@@ -52,7 +52,7 @@ func main() {
 	}
 	go func() {
 		log.Fatal(http.ListenAndServe(":"+port, &wavvon.DispatchHandler{
-			HubPublicKey: *info.PublicKey,
+			HubPublicKey: info.PublicKey,
 			OnSlashCommand: func(_ context.Context, inv *wavvon.SlashInvocation) (*wavvon.AppResponse, error) {
 				body := inv.ArgsRaw
 				if body == "" {
