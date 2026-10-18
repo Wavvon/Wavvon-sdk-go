@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: ver
+        run: echo "version=$(sed -n 's/^const Version = "\(.*\)"$/\1/p' version.go)" >> "$GITHUB_OUTPUT"
+      - run: test -n "${{ steps.ver.outputs.version }}"
+      - id: tag
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/v${{ steps.ver.outputs.version }}" >/dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.tag.outputs.exists == 'false'
+        uses: actions/checkout@v4
+        with:
+          repository: Wavvon/Wavvon-server
+          ref: eb11d75657ee8362dd42a7982fc5b13a3dcc4e68
+          path: wavvon-server
+          sparse-checkout: crates/identity/wire-vectors.json
+          sparse-checkout-cone-mode: false
+      - if: steps.tag.outputs.exists == 'false'
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - if: steps.tag.outputs.exists == 'false'
+        run: ./scripts/check
+        env:
+          CI: "true"
+          WAVVON_WIRE_VECTORS: ${{ github.workspace }}/wavvon-server/crates/identity/wire-vectors.json
+      - if: steps.tag.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git tag "v${{ steps.ver.outputs.version }}"
+          git push origin "v${{ steps.ver.outputs.version }}"
+          gh release create "v${{ steps.ver.outputs.version }}" --generate-notes --title "v${{ steps.ver.outputs.version }}"
+      - if: steps.tag.outputs.exists == 'false'
+        run: curl -fsS "https://proxy.golang.org/github.com/!wavvon/!wavvon-sdk-go/@v/v${{ steps.ver.outputs.version }}.info"
