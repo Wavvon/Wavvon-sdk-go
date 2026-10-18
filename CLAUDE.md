@@ -106,3 +106,12 @@ project has had: run it when touching auth, the socket or webhooks.
 ## Git
 
 Work on `develop`; `main` is for releases. Commit in logical steps.
+
+## Releasing
+
+Bump `Version` in `version.go` on `develop`, open a PR from `develop` to
+`main`; a maintainer merges it with a merge commit. `.github/workflows/release.yml`
+then runs on `main`: if tag `v<Version>` does not exist it runs the check, tags
+the commit, creates the GitHub release and asks proxy.golang.org for the new
+version so pkg.go.dev lists it. There is no registry account: for Go the tag
+is the release.
