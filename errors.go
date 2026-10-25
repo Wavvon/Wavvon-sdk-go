@@ -74,3 +74,15 @@ type WebhookVerificationError struct {
 }
 
 func (e *WebhookVerificationError) Error() string { return "wavvon: webhook rejected: " + e.Reason }
+
+// ReplayUnavailableError means a poll cursor is older than the hub's 72-hour
+// window: events after it were missed. Resynchronise from REST, then poll
+// from 0.
+type ReplayUnavailableError struct {
+	EarliestSeq int64
+	EarliestAt  int64
+}
+
+func (e *ReplayUnavailableError) Error() string {
+	return fmt.Sprintf("wavvon: events before seq %d are outside the hub's replay window", e.EarliestSeq)
+}

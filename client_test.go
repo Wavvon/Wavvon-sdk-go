@@ -51,7 +51,12 @@ func (h *fakeHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusTooManyRequests)
 	case r.URL.Path == "/me/app/commands":
 		w.WriteHeader(http.StatusOK)
+	case r.URL.Path == "/me/events" && r.URL.Query().Get("cursor") == "1":
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusGone)
+		_, _ = w.Write([]byte(`{"type":"replay_unavailable","earliest_seq":40,"earliest_at":9}`))
 	case r.URL.Path == "/me/events":
+		h.log = append(h.log, "cursor="+r.URL.Query().Get("cursor"))
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(h.events))
 	default:
@@ -148,15 +153,22 @@ func TestAppRegistrationIsGatedOnTheCapability(t *testing.T) {
 	}
 }
 
-func TestPollEventsParsesPayloads(t *testing.T) {
-	h := &fakeHub{events: `{"events":[{"id":"1","event_type":"member.joined","payload":"{\"a\":1}","created_at":5},{"id":"2","event_type":"x","payload":"not json","created_at":6}]}`}
+func TestPollEventsPagesBySeqAndReportsAGoneCursor(t *testing.T) {
+	h := &fakeHub{events: `[{"type":"hub_event","seq":42,"event":"member.joined","hub_url":"h","at":1,"payload":{"a":1},"replayed":true}]`}
 	c := newTestClient(t, h, fast)
-	got, err := c.PollEvents(context.Background(), 0)
-	if err != nil || len(got) != 2 || string(got[0].Payload) != `{"a":1}` || string(got[1].Payload) != `"not json"` {
+	got, err := c.PollEvents(context.Background(), 41, 0)
+	if err != nil || len(got) != 1 || got[0].Seq != 42 || got[0].Payload["a"] != float64(1) {
 		t.Fatalf("got %+v, %v", got, err)
 	}
+	if h.count("cursor=41") != 1 {
+		t.Fatal("cursor not sent")
+	}
+	var gone *ReplayUnavailableError
+	if _, err := c.PollEvents(context.Background(), 1, 0); !errors.As(err, &gone) || gone.EarliestSeq != 40 {
+		t.Fatalf("want ReplayUnavailableError, got %v", err)
+	}
 	h.set(func() { h.events = `{}` })
-	if _, err := c.PollEvents(context.Background(), 0); err == nil {
-		t.Fatal("a body without events must not read as an empty queue")
+	if _, err := c.PollEvents(context.Background(), 0, 0); err == nil {
+		t.Fatal("a body that is not an array must not read as no events")
 	}
 }

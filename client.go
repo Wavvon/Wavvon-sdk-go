@@ -352,46 +352,31 @@ func nonNil[T any](s []T) []T {
 	return s
 }
 
-// PolledEvent is one row of GET /me/events.
-type PolledEvent struct {
-	ID        string
-	EventType string
-	// Payload is the event's JSON. A payload that is not JSON arrives as a JSON string.
-	Payload   json.RawMessage
-	CreatedAt int64
-}
-
 // PollEvents reads GET /me/events, the transport for a program that holds no
-// socket; since (unix seconds) returns only rows created after it, 0 all.
-// Today's hub never writes this queue (Wavvon-server#170): prefer Connect.
-func (c *Client) PollEvents(ctx context.Context, since int64) ([]PolledEvent, error) {
+// socket. It returns the same hub_event envelopes the socket replays, oldest
+// first, after cursor (the last Seq handled; 0 starts at the beginning of the
+// hub's 72-hour window). Nothing is acknowledged. limit 0 is the hub default.
+// A cursor older than the window is *ReplayUnavailableError.
+func (c *Client) PollEvents(ctx context.Context, cursor int64, limit int) ([]HubEvent, error) {
 	params := &rest.ListMeEventsParams{}
-	if since > 0 {
-		params.Since = &since
+	if cursor > 0 {
+		params.Cursor = &cursor
 	}
-	res, err := Check(c.Rest.ListMeEventsWithResponse(ctx, params))
-	if err != nil {
+	if limit > 0 {
+		params.Limit = &limit
+	}
+	res, err := c.Rest.ListMeEventsWithResponse(ctx, params)
+	if err == nil && res.JSON410 != nil {
+		return nil, &ReplayUnavailableError{EarliestSeq: res.JSON410.EarliestSeq, EarliestAt: res.JSON410.EarliestAt}
+	}
+	if _, err := Check(res, err); err != nil {
 		return nil, err
 	}
-	if res.JSON200 == nil || res.JSON200.Events == nil {
-		return nil, &HubError{Status: res.StatusCode(), Body: "GET /me/events answered without an events array"}
-	}
-	out := make([]PolledEvent, 0, len(res.JSON200.Events))
-	for _, r := range res.JSON200.Events {
-		payload := json.RawMessage(r.Payload)
-		if !json.Valid(payload) {
-			payload, _ = json.Marshal(r.Payload)
-		}
-		out = append(out, PolledEvent{ID: r.Id, EventType: r.EventType, Payload: payload, CreatedAt: r.CreatedAt})
+	var out []HubEvent
+	if err := json.Unmarshal(res.Body, &out); err != nil || out == nil {
+		return nil, &HubError{Status: res.StatusCode(), Body: "GET /me/events answered without an array"}
 	}
 	return out, nil
-}
-
-// AckEvents acknowledges polled events (DELETE /me/events) so they are not
-// returned again.
-func (c *Client) AckEvents(ctx context.Context, ids []string) error {
-	_, err := Check(c.Rest.AckMeEventsWithResponse(ctx, rest.AckMeEventsJSONRequestBody{Ids: nonNil(ids)}))
-	return err
 }
 
 // Check passes a generated REST call's result through, turning a non-2xx
