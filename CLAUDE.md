@@ -88,7 +88,8 @@ report the doc bug to Wavvon-docs.
   capability ignores the cursor: `Paginate` returns `ErrCursorIgnored`.
 - Outgoing-webhook secret as shown is base64url without padding; HKDF input
   is the **decoded** bytes; the HMAC key is the 32 HKDF bytes, not hex.
-- The hub never writes `GET /me/events` today (Wavvon-server#170).
+- `GET /me/events` reads the audit log (Wavvon-server#183): `hub_event`
+  envelopes after a `seq` cursor, 410 outside the 72-hour window, no ack.
 - A fresh hub has no channel; the smoke creates one.
 
 ## Smoke test

@@ -40,6 +40,16 @@ const (
 	ChallengePromptModePuzzle ChallengePromptMode = "puzzle"
 )
 
+// Defines values for ComponentRowType.
+const (
+	Row ComponentRowType = "row"
+)
+
+// Defines values for HubEventType.
+const (
+	HubEventTypeHubEvent HubEventType = "hub_event"
+)
+
 // Defines values for HubInfoChallengeMode.
 const (
 	HubInfoChallengeModeBoth   HubInfoChallengeMode = "both"
@@ -66,6 +76,12 @@ const (
 const (
 	MeInfoApprovalStatusApproved MeInfoApprovalStatus = "approved"
 	MeInfoApprovalStatusPending  MeInfoApprovalStatus = "pending"
+)
+
+// Defines values for MessageComponentType.
+const (
+	Button MessageComponentType = "button"
+	Select MessageComponentType = "select"
 )
 
 // Defines values for CreateAdminBanlistOverrideJSONBodyOverrideType.
@@ -329,6 +345,15 @@ type Channel struct {
 	SpawnerNameTemplate *string `json:"spawner_name_template,omitempty"`
 }
 
+// ComponentRow defines model for ComponentRow.
+type ComponentRow struct {
+	Components []MessageComponent `json:"components"`
+	Type       ComponentRowType   `json:"type"`
+}
+
+// ComponentRowType defines model for ComponentRow.Type.
+type ComponentRowType string
+
 // Conversation defines model for Conversation.
 type Conversation struct {
 	ConvType       *string   `json:"conv_type,omitempty"`
@@ -466,6 +491,33 @@ type GroupEncryptedEnvelope struct {
 	SignatureHex     string      `json:"signature_hex"`
 	SignerCert       *SubkeyCert `json:"signer_cert,omitempty"`
 }
+
+// HubEvent One envelope for live push, replay, polling and outgoing webhooks (docs/apps.md).
+type HubEvent struct {
+	ActorPubkey *string `json:"actor_pubkey,omitempty"`
+
+	// At Unix seconds
+	At        int64                  `json:"at"`
+	ChannelId *string                `json:"channel_id,omitempty"`
+	Event     string                 `json:"event"`
+	HubUrl    string                 `json:"hub_url"`
+	Payload   map[string]interface{} `json:"payload"`
+
+	// Replayed Set on events read back from the audit log (Resume and polling).
+	Replayed     *bool   `json:"replayed,omitempty"`
+	Seq          int64   `json:"seq"`
+	TargetPubkey *string `json:"target_pubkey,omitempty"`
+
+	// Truncated Outgoing webhooks only, when the payload was cut to the size cap.
+	Truncated *bool        `json:"truncated,omitempty"`
+	Type      HubEventType `json:"type"`
+
+	// WebhookId Outgoing webhooks only.
+	WebhookId *string `json:"webhook_id,omitempty"`
+}
+
+// HubEventType defines model for HubEvent.Type.
+type HubEventType string
 
 // HubInfo `GET /info`. Additive by rule: ignore fields you do not recognise.
 type HubInfo struct {
@@ -639,17 +691,20 @@ type MemberAdminInfo struct {
 type Message struct {
 	Attachments *[]Attachment `json:"attachments,omitempty"`
 	ChannelId   *string       `json:"channel_id,omitempty"`
-	Content     *string       `json:"content,omitempty"`
-	CreatedAt   *int64        `json:"created_at,omitempty"`
-	EditedAt    *int64        `json:"edited_at"`
+
+	// Components Omitted unless set. Buttons and selects authored by an app; a click is sent back as `component_interaction` (docs/apps.md).
+	Components *[]ComponentRow `json:"components,omitempty"`
+	Content    *string         `json:"content,omitempty"`
+	CreatedAt  *int64          `json:"created_at,omitempty"`
+	EditedAt   *int64          `json:"edited_at"`
 
 	// Embeds Omitted unless set. Rich embeds authored by an app (docs/apps.md).
-	Embeds *[]map[string]interface{} `json:"embeds,omitempty"`
+	Embeds *[]Embed `json:"embeds,omitempty"`
 
 	// Game Omitted unless set. Game-modal launch card authored by an app (docs/apps.md).
-	Game      *map[string]interface{} `json:"game,omitempty"`
-	Id        *string                 `json:"id,omitempty"`
-	Reactions *[]Reaction             `json:"reactions,omitempty"`
+	Game      *GameLaunchCard `json:"game,omitempty"`
+	Id        *string         `json:"id,omitempty"`
+	Reactions *[]Reaction     `json:"reactions,omitempty"`
 
 	// ReplyCount Number of direct replies; non-zero only on thread roots.
 	ReplyCount *int64           `json:"reply_count,omitempty"`
@@ -665,6 +720,22 @@ type Message struct {
 type Message_ReplyTo struct {
 	union json.RawMessage
 }
+
+// MessageComponent defines model for MessageComponent.
+type MessageComponent struct {
+	CustomId    string               `json:"custom_id"`
+	Disabled    *bool                `json:"disabled,omitempty"`
+	Label       *string              `json:"label,omitempty"`
+	MaxValues   *int64               `json:"max_values,omitempty"`
+	MinValues   *int64               `json:"min_values,omitempty"`
+	Options     *[]SelectOption      `json:"options,omitempty"`
+	Placeholder *string              `json:"placeholder,omitempty"`
+	Style       *string              `json:"style,omitempty"`
+	Type        MessageComponentType `json:"type"`
+}
+
+// MessageComponentType defines model for MessageComponent.Type.
+type MessageComponentType string
 
 // PollOption defines model for PollOption.
 type PollOption struct {
@@ -830,6 +901,13 @@ type RoleCategory struct {
 	Id        *string `json:"id,omitempty"`
 	Name      *string `json:"name,omitempty"`
 	Position  *int64  `json:"position,omitempty"`
+}
+
+// SelectOption defines model for SelectOption.
+type SelectOption struct {
+	Description *string `json:"description,omitempty"`
+	Label       string  `json:"label"`
+	Value       string  `json:"value"`
 }
 
 // SenderKeyRecipientBlob defines model for SenderKeyRecipientBlob.
@@ -1421,9 +1499,18 @@ type CreateChannelBanJSONBody struct {
 
 // ListChannelMessagesParams defines parameters for ListChannelMessages.
 type ListChannelMessagesParams struct {
-	// Before Message ID cursor for pagination
+	// Cursor The `id` of the last message of the previous page. Newest first; with `thread_root`, oldest first and the cursor pages forward.
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+
+	// Before The former name of `cursor`, still accepted for older clients.
 	Before *string `form:"before,omitempty" json:"before,omitempty"`
 	Limit  *int64  `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// ThreadRoot Return only replies to this message, oldest first.
+	ThreadRoot *string `form:"thread_root,omitempty" json:"thread_root,omitempty"`
+
+	// Q Full-text search within the channel; one page of hits, `cursor` ignored.
+	Q *string `form:"q,omitempty" json:"q,omitempty"`
 }
 
 // CreateChannelMessageJSONBody defines parameters for CreateChannelMessage.
@@ -1602,7 +1689,10 @@ type ListConversationMessagesParams struct {
 	// Limit Page size, clamped to 1..100.
 	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
 
-	// Before Keyset cursor — the `id` of the oldest message already held.
+	// Cursor Keyset cursor — the `id` of the oldest message already held.
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+
+	// Before The former name of `cursor`, still accepted for older clients.
 	Before *string `form:"before,omitempty" json:"before,omitempty"`
 }
 
@@ -2013,15 +2103,11 @@ type UpdateMeCredentialJSONBody struct {
 	FriendlyName string `json:"friendly_name"`
 }
 
-// AckMeEventsJSONBody defines parameters for AckMeEvents.
-type AckMeEventsJSONBody struct {
-	Ids []string `json:"ids"`
-}
-
 // ListMeEventsParams defines parameters for ListMeEvents.
 type ListMeEventsParams struct {
-	// Since A `created_at` value (Unix seconds); only rows created strictly after it are returned.
-	Since *int64 `form:"since,omitempty" json:"since,omitempty"`
+	// Cursor The `seq` of the last event seen; only later events are returned.
+	Cursor *int64 `form:"cursor,omitempty" json:"cursor,omitempty"`
+	Limit  *int   `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
 // ReportMessageJSONBody defines parameters for ReportMessage.
@@ -2568,9 +2654,6 @@ type SetMeAppSubscriptionsJSONRequestBody SetMeAppSubscriptionsJSONBody
 // UpdateMeCredentialJSONRequestBody defines body for UpdateMeCredential for application/json ContentType.
 type UpdateMeCredentialJSONRequestBody UpdateMeCredentialJSONBody
 
-// AckMeEventsJSONRequestBody defines body for AckMeEvents for application/json ContentType.
-type AckMeEventsJSONRequestBody AckMeEventsJSONBody
-
 // ReportMessageJSONRequestBody defines body for ReportMessage for application/json ContentType.
 type ReportMessageJSONRequestBody ReportMessageJSONBody
 
@@ -2896,6 +2979,9 @@ type ClientInterface interface {
 
 	UpdateAdminSettingsListing(ctx context.Context, body UpdateAdminSettingsListingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetAdminSettingsModeration request
+	GetAdminSettingsModeration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// UpdateAdminSettingsModerationWithBody request with any body
 	UpdateAdminSettingsModerationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -2931,6 +3017,9 @@ type ClientInterface interface {
 	// GetAdminSurveyResponse request
 	GetAdminSurveyResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListAdminWebhooks request
+	ListAdminWebhooks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateAdminWebhookWithBody request with any body
 	CreateAdminWebhookWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -2938,6 +3027,9 @@ type ClientInterface interface {
 
 	// DeleteAdminWebhook request
 	DeleteAdminWebhook(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RegenerateAdminWebhook request
+	RegenerateAdminWebhook(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListAlliances request
 	ListAlliances(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3694,11 +3786,6 @@ type ClientInterface interface {
 
 	// DeleteMeDevice request
 	DeleteMeDevice(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// AckMeEventsWithBody request with any body
-	AckMeEventsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	AckMeEvents(ctx context.Context, body AckMeEventsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListMeEvents request
 	ListMeEvents(ctx context.Context, params *ListMeEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -4582,6 +4669,18 @@ func (c *Client) UpdateAdminSettingsListing(ctx context.Context, body UpdateAdmi
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetAdminSettingsModeration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAdminSettingsModerationRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) UpdateAdminSettingsModerationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateAdminSettingsModerationRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -4738,6 +4837,18 @@ func (c *Client) GetAdminSurveyResponse(ctx context.Context, pubkey string, reqE
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListAdminWebhooks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAdminWebhooksRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) CreateAdminWebhookWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateAdminWebhookRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -4764,6 +4875,18 @@ func (c *Client) CreateAdminWebhook(ctx context.Context, body CreateAdminWebhook
 
 func (c *Client) DeleteAdminWebhook(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteAdminWebhookRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RegenerateAdminWebhook(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRegenerateAdminWebhookRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -8134,30 +8257,6 @@ func (c *Client) DeleteMeDevice(ctx context.Context, id string, reqEditors ...Re
 	return c.Client.Do(req)
 }
 
-func (c *Client) AckMeEventsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAckMeEventsRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) AckMeEvents(ctx context.Context, body AckMeEventsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAckMeEventsRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) ListMeEvents(ctx context.Context, params *ListMeEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListMeEventsRequest(c.Server, params)
 	if err != nil {
@@ -10770,6 +10869,33 @@ func NewUpdateAdminSettingsListingRequestWithBody(server string, contentType str
 	return req, nil
 }
 
+// NewGetAdminSettingsModerationRequest generates requests for GetAdminSettingsModeration
+func NewGetAdminSettingsModerationRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/settings/moderation")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewUpdateAdminSettingsModerationRequest calls the generic UpdateAdminSettingsModeration builder with application/json body
 func NewUpdateAdminSettingsModerationRequest(server string, body UpdateAdminSettingsModerationJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -11072,6 +11198,33 @@ func NewGetAdminSurveyResponseRequest(server string, pubkey string) (*http.Reque
 	return req, nil
 }
 
+// NewListAdminWebhooksRequest generates requests for ListAdminWebhooks
+func NewListAdminWebhooksRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/webhooks")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewCreateAdminWebhookRequest calls the generic CreateAdminWebhook builder with application/json body
 func NewCreateAdminWebhookRequest(server string, body CreateAdminWebhookJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -11139,6 +11292,40 @@ func NewDeleteAdminWebhookRequest(server string, id string) (*http.Request, erro
 	}
 
 	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRegenerateAdminWebhookRequest generates requests for RegenerateAdminWebhook
+func NewRegenerateAdminWebhookRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/webhooks/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13479,6 +13666,22 @@ func NewListChannelMessagesRequest(server string, channelId string, params *List
 	if params != nil {
 		queryValues := queryURL.Query()
 
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.Before != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "before", runtime.ParamLocationQuery, *params.Before); err != nil {
@@ -13498,6 +13701,38 @@ func NewListChannelMessagesRequest(server string, channelId string, params *List
 		if params.Limit != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.ThreadRoot != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "thread_root", runtime.ParamLocationQuery, *params.ThreadRoot); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Q != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "q", runtime.ParamLocationQuery, *params.Q); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -15909,6 +16144,22 @@ func NewListConversationMessagesRequest(server string, conversationId string, pa
 		if params.Limit != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -19409,46 +19660,6 @@ func NewDeleteMeDeviceRequest(server string, id string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewAckMeEventsRequest calls the generic AckMeEvents builder with application/json body
-func NewAckMeEventsRequest(server string, body AckMeEventsJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewAckMeEventsRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewAckMeEventsRequestWithBody generates requests for AckMeEvents with any type of body
-func NewAckMeEventsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/me/events")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("DELETE", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewListMeEventsRequest generates requests for ListMeEvents
 func NewListMeEventsRequest(server string, params *ListMeEventsParams) (*http.Request, error) {
 	var err error
@@ -19471,9 +19682,25 @@ func NewListMeEventsRequest(server string, params *ListMeEventsParams) (*http.Re
 	if params != nil {
 		queryValues := queryURL.Query()
 
-		if params.Since != nil {
+		if params.Cursor != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "since", runtime.ParamLocationQuery, *params.Since); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -22115,6 +22342,9 @@ type ClientWithResponsesInterface interface {
 
 	UpdateAdminSettingsListingWithResponse(ctx context.Context, body UpdateAdminSettingsListingJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAdminSettingsListingResponse, error)
 
+	// GetAdminSettingsModerationWithResponse request
+	GetAdminSettingsModerationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminSettingsModerationResponse, error)
+
 	// UpdateAdminSettingsModerationWithBodyWithResponse request with any body
 	UpdateAdminSettingsModerationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAdminSettingsModerationResponse, error)
 
@@ -22150,6 +22380,9 @@ type ClientWithResponsesInterface interface {
 	// GetAdminSurveyResponseWithResponse request
 	GetAdminSurveyResponseWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetAdminSurveyResponseResponse, error)
 
+	// ListAdminWebhooksWithResponse request
+	ListAdminWebhooksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminWebhooksResponse, error)
+
 	// CreateAdminWebhookWithBodyWithResponse request with any body
 	CreateAdminWebhookWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAdminWebhookResponse, error)
 
@@ -22157,6 +22390,9 @@ type ClientWithResponsesInterface interface {
 
 	// DeleteAdminWebhookWithResponse request
 	DeleteAdminWebhookWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteAdminWebhookResponse, error)
+
+	// RegenerateAdminWebhookWithResponse request
+	RegenerateAdminWebhookWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*RegenerateAdminWebhookResponse, error)
 
 	// ListAlliancesWithResponse request
 	ListAlliancesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAlliancesResponse, error)
@@ -22913,11 +23149,6 @@ type ClientWithResponsesInterface interface {
 
 	// DeleteMeDeviceWithResponse request
 	DeleteMeDeviceWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteMeDeviceResponse, error)
-
-	// AckMeEventsWithBodyWithResponse request with any body
-	AckMeEventsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AckMeEventsResponse, error)
-
-	AckMeEventsWithResponse(ctx context.Context, body AckMeEventsJSONRequestBody, reqEditors ...RequestEditorFn) (*AckMeEventsResponse, error)
 
 	// ListMeEventsWithResponse request
 	ListMeEventsWithResponse(ctx context.Context, params *ListMeEventsParams, reqEditors ...RequestEditorFn) (*ListMeEventsResponse, error)
@@ -24131,6 +24362,35 @@ func (r UpdateAdminSettingsListingResponse) StatusCode() int {
 	return 0
 }
 
+type GetAdminSettingsModerationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		CircuitOpen      bool   `json:"circuit_open"`
+		CircuitOpenUntil *int64 `json:"circuit_open_until"`
+		WebhookSecretSet bool   `json:"webhook_secret_set"`
+
+		// WebhookUrl Omitted unless set.
+		WebhookUrl *string `json:"webhook_url,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAdminSettingsModerationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAdminSettingsModerationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type UpdateAdminSettingsModerationResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -24327,6 +24587,38 @@ func (r GetAdminSurveyResponseResponse) StatusCode() int {
 	return 0
 }
 
+type ListAdminWebhooksResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]struct {
+		ChannelId   string  `json:"channel_id"`
+		ChannelName *string `json:"channel_name"`
+		CreatedAt   int64   `json:"created_at"`
+		CreatedBy   string  `json:"created_by"`
+		DisplayName string  `json:"display_name"`
+		Id          string  `json:"id"`
+
+		// WebhookUrl Base URL only; the token is stored hashed and cannot be recovered. Regenerate to get a working URL.
+		WebhookUrl string `json:"webhook_url"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAdminWebhooksResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAdminWebhooksResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CreateAdminWebhookResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -24370,6 +24662,32 @@ func (r DeleteAdminWebhookResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r DeleteAdminWebhookResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RegenerateAdminWebhookResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		DisplayName string `json:"display_name"`
+		Id          string `json:"id"`
+		WebhookUrl  string `json:"webhook_url"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r RegenerateAdminWebhookResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RegenerateAdminWebhookResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -28873,42 +29191,18 @@ func (r DeleteMeDeviceResponse) StatusCode() int {
 	return 0
 }
 
-type AckMeEventsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r AckMeEventsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r AckMeEventsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type ListMeEventsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *struct {
-		Events []struct {
-			// CreatedAt Unix seconds
-			CreatedAt int64  `json:"created_at"`
-			EventType string `json:"event_type"`
-			Id        string `json:"id"`
-
-			// Payload The event payload as a JSON-encoded string; parse it
-			Payload string `json:"payload"`
-		} `json:"events"`
+	JSON200      *[]HubEvent
+	JSON410      *struct {
+		// EarliestAt Unix seconds
+		EarliestAt  int64               `json:"earliest_at"`
+		EarliestSeq int64               `json:"earliest_seq"`
+		Type        ListMeEvents410Type `json:"type"`
 	}
 }
+type ListMeEvents410Type string
 
 // Status returns HTTPResponse.Status
 func (r ListMeEventsResponse) Status() string {
@@ -30861,6 +31155,15 @@ func (c *ClientWithResponses) UpdateAdminSettingsListingWithResponse(ctx context
 	return ParseUpdateAdminSettingsListingResponse(rsp)
 }
 
+// GetAdminSettingsModerationWithResponse request returning *GetAdminSettingsModerationResponse
+func (c *ClientWithResponses) GetAdminSettingsModerationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminSettingsModerationResponse, error) {
+	rsp, err := c.GetAdminSettingsModeration(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAdminSettingsModerationResponse(rsp)
+}
+
 // UpdateAdminSettingsModerationWithBodyWithResponse request with arbitrary body returning *UpdateAdminSettingsModerationResponse
 func (c *ClientWithResponses) UpdateAdminSettingsModerationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAdminSettingsModerationResponse, error) {
 	rsp, err := c.UpdateAdminSettingsModerationWithBody(ctx, contentType, body, reqEditors...)
@@ -30974,6 +31277,15 @@ func (c *ClientWithResponses) GetAdminSurveyResponseWithResponse(ctx context.Con
 	return ParseGetAdminSurveyResponseResponse(rsp)
 }
 
+// ListAdminWebhooksWithResponse request returning *ListAdminWebhooksResponse
+func (c *ClientWithResponses) ListAdminWebhooksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminWebhooksResponse, error) {
+	rsp, err := c.ListAdminWebhooks(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAdminWebhooksResponse(rsp)
+}
+
 // CreateAdminWebhookWithBodyWithResponse request with arbitrary body returning *CreateAdminWebhookResponse
 func (c *ClientWithResponses) CreateAdminWebhookWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAdminWebhookResponse, error) {
 	rsp, err := c.CreateAdminWebhookWithBody(ctx, contentType, body, reqEditors...)
@@ -30998,6 +31310,15 @@ func (c *ClientWithResponses) DeleteAdminWebhookWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseDeleteAdminWebhookResponse(rsp)
+}
+
+// RegenerateAdminWebhookWithResponse request returning *RegenerateAdminWebhookResponse
+func (c *ClientWithResponses) RegenerateAdminWebhookWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*RegenerateAdminWebhookResponse, error) {
+	rsp, err := c.RegenerateAdminWebhook(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRegenerateAdminWebhookResponse(rsp)
 }
 
 // ListAlliancesWithResponse request returning *ListAlliancesResponse
@@ -33436,23 +33757,6 @@ func (c *ClientWithResponses) DeleteMeDeviceWithResponse(ctx context.Context, id
 	return ParseDeleteMeDeviceResponse(rsp)
 }
 
-// AckMeEventsWithBodyWithResponse request with arbitrary body returning *AckMeEventsResponse
-func (c *ClientWithResponses) AckMeEventsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AckMeEventsResponse, error) {
-	rsp, err := c.AckMeEventsWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseAckMeEventsResponse(rsp)
-}
-
-func (c *ClientWithResponses) AckMeEventsWithResponse(ctx context.Context, body AckMeEventsJSONRequestBody, reqEditors ...RequestEditorFn) (*AckMeEventsResponse, error) {
-	rsp, err := c.AckMeEvents(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseAckMeEventsResponse(rsp)
-}
-
 // ListMeEventsWithResponse request returning *ListMeEventsResponse
 func (c *ClientWithResponses) ListMeEventsWithResponse(ctx context.Context, params *ListMeEventsParams, reqEditors ...RequestEditorFn) (*ListMeEventsResponse, error) {
 	rsp, err := c.ListMeEvents(ctx, params, reqEditors...)
@@ -35163,6 +35467,39 @@ func ParseUpdateAdminSettingsListingResponse(rsp *http.Response) (*UpdateAdminSe
 	return response, nil
 }
 
+// ParseGetAdminSettingsModerationResponse parses an HTTP response from a GetAdminSettingsModerationWithResponse call
+func ParseGetAdminSettingsModerationResponse(rsp *http.Response) (*GetAdminSettingsModerationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAdminSettingsModerationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			CircuitOpen      bool   `json:"circuit_open"`
+			CircuitOpenUntil *int64 `json:"circuit_open_until"`
+			WebhookSecretSet bool   `json:"webhook_secret_set"`
+
+			// WebhookUrl Omitted unless set.
+			WebhookUrl *string `json:"webhook_url,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseUpdateAdminSettingsModerationResponse parses an HTTP response from a UpdateAdminSettingsModerationWithResponse call
 func ParseUpdateAdminSettingsModerationResponse(rsp *http.Response) (*UpdateAdminSettingsModerationResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -35332,6 +35669,42 @@ func ParseGetAdminSurveyResponseResponse(rsp *http.Response) (*GetAdminSurveyRes
 	return response, nil
 }
 
+// ParseListAdminWebhooksResponse parses an HTTP response from a ListAdminWebhooksWithResponse call
+func ParseListAdminWebhooksResponse(rsp *http.Response) (*ListAdminWebhooksResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAdminWebhooksResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []struct {
+			ChannelId   string  `json:"channel_id"`
+			ChannelName *string `json:"channel_name"`
+			CreatedAt   int64   `json:"created_at"`
+			CreatedBy   string  `json:"created_by"`
+			DisplayName string  `json:"display_name"`
+			Id          string  `json:"id"`
+
+			// WebhookUrl Base URL only; the token is stored hashed and cannot be recovered. Regenerate to get a working URL.
+			WebhookUrl string `json:"webhook_url"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseCreateAdminWebhookResponse parses an HTTP response from a CreateAdminWebhookWithResponse call
 func ParseCreateAdminWebhookResponse(rsp *http.Response) (*CreateAdminWebhookResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -35375,6 +35748,36 @@ func ParseDeleteAdminWebhookResponse(rsp *http.Response) (*DeleteAdminWebhookRes
 	response := &DeleteAdminWebhookResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseRegenerateAdminWebhookResponse parses an HTTP response from a RegenerateAdminWebhookWithResponse call
+func ParseRegenerateAdminWebhookResponse(rsp *http.Response) (*RegenerateAdminWebhookResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RegenerateAdminWebhookResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			DisplayName string `json:"display_name"`
+			Id          string `json:"id"`
+			WebhookUrl  string `json:"webhook_url"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil
@@ -39644,22 +40047,6 @@ func ParseDeleteMeDeviceResponse(rsp *http.Response) (*DeleteMeDeviceResponse, e
 	return response, nil
 }
 
-// ParseAckMeEventsResponse parses an HTTP response from a AckMeEventsWithResponse call
-func ParseAckMeEventsResponse(rsp *http.Response) (*AckMeEventsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &AckMeEventsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
 // ParseListMeEventsResponse parses an HTTP response from a ListMeEventsWithResponse call
 func ParseListMeEventsResponse(rsp *http.Response) (*ListMeEventsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -39675,21 +40062,23 @@ func ParseListMeEventsResponse(rsp *http.Response) (*ListMeEventsResponse, error
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Events []struct {
-				// CreatedAt Unix seconds
-				CreatedAt int64  `json:"created_at"`
-				EventType string `json:"event_type"`
-				Id        string `json:"id"`
-
-				// Payload The event payload as a JSON-encoded string; parse it
-				Payload string `json:"payload"`
-			} `json:"events"`
-		}
+		var dest []HubEvent
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 410:
+		var dest struct {
+			// EarliestAt Unix seconds
+			EarliestAt  int64               `json:"earliest_at"`
+			EarliestSeq int64               `json:"earliest_seq"`
+			Type        ListMeEvents410Type `json:"type"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON410 = &dest
 
 	}
 

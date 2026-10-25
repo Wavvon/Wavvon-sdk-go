@@ -79,7 +79,7 @@ A fuller one is [examples/echobot](examples/echobot/main.go).
 | Capability checks | `Client.HasCapability`, `Client.RequireCapability` |
 | Keyset paging to the end of a list | `Paginate` (an `iter.Seq2`) |
 | WebSocket events with resume after reconnect | `Client.Connect` -> `*EventStream`, `Next` |
-| HTTP polling instead of a socket | `Client.PollEvents`, `Client.AckEvents` |
+| HTTP polling instead of a socket | `Client.PollEvents` (cursor = last `Seq`) |
 | App registration | `SetAppProfile`, `SetAppCommands`, `SetAppSubscriptions` |
 | Slash command and button webhooks | `DispatchHandler` (an `http.Handler`), `VerifyDispatch` |
 | Outgoing webhook receiver | `VerifyOutgoingWebhook` |

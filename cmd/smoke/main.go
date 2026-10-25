@@ -1,7 +1,8 @@
 // Command smoke runs the SDK against a real hub: it authenticates as a fresh
 // identity, registers a slash command, posts a message and sees it come back
 // over the socket, invokes the command, and checks that the verified
-// invocation's reply lands in the channel.
+// invocation's reply lands in the channel, and polls the message back from
+// GET /me/events.
 //
 // With WAVVON_SMOKE_HUB set it uses that hub:
 //
@@ -303,6 +304,9 @@ func smoke(ctx context.Context, hubURL, inviteCode, channelID string) error {
 			return errors.New("no text channel to post in")
 		}
 	}
+	if err := client.SetAppSubscriptions(ctx, []wavvon.AppSubscription{{Event: "message.created", Channels: []string{channelID}}}); err != nil {
+		return err
+	}
 
 	waitFor := func(what string, pred func(wavvon.MessageEvent) bool) (wavvon.MessageEvent, error) {
 		deadline := time.Now().Add(10 * time.Second)
@@ -354,6 +358,24 @@ func smoke(ctx context.Context, hubURL, inviteCode, channelID string) error {
 		return fmt.Errorf("reply sent by %s", deref(reply.Message.Sender))
 	}
 	step("verified the invocation and the reply landed")
+
+	polled, err := client.PollEvents(ctx, 0, 0)
+	if err != nil {
+		return err
+	}
+	i := slices.IndexFunc(polled, func(e wavvon.HubEvent) bool { return e.Event == "message.created" && e.Payload["content"] == text })
+	if i < 0 {
+		return fmt.Errorf("polling did not return our message: %d events", len(polled))
+	}
+	last := polled[len(polled)-1].Seq
+	after, err := client.PollEvents(ctx, last, 0)
+	if err != nil {
+		return err
+	}
+	if slices.ContainsFunc(after, func(e wavvon.HubEvent) bool { return e.Seq <= last }) {
+		return errors.New("the cursor did not page forward")
+	}
+	step("polled %d events, ours at seq %d", len(polled), polled[i].Seq)
 
 	mu.Lock()
 	if len(unknown) > 0 {
