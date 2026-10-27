@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Wavvon/Wavvon-server
-          ref: eb11d75657ee8362dd42a7982fc5b13a3dcc4e68
+          ref: b991cb192df86ee002d10c065872cb8beaeab3c0
           path: wavvon-server
           sparse-checkout: crates/identity/wire-vectors.json
           sparse-checkout-cone-mode: false

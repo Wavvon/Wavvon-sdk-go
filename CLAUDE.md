@@ -60,9 +60,9 @@ explain choices in the commit message.
   A known type whose fields do not decode is delivered as unknown too.
 - **Re-auth on its own**, with the state observable (`OnStateChange`).
 - **Auth challenge**: the challenge is hex. `scheme: "tagged-v1"` -> sign
-  `"wavvon/auth-challenge/v1\0" || challenge`; no scheme -> raw only at
-  exactly 32 bytes; any other scheme (including "") -> `*AuthSchemeError`,
-  not retried.
+  `"wavvon/auth-challenge/v1\0" || challenge`; no scheme or any other
+  scheme (including "") -> `*AuthSchemeError`, not retried. Never sign the
+  raw challenge (Wavvon-server#199).
 - **Never send the seed** or any private key anywhere. Never invent a wire
   format: signed bytes come from wire-format.md and the vectors; a new one is
   a server-side change first. Never model a bot as an account or send

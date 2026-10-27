@@ -59,8 +59,8 @@ func (e *HubError) Error() string {
 	return fmt.Sprintf("wavvon: hub answered %d: %s", e.Status, e.Body)
 }
 
-// AuthSchemeError means a challenge could not be answered safely: an unknown
-// scheme, or a raw challenge of the wrong length.
+// AuthSchemeError means a challenge could not be answered safely: the hub
+// named no scheme, or one this SDK does not sign.
 type AuthSchemeError struct {
 	Reason string
 }

@@ -135,6 +135,12 @@ const (
 	None    CreateAllianceChannelJSONBodyVoiceRemoteJoin = "none"
 )
 
+// Defines values for UpdateChannelJSONBodyChannelType.
+const (
+	Text  UpdateChannelJSONBodyChannelType = "text"
+	Voice UpdateChannelJSONBodyChannelType = "voice"
+)
+
 // Defines values for RsvpEventJSONBodyStatus.
 const (
 	Going    RsvpEventJSONBodyStatus = "going"
@@ -310,7 +316,7 @@ type Channel struct {
 	// CanMoveMembers The caller's own `voice.move_members` on this channel, resolved channel-scoped, so a move-destination picker can offer only the channels that will accept the move (events.md §7.1). Advertised as the `channels.move.targets` capability; absent on hubs that do not advertise it, which is not the same as `false`.
 	CanMoveMembers *bool `json:"can_move_members,omitempty"`
 
-	// ChannelType `text`, `forum`, `banner` or `spawner`. Always `text` for categories.
+	// ChannelType `text`, `voice`, `forum`, `banner` or `spawner`. Always `text` for categories. On hubs with the `channels.voice` capability only a `voice` channel can be joined for voice; it has a chat as well, and a spawner's rooms are `voice`.
 	ChannelType *string `json:"channel_type,omitempty"`
 	Color       *string `json:"color"`
 
@@ -585,9 +591,8 @@ type HubInfo struct {
 	PublicKey string `json:"public_key"`
 
 	// Rotation Hub key rotation payload during the transition window after a rotate-key ceremony (see `GET /key-rotation`). Omitted when no rotation is in progress.
-	Rotation      *map[string]interface{} `json:"rotation,omitempty"`
-	ScreenShareV2 bool                    `json:"screen_share_v2"`
-	SelfTags      []string                `json:"self_tags"`
+	Rotation *map[string]interface{} `json:"rotation,omitempty"`
+	SelfTags []string                `json:"self_tags"`
 
 	// SfuUrl Omitted unless the hub runs an SFU.
 	SfuUrl *string `json:"sfu_url,omitempty"`
@@ -992,13 +997,16 @@ type WebhookSubscriptionDto struct {
 type ListAdminAuditLogParams struct {
 	EventType *string `form:"event_type,omitempty" json:"event_type,omitempty"`
 
+	// Actor Only entries by this public key
+	Actor *string `form:"actor,omitempty" json:"actor,omitempty"`
+
 	// Since Unix timestamp lower bound
 	Since *int64 `form:"since,omitempty" json:"since,omitempty"`
 
 	// Until Unix timestamp upper bound
 	Until *int64 `form:"until,omitempty" json:"until,omitempty"`
 
-	// Cursor `next_cursor` from the previous page
+	// Cursor `seq` of the oldest entry already shown
 	Cursor *int64 `form:"cursor,omitempty" json:"cursor,omitempty"`
 	Limit  *int64 `form:"limit,omitempty" json:"limit,omitempty"`
 }
@@ -1143,7 +1151,6 @@ type UpdateAdminSettingsCertsJSONBody struct {
 		MinMemberSinceDays *int `json:"min_member_since_days,omitempty"`
 		MinPowLevel        *int `json:"min_pow_level,omitempty"`
 	} `json:"cert_require,omitempty"`
-	CertStandingDays   *UpdateAdminSettingsCertsJSONBody_CertStandingDays `json:"cert_standing_days,omitempty"`
 	CertTrustedIssuers *[]string                                          `json:"cert_trusted_issuers,omitempty"`
 	CertValidityDays   *UpdateAdminSettingsCertsJSONBody_CertValidityDays `json:"cert_validity_days,omitempty"`
 }
@@ -1183,17 +1190,6 @@ type UpdateAdminSettingsCertsJSONBody_CertMinPowLevel struct {
 
 // UpdateAdminSettingsCertsJSONBodyCertMode defines parameters for UpdateAdminSettingsCerts.
 type UpdateAdminSettingsCertsJSONBodyCertMode string
-
-// UpdateAdminSettingsCertsJSONBodyCertStandingDays0 defines parameters for UpdateAdminSettingsCerts.
-type UpdateAdminSettingsCertsJSONBodyCertStandingDays0 = string
-
-// UpdateAdminSettingsCertsJSONBodyCertStandingDays1 defines parameters for UpdateAdminSettingsCerts.
-type UpdateAdminSettingsCertsJSONBodyCertStandingDays1 = int
-
-// UpdateAdminSettingsCertsJSONBody_CertStandingDays defines parameters for UpdateAdminSettingsCerts.
-type UpdateAdminSettingsCertsJSONBody_CertStandingDays struct {
-	union json.RawMessage
-}
 
 // UpdateAdminSettingsCertsJSONBodyCertValidityDays0 defines parameters for UpdateAdminSettingsCerts.
 type UpdateAdminSettingsCertsJSONBodyCertValidityDays0 = string
@@ -1365,16 +1361,6 @@ type CreateAuthChallengeJSONBody struct {
 	PublicKey string `json:"public_key"`
 }
 
-// CreateAuthDeviceTokenJSONBody defines parameters for CreateAuthDeviceToken.
-type CreateAuthDeviceTokenJSONBody struct {
-	DeviceName *string `json:"device_name,omitempty"`
-}
-
-// RedeemAuthDeviceTokenJSONBody defines parameters for RedeemAuthDeviceToken.
-type RedeemAuthDeviceTokenJSONBody struct {
-	Token string `json:"token"`
-}
-
 // VerifyAuthJSONBody defines parameters for VerifyAuth.
 type VerifyAuthJSONBody struct {
 	// AllianceVoiceGrant Voice in alliance channels: an origin hub's signed assertion that the
@@ -1477,19 +1463,25 @@ type ReorderChannelsJSONBody struct {
 
 // UpdateChannelJSONBody defines parameters for UpdateChannel.
 type UpdateChannelJSONBody struct {
-	BannerFileId    *string `json:"banner_file_id,omitempty"`
-	BannerUrl       *string `json:"banner_url,omitempty"`
-	Color           *string `json:"color"`
-	CustomIconSvg   *string `json:"custom_icon_svg"`
-	Description     *string `json:"description,omitempty"`
-	ForumRequireTag *bool   `json:"forum_require_tag,omitempty"`
-	Icon            *string `json:"icon"`
-	MinTalkPower    *int64  `json:"min_talk_power,omitempty"`
-	Name            *string `json:"name,omitempty"`
-	Nsfw            *bool   `json:"nsfw,omitempty"`
-	ParentId        *string `json:"parent_id"`
-	RetentionDays   *int64  `json:"retention_days"`
+	BannerFileId *string `json:"banner_file_id,omitempty"`
+	BannerUrl    *string `json:"banner_url,omitempty"`
+
+	// ChannelType Switch between text and voice; both keep their chat.
+	ChannelType     *UpdateChannelJSONBodyChannelType `json:"channel_type,omitempty"`
+	Color           *string                           `json:"color"`
+	CustomIconSvg   *string                           `json:"custom_icon_svg"`
+	Description     *string                           `json:"description,omitempty"`
+	ForumRequireTag *bool                             `json:"forum_require_tag,omitempty"`
+	Icon            *string                           `json:"icon"`
+	MinTalkPower    *int64                            `json:"min_talk_power,omitempty"`
+	Name            *string                           `json:"name,omitempty"`
+	Nsfw            *bool                             `json:"nsfw,omitempty"`
+	ParentId        *string                           `json:"parent_id"`
+	RetentionDays   *int64                            `json:"retention_days"`
 }
+
+// UpdateChannelJSONBodyChannelType defines parameters for UpdateChannel.
+type UpdateChannelJSONBodyChannelType string
 
 // CreateChannelBanJSONBody defines parameters for CreateChannelBan.
 type CreateChannelBanJSONBody struct {
@@ -1501,9 +1493,6 @@ type CreateChannelBanJSONBody struct {
 type ListChannelMessagesParams struct {
 	// Cursor The `id` of the last message of the previous page. Newest first; with `thread_root`, oldest first and the cursor pages forward.
 	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
-
-	// Before The former name of `cursor`, still accepted for older clients.
-	Before *string `form:"before,omitempty" json:"before,omitempty"`
 	Limit  *int64  `form:"limit,omitempty" json:"limit,omitempty"`
 
 	// ThreadRoot Return only replies to this message, oldest first.
@@ -1691,9 +1680,6 @@ type ListConversationMessagesParams struct {
 
 	// Cursor Keyset cursor — the `id` of the oldest message already held.
 	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
-
-	// Before The former name of `cursor`, still accepted for older clients.
-	Before *string `form:"before,omitempty" json:"before,omitempty"`
 }
 
 // CreateConversationMessageJSONBody defines parameters for CreateConversationMessage.
@@ -1889,11 +1875,6 @@ type CreateFederationForumChannelPostReplyJSONBody struct {
 // DeleteFederationForumChannelPostReplyJSONBody defines parameters for DeleteFederationForumChannelPostReply.
 type DeleteFederationForumChannelPostReplyJSONBody struct {
 	AuthorPubkey string `json:"author_pubkey"`
-}
-
-// CreateFederationPeerJSONBody defines parameters for CreateFederationPeer.
-type CreateFederationPeerJSONBody struct {
-	Url string `json:"url"`
 }
 
 // CreateFriendJSONBody defines parameters for CreateFriend.
@@ -2438,12 +2419,6 @@ type CreateAllianceVoiceGrantJSONRequestBody CreateAllianceVoiceGrantJSONBody
 // CreateAuthChallengeJSONRequestBody defines body for CreateAuthChallenge for application/json ContentType.
 type CreateAuthChallengeJSONRequestBody CreateAuthChallengeJSONBody
 
-// CreateAuthDeviceTokenJSONRequestBody defines body for CreateAuthDeviceToken for application/json ContentType.
-type CreateAuthDeviceTokenJSONRequestBody CreateAuthDeviceTokenJSONBody
-
-// RedeemAuthDeviceTokenJSONRequestBody defines body for RedeemAuthDeviceToken for application/json ContentType.
-type RedeemAuthDeviceTokenJSONRequestBody RedeemAuthDeviceTokenJSONBody
-
 // VerifyAuthJSONRequestBody defines body for VerifyAuth for application/json ContentType.
 type VerifyAuthJSONRequestBody VerifyAuthJSONBody
 
@@ -2584,9 +2559,6 @@ type CreateFederationForumChannelPostReplyJSONRequestBody CreateFederationForumC
 
 // DeleteFederationForumChannelPostReplyJSONRequestBody defines body for DeleteFederationForumChannelPostReply for application/json ContentType.
 type DeleteFederationForumChannelPostReplyJSONRequestBody DeleteFederationForumChannelPostReplyJSONBody
-
-// CreateFederationPeerJSONRequestBody defines body for CreateFederationPeer for application/json ContentType.
-type CreateFederationPeerJSONRequestBody CreateFederationPeerJSONBody
 
 // CreateFriendJSONRequestBody defines body for CreateFriend for application/json ContentType.
 type CreateFriendJSONRequestBody CreateFriendJSONBody
@@ -3150,16 +3122,6 @@ type ClientInterface interface {
 
 	CreateAuthChallenge(ctx context.Context, body CreateAuthChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateAuthDeviceTokenWithBody request with any body
-	CreateAuthDeviceTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CreateAuthDeviceToken(ctx context.Context, body CreateAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// RedeemAuthDeviceTokenWithBody request with any body
-	RedeemAuthDeviceTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	RedeemAuthDeviceToken(ctx context.Context, body RedeemAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// VerifyAuthWithBody request with any body
 	VerifyAuthWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3567,14 +3529,6 @@ type ClientInterface interface {
 	// GetFederationListing request
 	GetFederationListing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ListFederationPeers request
-	ListFederationPeers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CreateFederationPeerWithBody request with any body
-	CreateFederationPeerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CreateFederationPeer(ctx context.Context, body CreateFederationPeerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// ListFriends request
 	ListFriends(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3781,12 +3735,6 @@ type ClientInterface interface {
 
 	UpdateMeCredential(ctx context.Context, id string, body UpdateMeCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ListMeDevices request
-	ListMeDevices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// DeleteMeDevice request
-	DeleteMeDevice(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// ListMeEvents request
 	ListMeEvents(ctx context.Context, params *ListMeEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3882,6 +3830,9 @@ type ClientInterface interface {
 
 	// ListRecoveryRequests request
 	ListRecoveryRequests(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListRecoveryRequestsToAttest request
+	ListRecoveryRequestsToAttest(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RotateRecoveryKeyWithBody request with any body
 	RotateRecoveryKeyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -5415,54 +5366,6 @@ func (c *Client) CreateAuthChallengeWithBody(ctx context.Context, contentType st
 
 func (c *Client) CreateAuthChallenge(ctx context.Context, body CreateAuthChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateAuthChallengeRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateAuthDeviceTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateAuthDeviceTokenRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateAuthDeviceToken(ctx context.Context, body CreateAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateAuthDeviceTokenRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) RedeemAuthDeviceTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRedeemAuthDeviceTokenRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) RedeemAuthDeviceToken(ctx context.Context, body RedeemAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRedeemAuthDeviceTokenRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7285,42 +7188,6 @@ func (c *Client) GetFederationListing(ctx context.Context, reqEditors ...Request
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListFederationPeers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListFederationPeersRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateFederationPeerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateFederationPeerRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateFederationPeer(ctx context.Context, body CreateFederationPeerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateFederationPeerRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) ListFriends(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListFriendsRequest(c.Server)
 	if err != nil {
@@ -8233,30 +8100,6 @@ func (c *Client) UpdateMeCredential(ctx context.Context, id string, body UpdateM
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListMeDevices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListMeDevicesRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) DeleteMeDevice(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteMeDeviceRequest(c.Server, id)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) ListMeEvents(ctx context.Context, params *ListMeEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListMeEventsRequest(c.Server, params)
 	if err != nil {
@@ -8667,6 +8510,18 @@ func (c *Client) DeleteRecoveryContact(ctx context.Context, pubkey string, reqEd
 
 func (c *Client) ListRecoveryRequests(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListRecoveryRequestsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListRecoveryRequestsToAttest(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRecoveryRequestsToAttestRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -9302,6 +9157,22 @@ func NewListAdminAuditLogRequest(server string, params *ListAdminAuditLogParams)
 		if params.EventType != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "event_type", runtime.ParamLocationQuery, *params.EventType); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Actor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "actor", runtime.ParamLocationQuery, *params.Actor); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -12748,86 +12619,6 @@ func NewCreateAuthChallengeRequestWithBody(server string, contentType string, bo
 	return req, nil
 }
 
-// NewCreateAuthDeviceTokenRequest calls the generic CreateAuthDeviceToken builder with application/json body
-func NewCreateAuthDeviceTokenRequest(server string, body CreateAuthDeviceTokenJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateAuthDeviceTokenRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewCreateAuthDeviceTokenRequestWithBody generates requests for CreateAuthDeviceToken with any type of body
-func NewCreateAuthDeviceTokenRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/auth/device-token/create")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewRedeemAuthDeviceTokenRequest calls the generic RedeemAuthDeviceToken builder with application/json body
-func NewRedeemAuthDeviceTokenRequest(server string, body RedeemAuthDeviceTokenJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewRedeemAuthDeviceTokenRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewRedeemAuthDeviceTokenRequestWithBody generates requests for RedeemAuthDeviceToken with any type of body
-func NewRedeemAuthDeviceTokenRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/auth/device-token/redeem")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewVerifyAuthRequest calls the generic VerifyAuth builder with application/json body
 func NewVerifyAuthRequest(server string, body VerifyAuthJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -13669,22 +13460,6 @@ func NewListChannelMessagesRequest(server string, channelId string, params *List
 		if params.Cursor != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		if params.Before != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "before", runtime.ParamLocationQuery, *params.Before); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -16173,22 +15948,6 @@ func NewListConversationMessagesRequest(server string, conversationId string, pa
 
 		}
 
-		if params.Before != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "before", runtime.ParamLocationQuery, *params.Before); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
@@ -17538,73 +17297,6 @@ func NewGetFederationListingRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	return req, nil
-}
-
-// NewListFederationPeersRequest generates requests for ListFederationPeers
-func NewListFederationPeersRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/federation/peers")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewCreateFederationPeerRequest calls the generic CreateFederationPeer builder with application/json body
-func NewCreateFederationPeerRequest(server string, body CreateFederationPeerJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateFederationPeerRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewCreateFederationPeerRequestWithBody generates requests for CreateFederationPeer with any type of body
-func NewCreateFederationPeerRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/federation/peers")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -19599,67 +19291,6 @@ func NewUpdateMeCredentialRequestWithBody(server string, id string, contentType 
 	return req, nil
 }
 
-// NewListMeDevicesRequest generates requests for ListMeDevices
-func NewListMeDevicesRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/me/devices")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewDeleteMeDeviceRequest generates requests for DeleteMeDevice
-func NewDeleteMeDeviceRequest(server string, id string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/me/devices/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewListMeEventsRequest generates requests for ListMeEvents
 func NewListMeEventsRequest(server string, params *ListMeEventsParams) (*http.Request, error) {
 	var err error
@@ -20671,6 +20302,33 @@ func NewListRecoveryRequestsRequest(server string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/recovery/requests")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListRecoveryRequestsToAttestRequest generates requests for ListRecoveryRequestsToAttest
+func NewListRecoveryRequestsToAttestRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/recovery/requests/to-attest")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -22513,16 +22171,6 @@ type ClientWithResponsesInterface interface {
 
 	CreateAuthChallengeWithResponse(ctx context.Context, body CreateAuthChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAuthChallengeResponse, error)
 
-	// CreateAuthDeviceTokenWithBodyWithResponse request with any body
-	CreateAuthDeviceTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAuthDeviceTokenResponse, error)
-
-	CreateAuthDeviceTokenWithResponse(ctx context.Context, body CreateAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAuthDeviceTokenResponse, error)
-
-	// RedeemAuthDeviceTokenWithBodyWithResponse request with any body
-	RedeemAuthDeviceTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RedeemAuthDeviceTokenResponse, error)
-
-	RedeemAuthDeviceTokenWithResponse(ctx context.Context, body RedeemAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*RedeemAuthDeviceTokenResponse, error)
-
 	// VerifyAuthWithBodyWithResponse request with any body
 	VerifyAuthWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyAuthResponse, error)
 
@@ -22930,14 +22578,6 @@ type ClientWithResponsesInterface interface {
 	// GetFederationListingWithResponse request
 	GetFederationListingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetFederationListingResponse, error)
 
-	// ListFederationPeersWithResponse request
-	ListFederationPeersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListFederationPeersResponse, error)
-
-	// CreateFederationPeerWithBodyWithResponse request with any body
-	CreateFederationPeerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error)
-
-	CreateFederationPeerWithResponse(ctx context.Context, body CreateFederationPeerJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error)
-
 	// ListFriendsWithResponse request
 	ListFriendsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListFriendsResponse, error)
 
@@ -23144,12 +22784,6 @@ type ClientWithResponsesInterface interface {
 
 	UpdateMeCredentialWithResponse(ctx context.Context, id string, body UpdateMeCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMeCredentialResponse, error)
 
-	// ListMeDevicesWithResponse request
-	ListMeDevicesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListMeDevicesResponse, error)
-
-	// DeleteMeDeviceWithResponse request
-	DeleteMeDeviceWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteMeDeviceResponse, error)
-
 	// ListMeEventsWithResponse request
 	ListMeEventsWithResponse(ctx context.Context, params *ListMeEventsParams, reqEditors ...RequestEditorFn) (*ListMeEventsResponse, error)
 
@@ -23245,6 +22879,9 @@ type ClientWithResponsesInterface interface {
 
 	// ListRecoveryRequestsWithResponse request
 	ListRecoveryRequestsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRecoveryRequestsResponse, error)
+
+	// ListRecoveryRequestsToAttestWithResponse request
+	ListRecoveryRequestsToAttestWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRecoveryRequestsToAttestResponse, error)
 
 	// RotateRecoveryKeyWithBodyWithResponse request with any body
 	RotateRecoveryKeyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RotateRecoveryKeyResponse, error)
@@ -23387,17 +23024,14 @@ type ClientWithResponsesInterface interface {
 type ListAdminAuditLogResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *struct {
-		Entries *[]struct {
-			ActorPubkey  *string                 `json:"actor_pubkey"`
-			At           *int64                  `json:"at,omitempty"`
-			ChannelId    *string                 `json:"channel_id"`
-			EventType    *string                 `json:"event_type,omitempty"`
-			Payload      *map[string]interface{} `json:"payload,omitempty"`
-			Seq          *int64                  `json:"seq,omitempty"`
-			TargetPubkey *string                 `json:"target_pubkey"`
-		} `json:"entries,omitempty"`
-		NextCursor *int64 `json:"next_cursor"`
+	JSON200      *[]struct {
+		ActorPubkey  *string                 `json:"actor_pubkey"`
+		At           *int64                  `json:"at,omitempty"`
+		ChannelId    *string                 `json:"channel_id"`
+		EventType    *string                 `json:"event_type,omitempty"`
+		Payload      *map[string]interface{} `json:"payload,omitempty"`
+		Seq          *int64                  `json:"seq,omitempty"`
+		TargetPubkey *string                 `json:"target_pubkey"`
 	}
 }
 
@@ -25403,58 +25037,6 @@ func (r CreateAuthChallengeResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateAuthChallengeResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type CreateAuthDeviceTokenResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *struct {
-		ExpiresAt *int64  `json:"expires_at,omitempty"`
-		Id        *string `json:"id,omitempty"`
-
-		// Token Shown once — store hashed on the client
-		Token *string `json:"token,omitempty"`
-	}
-}
-
-// Status returns HTTPResponse.Status
-func (r CreateAuthDeviceTokenResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CreateAuthDeviceTokenResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type RedeemAuthDeviceTokenResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *struct {
-		SessionToken *string `json:"session_token,omitempty"`
-	}
-}
-
-// Status returns HTTPResponse.Status
-func (r RedeemAuthDeviceTokenResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r RedeemAuthDeviceTokenResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -27935,48 +27517,6 @@ func (r GetFederationListingResponse) StatusCode() int {
 	return 0
 }
 
-type ListFederationPeersResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r ListFederationPeersResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListFederationPeersResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type CreateFederationPeerResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r CreateFederationPeerResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CreateFederationPeerResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type ListFriendsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -29142,55 +28682,6 @@ func (r UpdateMeCredentialResponse) StatusCode() int {
 	return 0
 }
 
-type ListMeDevicesResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]struct {
-		CreatedAt  *int64  `json:"created_at,omitempty"`
-		DeviceName *string `json:"device_name"`
-		ExpiresAt  *int64  `json:"expires_at,omitempty"`
-		Id         *string `json:"id,omitempty"`
-		LastUsedAt *int64  `json:"last_used_at"`
-	}
-}
-
-// Status returns HTTPResponse.Status
-func (r ListMeDevicesResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListMeDevicesResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type DeleteMeDeviceResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r DeleteMeDeviceResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DeleteMeDeviceResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type ListMeEventsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -29806,6 +29297,36 @@ func (r ListRecoveryRequestsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListRecoveryRequestsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListRecoveryRequestsToAttestResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]struct {
+		AttestationCount *int64  `json:"attestation_count,omitempty"`
+		CreatedAt        *int64  `json:"created_at,omitempty"`
+		Id               *string `json:"id,omitempty"`
+		NewPubkey        *string `json:"new_pubkey,omitempty"`
+		OldPubkey        *string `json:"old_pubkey,omitempty"`
+		Reason           *string `json:"reason"`
+		Threshold        *int64  `json:"threshold,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRecoveryRequestsToAttestResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRecoveryRequestsToAttestResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -31704,40 +31225,6 @@ func (c *ClientWithResponses) CreateAuthChallengeWithResponse(ctx context.Contex
 	return ParseCreateAuthChallengeResponse(rsp)
 }
 
-// CreateAuthDeviceTokenWithBodyWithResponse request with arbitrary body returning *CreateAuthDeviceTokenResponse
-func (c *ClientWithResponses) CreateAuthDeviceTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAuthDeviceTokenResponse, error) {
-	rsp, err := c.CreateAuthDeviceTokenWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateAuthDeviceTokenResponse(rsp)
-}
-
-func (c *ClientWithResponses) CreateAuthDeviceTokenWithResponse(ctx context.Context, body CreateAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAuthDeviceTokenResponse, error) {
-	rsp, err := c.CreateAuthDeviceToken(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateAuthDeviceTokenResponse(rsp)
-}
-
-// RedeemAuthDeviceTokenWithBodyWithResponse request with arbitrary body returning *RedeemAuthDeviceTokenResponse
-func (c *ClientWithResponses) RedeemAuthDeviceTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RedeemAuthDeviceTokenResponse, error) {
-	rsp, err := c.RedeemAuthDeviceTokenWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseRedeemAuthDeviceTokenResponse(rsp)
-}
-
-func (c *ClientWithResponses) RedeemAuthDeviceTokenWithResponse(ctx context.Context, body RedeemAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*RedeemAuthDeviceTokenResponse, error) {
-	rsp, err := c.RedeemAuthDeviceToken(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseRedeemAuthDeviceTokenResponse(rsp)
-}
-
 // VerifyAuthWithBodyWithResponse request with arbitrary body returning *VerifyAuthResponse
 func (c *ClientWithResponses) VerifyAuthWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyAuthResponse, error) {
 	rsp, err := c.VerifyAuthWithBody(ctx, contentType, body, reqEditors...)
@@ -33051,32 +32538,6 @@ func (c *ClientWithResponses) GetFederationListingWithResponse(ctx context.Conte
 	return ParseGetFederationListingResponse(rsp)
 }
 
-// ListFederationPeersWithResponse request returning *ListFederationPeersResponse
-func (c *ClientWithResponses) ListFederationPeersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListFederationPeersResponse, error) {
-	rsp, err := c.ListFederationPeers(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListFederationPeersResponse(rsp)
-}
-
-// CreateFederationPeerWithBodyWithResponse request with arbitrary body returning *CreateFederationPeerResponse
-func (c *ClientWithResponses) CreateFederationPeerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error) {
-	rsp, err := c.CreateFederationPeerWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateFederationPeerResponse(rsp)
-}
-
-func (c *ClientWithResponses) CreateFederationPeerWithResponse(ctx context.Context, body CreateFederationPeerJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error) {
-	rsp, err := c.CreateFederationPeer(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateFederationPeerResponse(rsp)
-}
-
 // ListFriendsWithResponse request returning *ListFriendsResponse
 func (c *ClientWithResponses) ListFriendsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListFriendsResponse, error) {
 	rsp, err := c.ListFriends(ctx, reqEditors...)
@@ -33739,24 +33200,6 @@ func (c *ClientWithResponses) UpdateMeCredentialWithResponse(ctx context.Context
 	return ParseUpdateMeCredentialResponse(rsp)
 }
 
-// ListMeDevicesWithResponse request returning *ListMeDevicesResponse
-func (c *ClientWithResponses) ListMeDevicesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListMeDevicesResponse, error) {
-	rsp, err := c.ListMeDevices(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListMeDevicesResponse(rsp)
-}
-
-// DeleteMeDeviceWithResponse request returning *DeleteMeDeviceResponse
-func (c *ClientWithResponses) DeleteMeDeviceWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteMeDeviceResponse, error) {
-	rsp, err := c.DeleteMeDevice(ctx, id, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDeleteMeDeviceResponse(rsp)
-}
-
 // ListMeEventsWithResponse request returning *ListMeEventsResponse
 func (c *ClientWithResponses) ListMeEventsWithResponse(ctx context.Context, params *ListMeEventsParams, reqEditors ...RequestEditorFn) (*ListMeEventsResponse, error) {
 	rsp, err := c.ListMeEvents(ctx, params, reqEditors...)
@@ -34061,6 +33504,15 @@ func (c *ClientWithResponses) ListRecoveryRequestsWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParseListRecoveryRequestsResponse(rsp)
+}
+
+// ListRecoveryRequestsToAttestWithResponse request returning *ListRecoveryRequestsToAttestResponse
+func (c *ClientWithResponses) ListRecoveryRequestsToAttestWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRecoveryRequestsToAttestResponse, error) {
+	rsp, err := c.ListRecoveryRequestsToAttest(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRecoveryRequestsToAttestResponse(rsp)
 }
 
 // RotateRecoveryKeyWithBodyWithResponse request with arbitrary body returning *RotateRecoveryKeyResponse
@@ -34515,17 +33967,14 @@ func ParseListAdminAuditLogResponse(rsp *http.Response) (*ListAdminAuditLogRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Entries *[]struct {
-				ActorPubkey  *string                 `json:"actor_pubkey"`
-				At           *int64                  `json:"at,omitempty"`
-				ChannelId    *string                 `json:"channel_id"`
-				EventType    *string                 `json:"event_type,omitempty"`
-				Payload      *map[string]interface{} `json:"payload,omitempty"`
-				Seq          *int64                  `json:"seq,omitempty"`
-				TargetPubkey *string                 `json:"target_pubkey"`
-			} `json:"entries,omitempty"`
-			NextCursor *int64 `json:"next_cursor"`
+		var dest []struct {
+			ActorPubkey  *string                 `json:"actor_pubkey"`
+			At           *int64                  `json:"at,omitempty"`
+			ChannelId    *string                 `json:"channel_id"`
+			EventType    *string                 `json:"event_type,omitempty"`
+			Payload      *map[string]interface{} `json:"payload,omitempty"`
+			Seq          *int64                  `json:"seq,omitempty"`
+			TargetPubkey *string                 `json:"target_pubkey"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -36457,66 +35906,6 @@ func ParseCreateAuthChallengeResponse(rsp *http.Response) (*CreateAuthChallengeR
 
 			// Scheme Present when the answer may be signed over "wavvon/auth-challenge/v1\0" || hex-decoded challenge (wire-format.md). Omitted by older hubs, which take a signature over the raw decoded bytes only. A hub that sends it still accepts the raw form.
 			Scheme *CreateAuthChallenge200Scheme `json:"scheme,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseCreateAuthDeviceTokenResponse parses an HTTP response from a CreateAuthDeviceTokenWithResponse call
-func ParseCreateAuthDeviceTokenResponse(rsp *http.Response) (*CreateAuthDeviceTokenResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CreateAuthDeviceTokenResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			ExpiresAt *int64  `json:"expires_at,omitempty"`
-			Id        *string `json:"id,omitempty"`
-
-			// Token Shown once — store hashed on the client
-			Token *string `json:"token,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseRedeemAuthDeviceTokenResponse parses an HTTP response from a RedeemAuthDeviceTokenWithResponse call
-func ParseRedeemAuthDeviceTokenResponse(rsp *http.Response) (*RedeemAuthDeviceTokenResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &RedeemAuthDeviceTokenResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			SessionToken *string `json:"session_token,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -38937,38 +38326,6 @@ func ParseGetFederationListingResponse(rsp *http.Response) (*GetFederationListin
 	return response, nil
 }
 
-// ParseListFederationPeersResponse parses an HTTP response from a ListFederationPeersWithResponse call
-func ParseListFederationPeersResponse(rsp *http.Response) (*ListFederationPeersResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListFederationPeersResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseCreateFederationPeerResponse parses an HTTP response from a CreateFederationPeerWithResponse call
-func ParseCreateFederationPeerResponse(rsp *http.Response) (*CreateFederationPeerResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CreateFederationPeerResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
 // ParseListFriendsResponse parses an HTTP response from a ListFriendsWithResponse call
 func ParseListFriendsResponse(rsp *http.Response) (*ListFriendsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -39999,54 +39356,6 @@ func ParseUpdateMeCredentialResponse(rsp *http.Response) (*UpdateMeCredentialRes
 	return response, nil
 }
 
-// ParseListMeDevicesResponse parses an HTTP response from a ListMeDevicesWithResponse call
-func ParseListMeDevicesResponse(rsp *http.Response) (*ListMeDevicesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListMeDevicesResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []struct {
-			CreatedAt  *int64  `json:"created_at,omitempty"`
-			DeviceName *string `json:"device_name"`
-			ExpiresAt  *int64  `json:"expires_at,omitempty"`
-			Id         *string `json:"id,omitempty"`
-			LastUsedAt *int64  `json:"last_used_at"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseDeleteMeDeviceResponse parses an HTTP response from a DeleteMeDeviceWithResponse call
-func ParseDeleteMeDeviceResponse(rsp *http.Response) (*DeleteMeDeviceResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DeleteMeDeviceResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
 // ParseListMeEventsResponse parses an HTTP response from a ListMeEventsWithResponse call
 func ParseListMeEventsResponse(rsp *http.Response) (*ListMeEventsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -40601,6 +39910,40 @@ func ParseListRecoveryRequestsResponse(rsp *http.Response) (*ListRecoveryRequest
 			Id               *string `json:"id,omitempty"`
 			NewPubkey        *string `json:"new_pubkey,omitempty"`
 			Status           *string `json:"status,omitempty"`
+			Threshold        *int64  `json:"threshold,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListRecoveryRequestsToAttestResponse parses an HTTP response from a ListRecoveryRequestsToAttestWithResponse call
+func ParseListRecoveryRequestsToAttestResponse(rsp *http.Response) (*ListRecoveryRequestsToAttestResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRecoveryRequestsToAttestResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []struct {
+			AttestationCount *int64  `json:"attestation_count,omitempty"`
+			CreatedAt        *int64  `json:"created_at,omitempty"`
+			Id               *string `json:"id,omitempty"`
+			NewPubkey        *string `json:"new_pubkey,omitempty"`
+			OldPubkey        *string `json:"old_pubkey,omitempty"`
+			Reason           *string `json:"reason"`
 			Threshold        *int64  `json:"threshold,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

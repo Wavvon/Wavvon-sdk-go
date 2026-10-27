@@ -27,24 +27,11 @@ func TestTaggedV1PrefixesTheTag(t *testing.T) {
 	}
 }
 
-func TestRawChallengeOnlyAtExactly32Bytes(t *testing.T) {
-	c := bytes.Repeat([]byte{9}, 32)
-	if b, err := AuthChallengeSigningBytes(c, nil); err != nil || !bytes.Equal(b, c) {
-		t.Fatalf("got %x, %v", b, err)
-	}
-	for _, n := range []int{31, 64} {
+func TestUnknownOrMissingSchemeIsRefused(t *testing.T) {
+	for _, s := range []*string{nil, str(""), str("tagged-v2")} {
 		var se *AuthSchemeError
-		if _, err := AuthChallengeSigningBytes(make([]byte, n), nil); !errors.As(err, &se) {
-			t.Errorf("%d raw bytes: want AuthSchemeError, got %v", n, err)
-		}
-	}
-}
-
-func TestUnknownSchemeIsRefused(t *testing.T) {
-	for _, s := range []string{"tagged-v2", ""} {
-		var se *AuthSchemeError
-		if _, err := AuthChallengeSigningBytes(make([]byte, 32), str(s)); !errors.As(err, &se) {
-			t.Errorf("scheme %q: want AuthSchemeError, got %v", s, err)
+		if _, err := AuthChallengeSigningBytes(make([]byte, 32), s); !errors.As(err, &se) {
+			t.Errorf("scheme %v: want AuthSchemeError, got %v", s, err)
 		}
 	}
 }
