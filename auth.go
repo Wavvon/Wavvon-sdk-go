@@ -15,9 +15,6 @@ import (
 // AuthChallengeScheme is the only named challenge scheme this SDK signs.
 const AuthChallengeScheme = "tagged-v1"
 
-// AuthChallengeLen is the only length a raw (untagged) challenge is signed at.
-const AuthChallengeLen = 32
-
 const authChallengeTag = "wavvon/auth-challenge/v1\x00"
 
 // Identity is a keypair the program holds. The private key never leaves it:
@@ -51,23 +48,18 @@ func IdentityFromHexSeed(seed string) (*Identity, error) {
 func (id *Identity) Sign(message []byte) []byte { return ed25519.Sign(id.key, message) }
 
 // AuthChallengeSigningBytes returns what a client signs to answer a challenge
-// (wire-format.md, "Auth challenge answer"). scheme is nil when the hub's
-// response has no scheme field. "tagged-v1" is the domain tag plus the
-// challenge. No scheme (an older hub) is the raw challenge, and only at
-// exactly 32 bytes, so this can never sign arbitrary bytes. Any other scheme,
-// the empty string included, is refused rather than guessed at.
+// (wire-format.md, "Auth challenge answer"): the "tagged-v1" domain tag plus
+// the challenge. scheme is nil when the hub's response has no scheme field.
+// Anything but "tagged-v1", a missing scheme included, is refused: hubs
+// before v0.7.0 named no scheme and are no longer supported.
 func AuthChallengeSigningBytes(challenge []byte, scheme *string) ([]byte, error) {
-	switch {
-	case scheme == nil:
-		if len(challenge) != AuthChallengeLen {
-			return nil, &AuthSchemeError{fmt.Sprintf("refusing to sign a raw %d-byte challenge; only %d bytes are ever signed raw", len(challenge), AuthChallengeLen)}
-		}
-		return append([]byte(nil), challenge...), nil
-	case *scheme == AuthChallengeScheme:
-		return append([]byte(authChallengeTag), challenge...), nil
-	default:
+	if scheme == nil {
+		return nil, &AuthSchemeError{"hub named no auth challenge scheme; only tagged-v1 is signed"}
+	}
+	if *scheme != AuthChallengeScheme {
 		return nil, &AuthSchemeError{fmt.Sprintf("unknown auth challenge scheme %q", *scheme)}
 	}
+	return append([]byte(authChallengeTag), challenge...), nil
 }
 
 // Session is a logged-in session on one hub.

@@ -135,13 +135,12 @@ func TestConformance(t *testing.T) {
 		if hub.PublicKey != v.s("hub_pubkey") {
 			t.Fatal("hub pubkey differs")
 		}
-		if hex.EncodeToString(hub.Sign(bytes)) != v.s("signature_v1") || hex.EncodeToString(hub.Sign(body)) != v.s("signature_legacy") {
-			t.Fatal("signatures differ")
+		if hex.EncodeToString(hub.Sign(bytes)) != v.s("signature_v1") {
+			t.Fatal("signature differs")
 		}
 		h := http.Header{}
 		h.Set(v.s("headers", "hub_pubkey"), v.s("hub_pubkey"))
 		h.Set(v.s("headers", "signature_v1"), v.s("signature_v1"))
-		h.Set(v.s("headers", "signature_legacy"), v.s("signature_legacy"))
 		h.Set(v.s("headers", "timestamp"), v.s("inputs", "timestamp"))
 		d, err := VerifyDispatch(h, body, v.s("hub_pubkey"), VerifyOptions{Now: time.Unix(int64(ts), 0)})
 		if err != nil || d.DispatchType() != "slash_command" {
@@ -176,12 +175,11 @@ func TestConformance(t *testing.T) {
 			h.Write(m)
 			return hex.EncodeToString(h.Sum(nil))
 		}
-		if mac(bytes) != v.s("signature_v1") || mac(body) != v.s("signature_legacy") {
-			t.Fatal("HMACs differ")
+		if mac(bytes) != v.s("signature_v1") {
+			t.Fatal("HMAC differs")
 		}
 		h := http.Header{}
 		h.Set(v.s("headers", "signature_v1"), v.s("signature_v1"))
-		h.Set(v.s("headers", "signature_legacy"), v.s("signature_legacy"))
 		h.Set(v.s("headers", "timestamp"), v.s("inputs", "timestamp"))
 		h.Set(v.s("headers", "webhook_id"), "wh_test")
 		ev, err := VerifyOutgoingWebhook(h, body, v.s("inputs", "secret_as_shown"), VerifyOptions{Now: time.Unix(int64(ts), 0)})
