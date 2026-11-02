@@ -21,10 +21,30 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// Defines values for AdminStickerState.
+const (
+	AdminStickerStateEvicted AdminStickerState = "evicted"
+	AdminStickerStateOk      AdminStickerState = "ok"
+	AdminStickerStateRemoved AdminStickerState = "removed"
+)
+
 // Defines values for AppCommandDefScope.
 const (
 	AppCommandDefScopeChannel AppCommandDefScope = "channel"
 	AppCommandDefScopeHub     AppCommandDefScope = "hub"
+)
+
+// Defines values for AttachmentRefKind.
+const (
+	File  AttachmentRefKind = "file"
+	Image AttachmentRefKind = "image"
+)
+
+// Defines values for AttachmentRefState.
+const (
+	AttachmentRefStateExpired AttachmentRefState = "expired"
+	AttachmentRefStateOk      AttachmentRefState = "ok"
+	AttachmentRefStateRemoved AttachmentRefState = "removed"
 )
 
 // Defines values for CertPayloadStanding.
@@ -84,6 +104,21 @@ const (
 	Select MessageComponentType = "select"
 )
 
+// Defines values for StickerState.
+const (
+	StickerStateEvicted StickerState = "evicted"
+	StickerStateOk      StickerState = "ok"
+	StickerStateRemoved StickerState = "removed"
+)
+
+// Defines values for SurveyQuestionAdminKind.
+const (
+	SurveyQuestionAdminKindChoice  SurveyQuestionAdminKind = "choice"
+	SurveyQuestionAdminKindConsent SurveyQuestionAdminKind = "consent"
+	SurveyQuestionAdminKindMulti   SurveyQuestionAdminKind = "multi"
+	SurveyQuestionAdminKindText    SurveyQuestionAdminKind = "text"
+)
+
 // Defines values for CreateAdminBanlistOverrideJSONBodyOverrideType.
 const (
 	Blacklist CreateAdminBanlistOverrideJSONBodyOverrideType = "blacklist"
@@ -130,6 +165,20 @@ const (
 	Puzzle PatchAdminSettingsChallengeJSONBodyChallengeMode = "puzzle"
 )
 
+// Defines values for ListStoredStickersParamsState.
+const (
+	ListStoredStickersParamsStateEvicted ListStoredStickersParamsState = "evicted"
+	ListStoredStickersParamsStateOk      ListStoredStickersParamsState = "ok"
+	ListStoredStickersParamsStateRemoved ListStoredStickersParamsState = "removed"
+)
+
+// Defines values for ListStoredStickersParamsSort.
+const (
+	Created ListStoredStickersParamsSort = "created"
+	Size    ListStoredStickersParamsSort = "size"
+	Used    ListStoredStickersParamsSort = "used"
+)
+
 // Defines values for ListAdminSurveyResponsesParamsStatus.
 const (
 	All     ListAdminSurveyResponsesParamsStatus = "all"
@@ -151,8 +200,8 @@ const (
 
 // Defines values for UpdateChannelJSONBodyChannelType.
 const (
-	Text  UpdateChannelJSONBodyChannelType = "text"
-	Voice UpdateChannelJSONBodyChannelType = "voice"
+	UpdateChannelJSONBodyChannelTypeText  UpdateChannelJSONBodyChannelType = "text"
+	UpdateChannelJSONBodyChannelTypeVoice UpdateChannelJSONBodyChannelType = "voice"
 )
 
 // Defines values for RsvpEventJSONBodyStatus.
@@ -161,6 +210,29 @@ const (
 	Maybe    RsvpEventJSONBodyStatus = "maybe"
 	NotGoing RsvpEventJSONBodyStatus = "not_going"
 )
+
+// AdminSticker defines model for AdminSticker.
+type AdminSticker struct {
+	CreatedAt     *int64  `json:"created_at,omitempty"`
+	Height        *int    `json:"height,omitempty"`
+	Id            *string `json:"id,omitempty"`
+	LastUsedAt    *int64  `json:"last_used_at,omitempty"`
+	MessageCount  *int64  `json:"message_count,omitempty"`
+	Name          *string `json:"name,omitempty"`
+	OriginHubName *string `json:"origin_hub_name"`
+	OriginHubUrl  *string `json:"origin_hub_url"`
+
+	// PackId Null for a copy
+	PackId    *string            `json:"pack_id"`
+	Sha256    *string            `json:"sha256,omitempty"`
+	SizeBytes *int64             `json:"size_bytes,omitempty"`
+	State     *AdminStickerState `json:"state,omitempty"`
+	Uploader  *string            `json:"uploader,omitempty"`
+	Width     *int               `json:"width,omitempty"`
+}
+
+// AdminStickerState defines model for AdminSticker.State.
+type AdminStickerState string
 
 // AllianceInfo defines model for AllianceInfo.
 type AllianceInfo struct {
@@ -238,12 +310,37 @@ type AppSubscription struct {
 	Event    string    `json:"event"`
 }
 
-// Attachment defines model for Attachment.
+// Attachment An inline DM attachment. Channel messages, posts and replies use `attachment_ids` instead.
 type Attachment struct {
 	DataB64 string `json:"data_b64"`
 	Mime    string `json:"mime"`
 	Name    string `json:"name"`
 }
+
+// AttachmentRef One uploaded file on a message, forum post or reply (capability `attachments.stored`). `url` is relative to the hub that holds the message; on an alliance read the reader's hub rewrites it to `/alliances/{alliance_id}/uploads/{id}`. A tombstone (`removed`, `expired`) keeps `name` and carries no bytes: `mime` is `application/octet-stream` and `size` 0.
+type AttachmentRef struct {
+	Height *int   `json:"height"`
+	Id     string `json:"id"`
+
+	// Kind `image` renders inline (a re-encoded WebP or JPEG); `file` is only ever downloaded.
+	Kind AttachmentRefKind `json:"kind"`
+
+	// Mime From the magic bytes, never from what the client declared.
+	Mime string `json:"mime"`
+	Name string `json:"name"`
+	Size int64  `json:"size"`
+
+	// State `removed` by a moderator, `expired` by retention, the disk budget or the migration.
+	State AttachmentRefState `json:"state"`
+	Url   string             `json:"url"`
+	Width *int               `json:"width"`
+}
+
+// AttachmentRefKind `image` renders inline (a re-encoded WebP or JPEG); `file` is only ever downloaded.
+type AttachmentRefKind string
+
+// AttachmentRefState `removed` by a moderator, `expired` by retention, the disk budget or the migration.
+type AttachmentRefState string
 
 // AttestationInput defines model for AttestationInput.
 type AttestationInput struct {
@@ -660,6 +757,13 @@ type LobbyStatus struct {
 // LobbyStatusStatus defines model for LobbyStatus.Status.
 type LobbyStatusStatus string
 
+// Masquerade defines model for Masquerade.
+type Masquerade struct {
+	// AvatarUrl Sent as an http(s) URL. The hub fetches it (PNG, JPEG, GIF, WebP or AVIF up to 1 MB) and stores its own copy, so on a message it is the hub-relative `/uploads/...` path; an avatar it cannot fetch is dropped and the name kept.
+	AvatarUrl *string `json:"avatar_url,omitempty"`
+	Name      string  `json:"name"`
+}
+
 // MeInfo defines model for MeInfo.
 type MeInfo struct {
 	AccentColor    *string              `json:"accent_color"`
@@ -700,8 +804,8 @@ type MemberAdminInfo struct {
 
 // Message defines model for Message.
 type Message struct {
-	Attachments *[]Attachment `json:"attachments,omitempty"`
-	ChannelId   *string       `json:"channel_id,omitempty"`
+	Attachments *[]AttachmentRef `json:"attachments,omitempty"`
+	ChannelId   *string          `json:"channel_id,omitempty"`
 
 	// Components Omitted unless set. Buttons and selects authored by an app; a click is sent back as `component_interaction` (docs/apps.md).
 	Components *[]ComponentRow `json:"components,omitempty"`
@@ -713,15 +817,21 @@ type Message struct {
 	Embeds *[]Embed `json:"embeds,omitempty"`
 
 	// Game Omitted unless set. Game-modal launch card authored by an app (docs/apps.md).
-	Game      *GameLaunchCard `json:"game,omitempty"`
-	Id        *string         `json:"id,omitempty"`
-	Reactions *[]Reaction     `json:"reactions,omitempty"`
+	Game *GameLaunchCard `json:"game,omitempty"`
+	Id   *string         `json:"id,omitempty"`
+
+	// Masquerade Omitted unless set. A name and avatar to show instead of the sender's own (a bridge relaying someone from another network, or a webhook's `username`). `sender` and `sender_name` stay the real author, and clients show both.
+	Masquerade *Masquerade `json:"masquerade,omitempty"`
+	Reactions  *[]Reaction `json:"reactions,omitempty"`
 
 	// ReplyCount Number of direct replies; non-zero only on thread roots.
 	ReplyCount *int64           `json:"reply_count,omitempty"`
 	ReplyTo    *Message_ReplyTo `json:"reply_to"`
 	Sender     *string          `json:"sender,omitempty"`
 	SenderName *string          `json:"sender_name"`
+
+	// Sticker Omitted unless set. The sticker sent with this message, held by this hub (stickers.md). A removed or evicted one carries its `state` so a client renders a sentence rather than a gap.
+	Sticker *Sticker `json:"sticker,omitempty"`
 
 	// VisibleToPubkey Omitted unless set. When present, only the named user should see this message (ephemeral bot replies).
 	VisibleToPubkey *string `json:"visible_to_pubkey,omitempty"`
@@ -756,12 +866,7 @@ type PollOption struct {
 
 // PostDetail defines model for PostDetail.
 type PostDetail struct {
-	Attachments *[]struct {
-		Mime string `json:"mime"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
-		Url  string `json:"url"`
-	} `json:"attachments,omitempty"`
+	Attachments *[]AttachmentRef `json:"attachments,omitempty"`
 
 	// AuthorHub Origin hub public key (hex) when the post came in through the alliance forum write-proxy. Hub-asserted, not proven: render it as mediated ("via HubName"). Omitted for local posts.
 	AuthorHub *string `json:"author_hub,omitempty"`
@@ -799,12 +904,7 @@ type PostDetail struct {
 
 // PostSummary defines model for PostSummary.
 type PostSummary struct {
-	Attachments *[]struct {
-		Mime string `json:"mime"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
-		Url  string `json:"url"`
-	} `json:"attachments,omitempty"`
+	Attachments *[]AttachmentRef `json:"attachments,omitempty"`
 
 	// AuthorHub Origin hub public key (hex) when the post came in through the alliance forum write-proxy. Hub-asserted, not proven: render it as mediated ("via HubName"). Omitted for local posts.
 	AuthorHub *string `json:"author_hub,omitempty"`
@@ -865,12 +965,7 @@ type ReplyContext struct {
 
 // ReplyView defines model for ReplyView.
 type ReplyView struct {
-	Attachments []struct {
-		Mime string `json:"mime"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
-		Url  string `json:"url"`
-	} `json:"attachments"`
+	Attachments []AttachmentRef `json:"attachments"`
 
 	// AuthorHub Origin hub public key (hex) when authored through the alliance forum write-proxy. Omitted for local replies.
 	AuthorHub    *string `json:"author_hub,omitempty"`
@@ -939,6 +1034,39 @@ type SignedMemberChange struct {
 	SignerCert *SubkeyCert `json:"signer_cert,omitempty"`
 }
 
+// Sticker A sticker this hub holds (stickers.md). `url` is relative to the hub that holds it, which is the only hub a reader fetches from.
+type Sticker struct {
+	Height        *int    `json:"height,omitempty"`
+	Id            *string `json:"id,omitempty"`
+	Name          *string `json:"name,omitempty"`
+	OriginHubName *string `json:"origin_hub_name"`
+
+	// OriginHubUrl The hub whose pack it came from; null for this hub's own pack stickers. Verified: this hub fetched the hash from there.
+	OriginHubUrl *string `json:"origin_hub_url"`
+
+	// Sha256 Hash of the stored WebP, computed by this hub
+	Sha256 *string `json:"sha256,omitempty"`
+
+	// State `removed`: a moderator deleted it. `evicted`: space was needed; sending it again re-fetches it from its origin.
+	State *StickerState `json:"state,omitempty"`
+
+	// Url `/stickers/{sha256}`
+	Url   *string `json:"url,omitempty"`
+	Width *int    `json:"width,omitempty"`
+}
+
+// StickerState `removed`: a moderator deleted it. `evicted`: space was needed; sending it again re-fetches it from its origin.
+type StickerState string
+
+// StickerPack defines model for StickerPack.
+type StickerPack struct {
+	CreatedAt *int64     `json:"created_at,omitempty"`
+	CreatedBy *string    `json:"created_by,omitempty"`
+	Id        *string    `json:"id,omitempty"`
+	Name      *string    `json:"name,omitempty"`
+	Stickers  *[]Sticker `json:"stickers,omitempty"`
+}
+
 // SubkeyCert defines model for SubkeyCert.
 type SubkeyCert struct {
 	DeviceLabel  string    `json:"device_label"`
@@ -950,10 +1078,19 @@ type SubkeyCert struct {
 	SubkeyPubkey string    `json:"subkey_pubkey"`
 }
 
-// SurveyAnswerInput defines model for SurveyAnswerInput.
+// SurveyAnswerInput One answer; the field used follows the question's `kind`.
 type SurveyAnswerInput struct {
-	ChoiceId   *string `json:"choice_id,omitempty"`
-	QuestionId string  `json:"question_id"`
+	// Checked A `consent` answer.
+	Checked *bool `json:"checked,omitempty"`
+
+	// ChoiceId A `choice` answer.
+	ChoiceId *string `json:"choice_id,omitempty"`
+
+	// ChoiceIds A `multi` answer.
+	ChoiceIds  *[]string `json:"choice_ids,omitempty"`
+	QuestionId string    `json:"question_id"`
+
+	// TextAnswer A `text` answer.
 	TextAnswer *string `json:"text_answer,omitempty"`
 }
 
@@ -969,11 +1106,21 @@ type SurveyChoiceAdmin struct {
 type SurveyQuestionAdmin struct {
 	Choices      *[]SurveyChoiceAdmin `json:"choices,omitempty"`
 	DisplayOrder int64                `json:"display_order"`
+	Help         *string              `json:"help,omitempty"`
 	Id           string               `json:"id"`
-	Kind         string               `json:"kind"`
-	Prompt       string               `json:"prompt"`
-	Required     bool                 `json:"required"`
+
+	// Kind A required `consent` must be checked; an unchecked one is refused with 422 `consent_refused:<question id>`.
+	Kind       SurveyQuestionAdminKind `json:"kind"`
+	MaxChoices *int32                  `json:"max_choices,omitempty"`
+	MaxLen     *int32                  `json:"max_len,omitempty"`
+	MinChoices *int32                  `json:"min_choices,omitempty"`
+	Multiline  *bool                   `json:"multiline,omitempty"`
+	Prompt     string                  `json:"prompt"`
+	Required   bool                    `json:"required"`
 }
+
+// SurveyQuestionAdminKind A required `consent` must be checked; an unchecked one is refused with 422 `consent_refused:<question id>`.
+type SurveyQuestionAdminKind string
 
 // UserInfo A member as listed by `GET /users`.
 type UserInfo struct {
@@ -997,6 +1144,13 @@ type UserInfo struct {
 type WebhookSubscriptionDto struct {
 	Channels *[]string `json:"channels,omitempty"`
 	Event    string    `json:"event"`
+}
+
+// SetAdminApplicationJSONBody defines parameters for SetAdminApplication.
+type SetAdminApplicationJSONBody struct {
+	Enabled   bool                  `json:"enabled"`
+	Id        string                `json:"id"`
+	Questions []SurveyQuestionAdmin `json:"questions"`
 }
 
 // ListAdminAuditLogParams defines parameters for ListAdminAuditLog.
@@ -1259,6 +1413,39 @@ type UpdateAdminSettingsTagsJSONBody struct {
 	Tags []string `json:"tags"`
 }
 
+// ListStoredStickersParams defines parameters for ListStoredStickers.
+type ListStoredStickersParams struct {
+	State    *ListStoredStickersParamsState `form:"state,omitempty" json:"state,omitempty"`
+	Uploader *string                        `form:"uploader,omitempty" json:"uploader,omitempty"`
+
+	// Sort Newest or largest first.
+	Sort  *ListStoredStickersParamsSort `form:"sort,omitempty" json:"sort,omitempty"`
+	Limit *int64                        `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor The `id` of the last sticker of the previous page.
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+}
+
+// ListStoredStickersParamsState defines parameters for ListStoredStickers.
+type ListStoredStickersParamsState string
+
+// ListStoredStickersParamsSort defines parameters for ListStoredStickers.
+type ListStoredStickersParamsSort string
+
+// ListStickerBlocklistParams defines parameters for ListStickerBlocklist.
+type ListStickerBlocklistParams struct {
+	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor The `sha256` of the last entry of the previous page.
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+}
+
+// DeleteStoredStickerParams defines parameters for DeleteStoredSticker.
+type DeleteStoredStickerParams struct {
+	Block  *bool   `form:"block,omitempty" json:"block,omitempty"`
+	Reason *string `form:"reason,omitempty" json:"reason,omitempty"`
+}
+
 // SetAdminSurveyJSONBody defines parameters for SetAdminSurvey.
 type SetAdminSurveyJSONBody struct {
 	Enabled   bool                  `json:"enabled"`
@@ -1333,10 +1520,10 @@ type ListAllianceChannelMessagesParams struct {
 
 // CreateAllianceChannelMessageJSONBody defines parameters for CreateAllianceChannelMessage.
 type CreateAllianceChannelMessageJSONBody struct {
-	Attachments *[]Attachment   `json:"attachments,omitempty"`
-	Content     string          `json:"content"`
-	Game        *GameLaunchCard `json:"game,omitempty"`
-	ReplyTo     *string         `json:"reply_to,omitempty"`
+	AttachmentIds *[]string       `json:"attachment_ids,omitempty"`
+	Content       string          `json:"content"`
+	Game          *GameLaunchCard `json:"game,omitempty"`
+	ReplyTo       *string         `json:"reply_to,omitempty"`
 }
 
 // ListAllianceChannelPostsParams defines parameters for ListAllianceChannelPosts.
@@ -1407,6 +1594,12 @@ type CreateAlliancePushInviteJSONBody struct {
 // CreateAllianceVoiceGrantJSONBody defines parameters for CreateAllianceVoiceGrant.
 type CreateAllianceVoiceGrantJSONBody struct {
 	ChannelId string `json:"channel_id"`
+}
+
+// SubmitApplicationJSONBody defines parameters for SubmitApplication.
+type SubmitApplicationJSONBody struct {
+	Answers  []SurveyAnswerInput `json:"answers"`
+	SurveyId string              `json:"survey_id"`
 }
 
 // CreateAuthChallengeJSONBody defines parameters for CreateAuthChallenge.
@@ -1489,6 +1682,12 @@ type ListCertsRevocationsParams struct {
 	Since *int64 `form:"since,omitempty" json:"since,omitempty"`
 }
 
+// GetNewChallengeParams defines parameters for GetNewChallenge.
+type GetNewChallengeParams struct {
+	// Pubkey Hex public key of the identity about to authenticate.
+	Pubkey string `form:"pubkey" json:"pubkey"`
+}
+
 // VerifyChallengeJSONBody defines parameters for VerifyChallenge.
 type VerifyChallengeJSONBody struct {
 	// Answer Numeric answer for puzzle mode; omit for click-only
@@ -1558,12 +1757,16 @@ type ListChannelMessagesParams struct {
 
 // CreateChannelMessageJSONBody defines parameters for CreateChannelMessage.
 type CreateChannelMessageJSONBody struct {
-	Attachments *[]Attachment   `json:"attachments,omitempty"`
-	Content     string          `json:"content"`
-	Game        *GameLaunchCard `json:"game,omitempty"`
+	// AttachmentIds Ids from `POST /channels/{channel_id}/upload`, shown in this order. Each must be the sender's own upload to this channel, not linked yet and not a tombstone, and the count within `max_attachments_per_message`: otherwise 400 (not found, too many, duplicate), 409 (already linked) or 410 (removed or expired). The retired inline `attachments` field answers 400.
+	AttachmentIds *[]string       `json:"attachment_ids,omitempty"`
+	Content       string          `json:"content"`
+	Game          *GameLaunchCard `json:"game,omitempty"`
 
 	// ReplyTo Message ID being replied to
 	ReplyTo *string `json:"reply_to,omitempty"`
+
+	// StickerId A sticker this hub holds (see POST /channels/{channel_id}/stickers). 404 unknown, 410 removed or evicted, 403 for a copy without stickers.external. Refused on alliance channels.
+	StickerId *string `json:"sticker_id,omitempty"`
 }
 
 // UpdateChannelMessageJSONBody defines parameters for UpdateChannelMessage.
@@ -1618,15 +1821,11 @@ type ListChannelPostsParams struct {
 
 // CreateChannelPostJSONBody defines parameters for CreateChannelPost.
 type CreateChannelPostJSONBody struct {
-	Attachments *[]struct {
-		Mime string `json:"mime"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
-		Url  string `json:"url"`
-	} `json:"attachments,omitempty"`
-	Body   string    `json:"body"`
-	TagIds *[]string `json:"tag_ids,omitempty"`
-	Title  string    `json:"title"`
+	// AttachmentIds Uploads to this channel (see POST /channels/{channel_id}/messages). Outside URLs are no longer accepted; the retired `attachments` field answers 400.
+	AttachmentIds *[]string `json:"attachment_ids,omitempty"`
+	Body          string    `json:"body"`
+	TagIds        *[]string `json:"tag_ids,omitempty"`
+	Title         string    `json:"title"`
 }
 
 // SearchChannelPostsParams defines parameters for SearchChannelPosts.
@@ -1660,13 +1859,9 @@ type CreateChannelPostReactionJSONBody struct {
 
 // CreateChannelPostReplyJSONBody defines parameters for CreateChannelPostReply.
 type CreateChannelPostReplyJSONBody struct {
-	Attachments *[]struct {
-		Mime string `json:"mime"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
-		Url  string `json:"url"`
-	} `json:"attachments,omitempty"`
-	Body string `json:"body"`
+	// AttachmentIds Uploads to this channel; see POST /channels/{channel_id}/posts.
+	AttachmentIds *[]string `json:"attachment_ids,omitempty"`
+	Body          string    `json:"body"`
 
 	// ReplyToId Optional parent reply within the same post
 	ReplyToId *string `json:"reply_to_id,omitempty"`
@@ -1681,6 +1876,13 @@ type UpdateChannelPostReplyJSONBody struct {
 type CreateChannelPostReplyReactionJSONBody struct {
 	// Emoji 1–8 chars
 	Emoji string `json:"emoji"`
+}
+
+// EnsureChannelStickerJSONBody defines parameters for EnsureChannelSticker.
+type EnsureChannelStickerJSONBody struct {
+	Name         *string `json:"name,omitempty"`
+	OriginHubUrl string  `json:"origin_hub_url"`
+	Sha256       string  `json:"sha256"`
 }
 
 // CreateChannelTagJSONBody defines parameters for CreateChannelTag.
@@ -1699,7 +1901,9 @@ type SetChannelTalkPowerJSONBody struct {
 
 // UploadChannelFileMultipartBody defines parameters for UploadChannelFile.
 type UploadChannelFileMultipartBody struct {
-	File *openapi_types.File `json:"file,omitempty"`
+	// AsFile Keep the original image bytes; download only.
+	AsFile *bool               `json:"as_file,omitempty"`
+	File   *openapi_types.File `json:"file,omitempty"`
 }
 
 // CreateChannelVoiceMuteJSONBody defines parameters for CreateChannelVoiceMute.
@@ -1946,23 +2150,62 @@ type CreateFriendJSONBody struct {
 
 // UpdateHubJSONBody defines parameters for UpdateHub.
 type UpdateHubJSONBody struct {
-	AfkChannelId        *string `json:"afk_channel_id,omitempty"`
-	AfkTimeoutSecs      *int    `json:"afk_timeout_secs,omitempty"`
-	BirthdaysEnabled    *bool   `json:"birthdays_enabled,omitempty"`
-	DefaultInviteRoleId *string `json:"default_invite_role_id,omitempty"`
-	Description         *string `json:"description,omitempty"`
-	FarewellLabel       *string `json:"farewell_label,omitempty"`
-	Icon                *string `json:"icon,omitempty"`
-	MaxAttachmentBytes  *int64  `json:"max_attachment_bytes,omitempty"`
-	MaxChannelDepth     *int    `json:"max_channel_depth,omitempty"`
-	MaxUploadBytes      *int64  `json:"max_upload_bytes,omitempty"`
-	MinSecurityLevel    *int    `json:"min_security_level,omitempty"`
-	Name                *string `json:"name,omitempty"`
-	NameColorMode       *string `json:"name_color_mode,omitempty"`
-	RequireApproval     *bool   `json:"require_approval,omitempty"`
-	Timezone            *string `json:"timezone,omitempty"`
-	WelcomeInviteUrl    *string `json:"welcome_invite_url,omitempty"`
-	WelcomeLabel        *string `json:"welcome_label,omitempty"`
+	AfkChannelId   *string `json:"afk_channel_id,omitempty"`
+	AfkTimeoutSecs *int    `json:"afk_timeout_secs,omitempty"`
+
+	// AttachmentsCapBytes 64 MB to 10 TB, default 10 GB. Whole blobs, orphans first and then least recently linked (banners excepted), expire; the upload succeeds. Never per member.
+	AttachmentsCapBytes *int64 `json:"attachments_cap_bytes,omitempty"`
+
+	// AttachmentsRetentionDays 0 (never) to 3650, default 0. Older attachments expire.
+	AttachmentsRetentionDays *int `json:"attachments_retention_days,omitempty"`
+
+	// AttachmentsWarnPercent 50 to 99, default 90. Sets attachments_usage.warning.
+	AttachmentsWarnPercent *int    `json:"attachments_warn_percent,omitempty"`
+	BirthdaysEnabled       *bool   `json:"birthdays_enabled,omitempty"`
+	DefaultInviteRoleId    *string `json:"default_invite_role_id,omitempty"`
+	Description            *string `json:"description,omitempty"`
+	FarewellLabel          *string `json:"farewell_label,omitempty"`
+	Icon                   *string `json:"icon,omitempty"`
+	MaxAttachmentBytes     *int64  `json:"max_attachment_bytes,omitempty"`
+
+	// MaxAttachmentsPerMessage 1 to 25, default 10. That message is refused.
+	MaxAttachmentsPerMessage *int `json:"max_attachments_per_message,omitempty"`
+	MaxChannelDepth          *int `json:"max_channel_depth,omitempty"`
+
+	// MaxPreviewImageBytes Largest link-preview image in bytes, 262144 to 16777216, default 4194304. Also returned by GET /hub/settings.
+	MaxPreviewImageBytes *int64  `json:"max_preview_image_bytes,omitempty"`
+	MaxUploadBytes       *int64  `json:"max_upload_bytes,omitempty"`
+	MinSecurityLevel     *int    `json:"min_security_level,omitempty"`
+	Name                 *string `json:"name,omitempty"`
+	NameColorMode        *string `json:"name_color_mode,omitempty"`
+	RequireApproval      *bool   `json:"require_approval,omitempty"`
+
+	// StickerPacksPerHub 1 to 200, default 20
+	StickerPacksPerHub *int `json:"sticker_packs_per_hub,omitempty"`
+
+	// StickersCopiesCapBytes 64 MB to 1 TB, default 1 GB. Orphans, then least recently used copies, are evicted; a send is never refused.
+	StickersCopiesCapBytes *int64 `json:"stickers_copies_cap_bytes,omitempty"`
+
+	// StickersExport Default true. Off: GET /federation/stickers/{sha256} answers 403.
+	StickersExport *bool `json:"stickers_export,omitempty"`
+
+	// StickersMaxFileBytes 65536 to 4194304, default 524288. Also returned by GET /hub/settings, as are the other stickers_* settings.
+	StickersMaxFileBytes *int64 `json:"stickers_max_file_bytes,omitempty"`
+
+	// StickersOrphanGcDays 1 to 365, default 30
+	StickersOrphanGcDays *int `json:"stickers_orphan_gc_days,omitempty"`
+
+	// StickersPacksCapBytes 16 MB to 100 GB, default 512 MB. Pack additions are refused at the cap.
+	StickersPacksCapBytes *int64 `json:"stickers_packs_cap_bytes,omitempty"`
+
+	// StickersPacksWarnPercent 50 to 99, default 90
+	StickersPacksWarnPercent *int `json:"stickers_packs_warn_percent,omitempty"`
+
+	// StickersPerPack 1 to 500, default 60
+	StickersPerPack  *int    `json:"stickers_per_pack,omitempty"`
+	Timezone         *string `json:"timezone,omitempty"`
+	WelcomeInviteUrl *string `json:"welcome_invite_url,omitempty"`
+	WelcomeLabel     *string `json:"welcome_label,omitempty"`
 }
 
 // CreateHubIconJSONBody defines parameters for CreateHubIcon.
@@ -1991,6 +2234,11 @@ type ListHubPendingParams struct {
 
 	// Cursor Keyset cursor — the `public_key` of the previous page's last row.
 	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+}
+
+// RejectHubPendingJSONBody defines parameters for RejectHubPending.
+type RejectHubPendingJSONBody struct {
+	Reason *string `json:"reason,omitempty"`
 }
 
 // SetIdentityDmBlocksJSONBody defines parameters for SetIdentityDmBlocks.
@@ -2111,15 +2359,18 @@ type SetMeAppCommandsJSONBody struct {
 
 // SetMeAppProfileJSONBody defines parameters for SetMeAppProfile.
 type SetMeAppProfileJSONBody struct {
-	AvatarUrl      *string          `json:"avatar_url,omitempty"`
-	Capabilities   *[]string        `json:"capabilities,omitempty"`
-	Commands       *[]AppCommandDef `json:"commands,omitempty"`
-	Description    *string          `json:"description,omitempty"`
-	Game           *GameLaunchCard  `json:"game,omitempty"`
-	HomepageUrl    *string          `json:"homepage_url,omitempty"`
-	MiniAppUrl     *string          `json:"mini_app_url,omitempty"`
-	Name           string           `json:"name"`
-	RequiresCamera *bool            `json:"requires_camera,omitempty"`
+	AvatarUrl    *string          `json:"avatar_url,omitempty"`
+	Capabilities *[]string        `json:"capabilities,omitempty"`
+	Commands     *[]AppCommandDef `json:"commands,omitempty"`
+	Description  *string          `json:"description,omitempty"`
+	Game         *GameLaunchCard  `json:"game,omitempty"`
+	HomepageUrl  *string          `json:"homepage_url,omitempty"`
+
+	// Masquerade Needs `messages.masquerade` in the channel (403 without it, 400 when malformed).
+	Masquerade     *Masquerade `json:"masquerade,omitempty"`
+	MiniAppUrl     *string     `json:"mini_app_url,omitempty"`
+	Name           string      `json:"name"`
+	RequiresCamera *bool       `json:"requires_camera,omitempty"`
 
 	// WebhookUrl https only; receives slash invocations
 	WebhookUrl *string `json:"webhook_url,omitempty"`
@@ -2317,6 +2568,28 @@ type MarkSoundboardSoundPlayedJSONBody struct {
 	ChannelId string `json:"channel_id"`
 }
 
+// CreateStickerPackJSONBody defines parameters for CreateStickerPack.
+type CreateStickerPackJSONBody struct {
+	Name string `json:"name"`
+}
+
+// RenameStickerPackJSONBody defines parameters for RenameStickerPack.
+type RenameStickerPackJSONBody struct {
+	Name string `json:"name"`
+}
+
+// AddStickerToPackJSONBody defines parameters for AddStickerToPack.
+type AddStickerToPackJSONBody struct {
+	Name   *string `json:"name,omitempty"`
+	Sha256 string  `json:"sha256"`
+}
+
+// AddStickerToPackMultipartBody defines parameters for AddStickerToPack.
+type AddStickerToPackMultipartBody struct {
+	File openapi_types.File `json:"file"`
+	Name *string            `json:"name,omitempty"`
+}
+
 // SubmitSurveyJSONBody defines parameters for SubmitSurvey.
 type SubmitSurveyJSONBody struct {
 	Answers  []SurveyAnswerInput `json:"answers"`
@@ -2357,11 +2630,12 @@ type LeaveVoiceJSONBody struct {
 
 // ExecuteWebhookJSONBody defines parameters for ExecuteWebhook.
 type ExecuteWebhookJSONBody struct {
+	// AvatarUrl An http(s) URL, shown as this message's avatar (stored as its `masquerade`)
 	AvatarUrl *string                 `json:"avatar_url,omitempty"`
 	Content   string                  `json:"content"`
 	Embeds    *map[string]interface{} `json:"embeds,omitempty"`
 
-	// Username Overrides the webhook's display name
+	// Username Shown instead of the webhook's display name on this message (stored as its `masquerade`)
 	Username *string `json:"username,omitempty"`
 }
 
@@ -2370,6 +2644,9 @@ type ConnectWebSocketParams struct {
 	// Token Session token from `POST /auth/verify`.
 	Token string `form:"token" json:"token"`
 }
+
+// SetAdminApplicationJSONRequestBody defines body for SetAdminApplication for application/json ContentType.
+type SetAdminApplicationJSONRequestBody SetAdminApplicationJSONBody
 
 // IssueAdminBadgeJSONRequestBody defines body for IssueAdminBadge for application/json ContentType.
 type IssueAdminBadgeJSONRequestBody IssueAdminBadgeJSONBody
@@ -2473,6 +2750,9 @@ type CreateAlliancePushInviteJSONRequestBody CreateAlliancePushInviteJSONBody
 // CreateAllianceVoiceGrantJSONRequestBody defines body for CreateAllianceVoiceGrant for application/json ContentType.
 type CreateAllianceVoiceGrantJSONRequestBody CreateAllianceVoiceGrantJSONBody
 
+// SubmitApplicationJSONRequestBody defines body for SubmitApplication for application/json ContentType.
+type SubmitApplicationJSONRequestBody SubmitApplicationJSONBody
+
 // CreateAuthChallengeJSONRequestBody defines body for CreateAuthChallenge for application/json ContentType.
 type CreateAuthChallengeJSONRequestBody CreateAuthChallengeJSONBody
 
@@ -2538,6 +2818,9 @@ type UpdateChannelPostReplyJSONRequestBody UpdateChannelPostReplyJSONBody
 
 // CreateChannelPostReplyReactionJSONRequestBody defines body for CreateChannelPostReplyReaction for application/json ContentType.
 type CreateChannelPostReplyReactionJSONRequestBody CreateChannelPostReplyReactionJSONBody
+
+// EnsureChannelStickerJSONRequestBody defines body for EnsureChannelSticker for application/json ContentType.
+type EnsureChannelStickerJSONRequestBody EnsureChannelStickerJSONBody
 
 // CreateChannelTagJSONRequestBody defines body for CreateChannelTag for application/json ContentType.
 type CreateChannelTagJSONRequestBody CreateChannelTagJSONBody
@@ -2628,6 +2911,9 @@ type CreateHubIconJSONRequestBody CreateHubIconJSONBody
 
 // UpdateHubIconJSONRequestBody defines body for UpdateHubIcon for application/json ContentType.
 type UpdateHubIconJSONRequestBody UpdateHubIconJSONBody
+
+// RejectHubPendingJSONRequestBody defines body for RejectHubPending for application/json ContentType.
+type RejectHubPendingJSONRequestBody RejectHubPendingJSONBody
 
 // SetIdentityDmBlocksJSONRequestBody defines body for SetIdentityDmBlocks for application/json ContentType.
 type SetIdentityDmBlocksJSONRequestBody SetIdentityDmBlocksJSONBody
@@ -2733,6 +3019,18 @@ type CreateSoundboardSoundMultipartRequestBody CreateSoundboardSoundMultipartBod
 
 // MarkSoundboardSoundPlayedJSONRequestBody defines body for MarkSoundboardSoundPlayed for application/json ContentType.
 type MarkSoundboardSoundPlayedJSONRequestBody MarkSoundboardSoundPlayedJSONBody
+
+// CreateStickerPackJSONRequestBody defines body for CreateStickerPack for application/json ContentType.
+type CreateStickerPackJSONRequestBody CreateStickerPackJSONBody
+
+// RenameStickerPackJSONRequestBody defines body for RenameStickerPack for application/json ContentType.
+type RenameStickerPackJSONRequestBody RenameStickerPackJSONBody
+
+// AddStickerToPackJSONRequestBody defines body for AddStickerToPack for application/json ContentType.
+type AddStickerToPackJSONRequestBody AddStickerToPackJSONBody
+
+// AddStickerToPackMultipartRequestBody defines body for AddStickerToPack for multipart/form-data ContentType.
+type AddStickerToPackMultipartRequestBody AddStickerToPackMultipartBody
 
 // SubmitSurveyJSONRequestBody defines body for SubmitSurvey for application/json ContentType.
 type SubmitSurveyJSONRequestBody SubmitSurveyJSONBody
@@ -2855,6 +3153,17 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetAdminApplication request
+	GetAdminApplication(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetAdminApplicationWithBody request with any body
+	SetAdminApplicationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetAdminApplication(ctx context.Context, body SetAdminApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAdminApplicationResponse request
+	GetAdminApplicationResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListAdminAuditLog request
 	ListAdminAuditLog(ctx context.Context, params *ListAdminAuditLogParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3036,6 +3345,21 @@ type ClientInterface interface {
 
 	UpdateAdminSettingsTags(ctx context.Context, body UpdateAdminSettingsTagsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListStoredStickers request
+	ListStoredStickers(ctx context.Context, params *ListStoredStickersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListStickerBlocklist request
+	ListStickerBlocklist(ctx context.Context, params *ListStickerBlocklistParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UnblockSticker request
+	UnblockSticker(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetStickerUsage request
+	GetStickerUsage(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteStoredSticker request
+	DeleteStoredSticker(ctx context.Context, id string, params *DeleteStoredStickerParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetAdminSurvey request
 	GetAdminSurvey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3170,10 +3494,24 @@ type ClientInterface interface {
 
 	CreateAlliancePushInvite(ctx context.Context, allianceId string, body CreateAlliancePushInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetAllianceUpload request
+	GetAllianceUpload(ctx context.Context, allianceId string, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateAllianceVoiceGrantWithBody request with any body
 	CreateAllianceVoiceGrantWithBody(ctx context.Context, allianceId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateAllianceVoiceGrant(ctx context.Context, allianceId string, body CreateAllianceVoiceGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApplication request
+	GetApplication(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SubmitApplicationWithBody request with any body
+	SubmitApplicationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SubmitApplication(ctx context.Context, body SubmitApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApplicationStatus request
+	GetApplicationStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListApps request
 	ListApps(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3227,7 +3565,7 @@ type ClientInterface interface {
 	ListCertsRevocations(ctx context.Context, params *ListCertsRevocationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetNewChallenge request
-	GetNewChallenge(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetNewChallenge(ctx context.Context, params *GetNewChallengeParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// VerifyChallengeWithBody request with any body
 	VerifyChallengeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3401,6 +3739,11 @@ type ClientInterface interface {
 
 	// MarkChannelRead request
 	MarkChannelRead(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// EnsureChannelStickerWithBody request with any body
+	EnsureChannelStickerWithBody(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	EnsureChannelSticker(ctx context.Context, channelId string, body EnsureChannelStickerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListChannelTags request
 	ListChannelTags(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3590,6 +3933,9 @@ type ClientInterface interface {
 	// GetFederationListing request
 	GetFederationListing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// FederationGetSticker request
+	FederationGetSticker(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListFriends request
 	ListFriends(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3639,6 +3985,11 @@ type ClientInterface interface {
 
 	// ApproveHubPending request
 	ApproveHubPending(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RejectHubPendingWithBody request with any body
+	RejectHubPendingWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RejectHubPending(ctx context.Context, pubkey string, body RejectHubPendingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetHubSettings request
 	GetHubSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3857,6 +4208,9 @@ type ClientInterface interface {
 	// GetPreview request
 	GetPreview(ctx context.Context, params *GetPreviewParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetPreviewImage request
+	GetPreviewImage(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetProfile request
 	GetProfile(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3960,6 +4314,33 @@ type ClientInterface interface {
 
 	MarkSoundboardSoundPlayed(ctx context.Context, id string, body MarkSoundboardSoundPlayedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListStickerPacks request
+	ListStickerPacks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateStickerPackWithBody request with any body
+	CreateStickerPackWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateStickerPack(ctx context.Context, body CreateStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteStickerPack request
+	DeleteStickerPack(ctx context.Context, packId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RenameStickerPackWithBody request with any body
+	RenameStickerPackWithBody(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RenameStickerPack(ctx context.Context, packId string, body RenameStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AddStickerToPackWithBody request with any body
+	AddStickerToPackWithBody(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AddStickerToPack(ctx context.Context, packId string, body AddStickerToPackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RemoveStickerFromPack request
+	RemoveStickerFromPack(ctx context.Context, packId string, stickerId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetSticker request
+	GetSticker(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetSurveyCurrent request
 	GetSurveyCurrent(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3976,8 +4357,11 @@ type ClientInterface interface {
 
 	UpdateTag(ctx context.Context, tagId string, body UpdateTagJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// RemoveUpload request
+	RemoveUpload(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetUpload request
-	GetUpload(ctx context.Context, filename string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetUpload(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListUsers request
 	ListUsers(ctx context.Context, params *ListUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -4012,6 +4396,54 @@ type ClientInterface interface {
 
 	// ConnectWebSocket request
 	ConnectWebSocket(ctx context.Context, params *ConnectWebSocketParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetAdminApplication(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAdminApplicationRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAdminApplicationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAdminApplicationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAdminApplication(ctx context.Context, body SetAdminApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAdminApplicationRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAdminApplicationResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAdminApplicationResponseRequest(c.Server, pubkey)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) ListAdminAuditLog(ctx context.Context, params *ListAdminAuditLogParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4818,6 +5250,66 @@ func (c *Client) UpdateAdminSettingsTags(ctx context.Context, body UpdateAdminSe
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListStoredStickers(ctx context.Context, params *ListStoredStickersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListStoredStickersRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListStickerBlocklist(ctx context.Context, params *ListStickerBlocklistParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListStickerBlocklistRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UnblockSticker(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUnblockStickerRequest(c.Server, sha256)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetStickerUsage(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetStickerUsageRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteStoredSticker(ctx context.Context, id string, params *DeleteStoredStickerParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteStoredStickerRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetAdminSurvey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAdminSurveyRequest(c.Server)
 	if err != nil {
@@ -5406,6 +5898,18 @@ func (c *Client) CreateAlliancePushInvite(ctx context.Context, allianceId string
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetAllianceUpload(ctx context.Context, allianceId string, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAllianceUploadRequest(c.Server, allianceId, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) CreateAllianceVoiceGrantWithBody(ctx context.Context, allianceId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateAllianceVoiceGrantRequestWithBody(c.Server, allianceId, contentType, body)
 	if err != nil {
@@ -5420,6 +5924,54 @@ func (c *Client) CreateAllianceVoiceGrantWithBody(ctx context.Context, allianceI
 
 func (c *Client) CreateAllianceVoiceGrant(ctx context.Context, allianceId string, body CreateAllianceVoiceGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateAllianceVoiceGrantRequest(c.Server, allianceId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApplication(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApplicationRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SubmitApplicationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSubmitApplicationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SubmitApplication(ctx context.Context, body SubmitApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSubmitApplicationRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApplicationStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApplicationStatusRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -5658,8 +6210,8 @@ func (c *Client) ListCertsRevocations(ctx context.Context, params *ListCertsRevo
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetNewChallenge(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetNewChallengeRequest(c.Server)
+func (c *Client) GetNewChallenge(ctx context.Context, params *GetNewChallengeParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNewChallengeRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -6416,6 +6968,30 @@ func (c *Client) ListChannelRaiseHands(ctx context.Context, channelId string, re
 
 func (c *Client) MarkChannelRead(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewMarkChannelReadRequest(c.Server, channelId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EnsureChannelStickerWithBody(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEnsureChannelStickerRequestWithBody(c.Server, channelId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EnsureChannelSticker(ctx context.Context, channelId string, body EnsureChannelStickerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEnsureChannelStickerRequest(c.Server, channelId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7278,6 +7854,18 @@ func (c *Client) GetFederationListing(ctx context.Context, reqEditors ...Request
 	return c.Client.Do(req)
 }
 
+func (c *Client) FederationGetSticker(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFederationGetStickerRequest(c.Server, sha256)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListFriends(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListFriendsRequest(c.Server)
 	if err != nil {
@@ -7484,6 +8072,30 @@ func (c *Client) ListHubPending(ctx context.Context, params *ListHubPendingParam
 
 func (c *Client) ApproveHubPending(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewApproveHubPendingRequest(c.Server, pubkey)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RejectHubPendingWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRejectHubPendingRequestWithBody(c.Server, pubkey, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RejectHubPending(ctx context.Context, pubkey string, body RejectHubPendingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRejectHubPendingRequest(c.Server, pubkey, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8454,6 +9066,18 @@ func (c *Client) GetPreview(ctx context.Context, params *GetPreviewParams, reqEd
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetPreviewImage(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPreviewImageRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetProfile(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetProfileRequest(c.Server, pubkey)
 	if err != nil {
@@ -8910,6 +9534,126 @@ func (c *Client) MarkSoundboardSoundPlayed(ctx context.Context, id string, body 
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListStickerPacks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListStickerPacksRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateStickerPackWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateStickerPackRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateStickerPack(ctx context.Context, body CreateStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateStickerPackRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteStickerPack(ctx context.Context, packId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteStickerPackRequest(c.Server, packId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RenameStickerPackWithBody(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameStickerPackRequestWithBody(c.Server, packId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RenameStickerPack(ctx context.Context, packId string, body RenameStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameStickerPackRequest(c.Server, packId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddStickerToPackWithBody(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddStickerToPackRequestWithBody(c.Server, packId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddStickerToPack(ctx context.Context, packId string, body AddStickerToPackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddStickerToPackRequest(c.Server, packId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemoveStickerFromPack(ctx context.Context, packId string, stickerId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveStickerFromPackRequest(c.Server, packId, stickerId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetSticker(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetStickerRequest(c.Server, sha256)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetSurveyCurrent(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetSurveyCurrentRequest(c.Server)
 	if err != nil {
@@ -8982,8 +9726,20 @@ func (c *Client) UpdateTag(ctx context.Context, tagId string, body UpdateTagJSON
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetUpload(ctx context.Context, filename string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetUploadRequest(c.Server, filename)
+func (c *Client) RemoveUpload(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveUploadRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetUpload(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetUploadRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -9136,6 +9892,107 @@ func (c *Client) ConnectWebSocket(ctx context.Context, params *ConnectWebSocketP
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewGetAdminApplicationRequest generates requests for GetAdminApplication
+func NewGetAdminApplicationRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/application")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetAdminApplicationRequest calls the generic SetAdminApplication builder with application/json body
+func NewSetAdminApplicationRequest(server string, body SetAdminApplicationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetAdminApplicationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSetAdminApplicationRequestWithBody generates requests for SetAdminApplication with any type of body
+func NewSetAdminApplicationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/application")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetAdminApplicationResponseRequest generates requests for GetAdminApplicationResponse
+func NewGetAdminApplicationResponseRequest(server string, pubkey string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/application/responses/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewListAdminAuditLogRequest generates requests for ListAdminAuditLog
@@ -11097,6 +11954,317 @@ func NewUpdateAdminSettingsTagsRequestWithBody(server string, contentType string
 	return req, nil
 }
 
+// NewListStoredStickersRequest generates requests for ListStoredStickers
+func NewListStoredStickersRequest(server string, params *ListStoredStickersParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/stickers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.State != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "state", runtime.ParamLocationQuery, *params.State); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Uploader != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "uploader", runtime.ParamLocationQuery, *params.Uploader); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Sort != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "sort", runtime.ParamLocationQuery, *params.Sort); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListStickerBlocklistRequest generates requests for ListStickerBlocklist
+func NewListStickerBlocklistRequest(server string, params *ListStickerBlocklistParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/stickers/blocklist")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUnblockStickerRequest generates requests for UnblockSticker
+func NewUnblockStickerRequest(server string, sha256 string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "sha256", runtime.ParamLocationPath, sha256)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/stickers/blocklist/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetStickerUsageRequest generates requests for GetStickerUsage
+func NewGetStickerUsageRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/stickers/usage")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteStoredStickerRequest generates requests for DeleteStoredSticker
+func NewDeleteStoredStickerRequest(server string, id string, params *DeleteStoredStickerParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/stickers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Block != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "block", runtime.ParamLocationQuery, *params.Block); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Reason != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "reason", runtime.ParamLocationQuery, *params.Reason); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetAdminSurveyRequest generates requests for GetAdminSurvey
 func NewGetAdminSurveyRequest(server string) (*http.Request, error) {
 	var err error
@@ -12753,6 +13921,47 @@ func NewCreateAlliancePushInviteRequestWithBody(server string, allianceId string
 	return req, nil
 }
 
+// NewGetAllianceUploadRequest generates requests for GetAllianceUpload
+func NewGetAllianceUploadRequest(server string, allianceId string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "alliance_id", runtime.ParamLocationPath, allianceId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/alliances/%s/uploads/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewCreateAllianceVoiceGrantRequest calls the generic CreateAllianceVoiceGrant builder with application/json body
 func NewCreateAllianceVoiceGrantRequest(server string, allianceId string, body CreateAllianceVoiceGrantJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -12796,6 +14005,100 @@ func NewCreateAllianceVoiceGrantRequestWithBody(server string, allianceId string
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApplicationRequest generates requests for GetApplication
+func NewGetApplicationRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/application")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSubmitApplicationRequest calls the generic SubmitApplication builder with application/json body
+func NewSubmitApplicationRequest(server string, body SubmitApplicationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSubmitApplicationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSubmitApplicationRequestWithBody generates requests for SubmitApplication with any type of body
+func NewSubmitApplicationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/application")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApplicationStatusRequest generates requests for GetApplicationStatus
+func NewGetApplicationStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/application/status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -13273,7 +14576,7 @@ func NewListCertsRevocationsRequest(server string, params *ListCertsRevocationsP
 }
 
 // NewGetNewChallengeRequest generates requests for GetNewChallenge
-func NewGetNewChallengeRequest(server string) (*http.Request, error) {
+func NewGetNewChallengeRequest(server string, params *GetNewChallengeParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -13289,6 +14592,24 @@ func NewGetNewChallengeRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pubkey", runtime.ParamLocationQuery, params.Pubkey); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -15566,6 +16887,53 @@ func NewMarkChannelReadRequest(server string, channelId string) (*http.Request, 
 	return req, nil
 }
 
+// NewEnsureChannelStickerRequest calls the generic EnsureChannelSticker builder with application/json body
+func NewEnsureChannelStickerRequest(server string, channelId string, body EnsureChannelStickerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewEnsureChannelStickerRequestWithBody(server, channelId, "application/json", bodyReader)
+}
+
+// NewEnsureChannelStickerRequestWithBody generates requests for EnsureChannelSticker with any type of body
+func NewEnsureChannelStickerRequestWithBody(server string, channelId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "channel_id", runtime.ParamLocationPath, channelId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/channels/%s/stickers", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListChannelTagsRequest generates requests for ListChannelTags
 func NewListChannelTagsRequest(server string, channelId string) (*http.Request, error) {
 	var err error
@@ -17581,6 +18949,40 @@ func NewGetFederationListingRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewFederationGetStickerRequest generates requests for FederationGetSticker
+func NewFederationGetStickerRequest(server string, sha256 string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "sha256", runtime.ParamLocationPath, sha256)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/federation/stickers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListFriendsRequest generates requests for ListFriends
 func NewListFriendsRequest(server string) (*http.Request, error) {
 	var err error
@@ -18118,6 +19520,53 @@ func NewApproveHubPendingRequest(server string, pubkey string) (*http.Request, e
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewRejectHubPendingRequest calls the generic RejectHubPending builder with application/json body
+func NewRejectHubPendingRequest(server string, pubkey string, body RejectHubPendingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRejectHubPendingRequestWithBody(server, pubkey, "application/json", bodyReader)
+}
+
+// NewRejectHubPendingRequestWithBody generates requests for RejectHubPending with any type of body
+func NewRejectHubPendingRequestWithBody(server string, pubkey string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/hub/pending/%s/reject", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -20321,6 +21770,40 @@ func NewGetPreviewRequest(server string, params *GetPreviewParams) (*http.Reques
 	return req, nil
 }
 
+// NewGetPreviewImageRequest generates requests for GetPreviewImage
+func NewGetPreviewImageRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/preview/image/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetProfileRequest generates requests for GetProfile
 func NewGetProfileRequest(server string, pubkey string) (*http.Request, error) {
 	var err error
@@ -21320,6 +22803,276 @@ func NewMarkSoundboardSoundPlayedRequestWithBody(server string, id string, conte
 	return req, nil
 }
 
+// NewListStickerPacksRequest generates requests for ListStickerPacks
+func NewListStickerPacksRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/packs")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateStickerPackRequest calls the generic CreateStickerPack builder with application/json body
+func NewCreateStickerPackRequest(server string, body CreateStickerPackJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateStickerPackRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateStickerPackRequestWithBody generates requests for CreateStickerPack with any type of body
+func NewCreateStickerPackRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/packs")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteStickerPackRequest generates requests for DeleteStickerPack
+func NewDeleteStickerPackRequest(server string, packId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pack_id", runtime.ParamLocationPath, packId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/packs/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRenameStickerPackRequest calls the generic RenameStickerPack builder with application/json body
+func NewRenameStickerPackRequest(server string, packId string, body RenameStickerPackJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRenameStickerPackRequestWithBody(server, packId, "application/json", bodyReader)
+}
+
+// NewRenameStickerPackRequestWithBody generates requests for RenameStickerPack with any type of body
+func NewRenameStickerPackRequestWithBody(server string, packId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pack_id", runtime.ParamLocationPath, packId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/packs/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewAddStickerToPackRequest calls the generic AddStickerToPack builder with application/json body
+func NewAddStickerToPackRequest(server string, packId string, body AddStickerToPackJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAddStickerToPackRequestWithBody(server, packId, "application/json", bodyReader)
+}
+
+// NewAddStickerToPackRequestWithBody generates requests for AddStickerToPack with any type of body
+func NewAddStickerToPackRequestWithBody(server string, packId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pack_id", runtime.ParamLocationPath, packId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/packs/%s/stickers", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRemoveStickerFromPackRequest generates requests for RemoveStickerFromPack
+func NewRemoveStickerFromPackRequest(server string, packId string, stickerId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pack_id", runtime.ParamLocationPath, packId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "sticker_id", runtime.ParamLocationPath, stickerId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/packs/%s/stickers/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetStickerRequest generates requests for GetSticker
+func NewGetStickerRequest(server string, sha256 string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "sha256", runtime.ParamLocationPath, sha256)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetSurveyCurrentRequest generates requests for GetSurveyCurrent
 func NewGetSurveyCurrentRequest(server string) (*http.Request, error) {
 	var err error
@@ -21468,13 +23221,47 @@ func NewUpdateTagRequestWithBody(server string, tagId string, contentType string
 	return req, nil
 }
 
-// NewGetUploadRequest generates requests for GetUpload
-func NewGetUploadRequest(server string, filename string) (*http.Request, error) {
+// NewRemoveUploadRequest generates requests for RemoveUpload
+func NewRemoveUploadRequest(server string, id string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "filename", runtime.ParamLocationPath, filename)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/uploads/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetUploadRequest generates requests for GetUpload
+func NewGetUploadRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
 	if err != nil {
 		return nil, err
 	}
@@ -22010,6 +23797,17 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetAdminApplicationWithResponse request
+	GetAdminApplicationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminApplicationResponse, error)
+
+	// SetAdminApplicationWithBodyWithResponse request with any body
+	SetAdminApplicationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAdminApplicationResponse, error)
+
+	SetAdminApplicationWithResponse(ctx context.Context, body SetAdminApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAdminApplicationResponse, error)
+
+	// GetAdminApplicationResponseWithResponse request
+	GetAdminApplicationResponseWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetAdminApplicationResponseResponse, error)
+
 	// ListAdminAuditLogWithResponse request
 	ListAdminAuditLogWithResponse(ctx context.Context, params *ListAdminAuditLogParams, reqEditors ...RequestEditorFn) (*ListAdminAuditLogResponse, error)
 
@@ -22191,6 +23989,21 @@ type ClientWithResponsesInterface interface {
 
 	UpdateAdminSettingsTagsWithResponse(ctx context.Context, body UpdateAdminSettingsTagsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAdminSettingsTagsResponse, error)
 
+	// ListStoredStickersWithResponse request
+	ListStoredStickersWithResponse(ctx context.Context, params *ListStoredStickersParams, reqEditors ...RequestEditorFn) (*ListStoredStickersResponse, error)
+
+	// ListStickerBlocklistWithResponse request
+	ListStickerBlocklistWithResponse(ctx context.Context, params *ListStickerBlocklistParams, reqEditors ...RequestEditorFn) (*ListStickerBlocklistResponse, error)
+
+	// UnblockStickerWithResponse request
+	UnblockStickerWithResponse(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*UnblockStickerResponse, error)
+
+	// GetStickerUsageWithResponse request
+	GetStickerUsageWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetStickerUsageResponse, error)
+
+	// DeleteStoredStickerWithResponse request
+	DeleteStoredStickerWithResponse(ctx context.Context, id string, params *DeleteStoredStickerParams, reqEditors ...RequestEditorFn) (*DeleteStoredStickerResponse, error)
+
 	// GetAdminSurveyWithResponse request
 	GetAdminSurveyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminSurveyResponse, error)
 
@@ -22325,10 +24138,24 @@ type ClientWithResponsesInterface interface {
 
 	CreateAlliancePushInviteWithResponse(ctx context.Context, allianceId string, body CreateAlliancePushInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAlliancePushInviteResponse, error)
 
+	// GetAllianceUploadWithResponse request
+	GetAllianceUploadWithResponse(ctx context.Context, allianceId string, id string, reqEditors ...RequestEditorFn) (*GetAllianceUploadResponse, error)
+
 	// CreateAllianceVoiceGrantWithBodyWithResponse request with any body
 	CreateAllianceVoiceGrantWithBodyWithResponse(ctx context.Context, allianceId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAllianceVoiceGrantResponse, error)
 
 	CreateAllianceVoiceGrantWithResponse(ctx context.Context, allianceId string, body CreateAllianceVoiceGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAllianceVoiceGrantResponse, error)
+
+	// GetApplicationWithResponse request
+	GetApplicationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApplicationResponse, error)
+
+	// SubmitApplicationWithBodyWithResponse request with any body
+	SubmitApplicationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SubmitApplicationResponse, error)
+
+	SubmitApplicationWithResponse(ctx context.Context, body SubmitApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*SubmitApplicationResponse, error)
+
+	// GetApplicationStatusWithResponse request
+	GetApplicationStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApplicationStatusResponse, error)
 
 	// ListAppsWithResponse request
 	ListAppsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAppsResponse, error)
@@ -22382,7 +24209,7 @@ type ClientWithResponsesInterface interface {
 	ListCertsRevocationsWithResponse(ctx context.Context, params *ListCertsRevocationsParams, reqEditors ...RequestEditorFn) (*ListCertsRevocationsResponse, error)
 
 	// GetNewChallengeWithResponse request
-	GetNewChallengeWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetNewChallengeResponse, error)
+	GetNewChallengeWithResponse(ctx context.Context, params *GetNewChallengeParams, reqEditors ...RequestEditorFn) (*GetNewChallengeResponse, error)
 
 	// VerifyChallengeWithBodyWithResponse request with any body
 	VerifyChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyChallengeResponse, error)
@@ -22556,6 +24383,11 @@ type ClientWithResponsesInterface interface {
 
 	// MarkChannelReadWithResponse request
 	MarkChannelReadWithResponse(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*MarkChannelReadResponse, error)
+
+	// EnsureChannelStickerWithBodyWithResponse request with any body
+	EnsureChannelStickerWithBodyWithResponse(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnsureChannelStickerResponse, error)
+
+	EnsureChannelStickerWithResponse(ctx context.Context, channelId string, body EnsureChannelStickerJSONRequestBody, reqEditors ...RequestEditorFn) (*EnsureChannelStickerResponse, error)
 
 	// ListChannelTagsWithResponse request
 	ListChannelTagsWithResponse(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*ListChannelTagsResponse, error)
@@ -22745,6 +24577,9 @@ type ClientWithResponsesInterface interface {
 	// GetFederationListingWithResponse request
 	GetFederationListingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetFederationListingResponse, error)
 
+	// FederationGetStickerWithResponse request
+	FederationGetStickerWithResponse(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*FederationGetStickerResponse, error)
+
 	// ListFriendsWithResponse request
 	ListFriendsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListFriendsResponse, error)
 
@@ -22794,6 +24629,11 @@ type ClientWithResponsesInterface interface {
 
 	// ApproveHubPendingWithResponse request
 	ApproveHubPendingWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*ApproveHubPendingResponse, error)
+
+	// RejectHubPendingWithBodyWithResponse request with any body
+	RejectHubPendingWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RejectHubPendingResponse, error)
+
+	RejectHubPendingWithResponse(ctx context.Context, pubkey string, body RejectHubPendingJSONRequestBody, reqEditors ...RequestEditorFn) (*RejectHubPendingResponse, error)
 
 	// GetHubSettingsWithResponse request
 	GetHubSettingsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHubSettingsResponse, error)
@@ -23012,6 +24852,9 @@ type ClientWithResponsesInterface interface {
 	// GetPreviewWithResponse request
 	GetPreviewWithResponse(ctx context.Context, params *GetPreviewParams, reqEditors ...RequestEditorFn) (*GetPreviewResponse, error)
 
+	// GetPreviewImageWithResponse request
+	GetPreviewImageWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetPreviewImageResponse, error)
+
 	// GetProfileWithResponse request
 	GetProfileWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetProfileResponse, error)
 
@@ -23115,6 +24958,33 @@ type ClientWithResponsesInterface interface {
 
 	MarkSoundboardSoundPlayedWithResponse(ctx context.Context, id string, body MarkSoundboardSoundPlayedJSONRequestBody, reqEditors ...RequestEditorFn) (*MarkSoundboardSoundPlayedResponse, error)
 
+	// ListStickerPacksWithResponse request
+	ListStickerPacksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListStickerPacksResponse, error)
+
+	// CreateStickerPackWithBodyWithResponse request with any body
+	CreateStickerPackWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateStickerPackResponse, error)
+
+	CreateStickerPackWithResponse(ctx context.Context, body CreateStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateStickerPackResponse, error)
+
+	// DeleteStickerPackWithResponse request
+	DeleteStickerPackWithResponse(ctx context.Context, packId string, reqEditors ...RequestEditorFn) (*DeleteStickerPackResponse, error)
+
+	// RenameStickerPackWithBodyWithResponse request with any body
+	RenameStickerPackWithBodyWithResponse(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameStickerPackResponse, error)
+
+	RenameStickerPackWithResponse(ctx context.Context, packId string, body RenameStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameStickerPackResponse, error)
+
+	// AddStickerToPackWithBodyWithResponse request with any body
+	AddStickerToPackWithBodyWithResponse(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddStickerToPackResponse, error)
+
+	AddStickerToPackWithResponse(ctx context.Context, packId string, body AddStickerToPackJSONRequestBody, reqEditors ...RequestEditorFn) (*AddStickerToPackResponse, error)
+
+	// RemoveStickerFromPackWithResponse request
+	RemoveStickerFromPackWithResponse(ctx context.Context, packId string, stickerId string, reqEditors ...RequestEditorFn) (*RemoveStickerFromPackResponse, error)
+
+	// GetStickerWithResponse request
+	GetStickerWithResponse(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*GetStickerResponse, error)
+
 	// GetSurveyCurrentWithResponse request
 	GetSurveyCurrentWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSurveyCurrentResponse, error)
 
@@ -23131,8 +25001,11 @@ type ClientWithResponsesInterface interface {
 
 	UpdateTagWithResponse(ctx context.Context, tagId string, body UpdateTagJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateTagResponse, error)
 
+	// RemoveUploadWithResponse request
+	RemoveUploadWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*RemoveUploadResponse, error)
+
 	// GetUploadWithResponse request
-	GetUploadWithResponse(ctx context.Context, filename string, reqEditors ...RequestEditorFn) (*GetUploadResponse, error)
+	GetUploadWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetUploadResponse, error)
 
 	// ListUsersWithResponse request
 	ListUsersWithResponse(ctx context.Context, params *ListUsersParams, reqEditors ...RequestEditorFn) (*ListUsersResponse, error)
@@ -23167,6 +25040,69 @@ type ClientWithResponsesInterface interface {
 
 	// ConnectWebSocketWithResponse request
 	ConnectWebSocketWithResponse(ctx context.Context, params *ConnectWebSocketParams, reqEditors ...RequestEditorFn) (*ConnectWebSocketResponse, error)
+}
+
+type GetAdminApplicationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAdminApplicationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAdminApplicationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SetAdminApplicationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SetAdminApplicationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetAdminApplicationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAdminApplicationResponseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAdminApplicationResponseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAdminApplicationResponseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type ListAdminAuditLogResponse struct {
@@ -24325,6 +26261,136 @@ func (r UpdateAdminSettingsTagsResponse) StatusCode() int {
 	return 0
 }
 
+type ListStoredStickersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]AdminSticker
+}
+
+// Status returns HTTPResponse.Status
+func (r ListStoredStickersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListStoredStickersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListStickerBlocklistResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]struct {
+		BlockedBy *string `json:"blocked_by,omitempty"`
+		CreatedAt *int64  `json:"created_at,omitempty"`
+		Reason    *string `json:"reason"`
+		Sha256    *string `json:"sha256,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r ListStickerBlocklistResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListStickerBlocklistResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UnblockStickerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r UnblockStickerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UnblockStickerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetStickerUsageResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Copies *struct {
+			Bytes    *int64 `json:"bytes,omitempty"`
+			CapBytes *int64 `json:"cap_bytes,omitempty"`
+			Count    *int64 `json:"count,omitempty"`
+		} `json:"copies,omitempty"`
+
+		// Evictions Copies whose bytes were dropped for space and have not come back
+		Evictions *int64 `json:"evictions,omitempty"`
+		Packs     *struct {
+			Bytes    *int64 `json:"bytes,omitempty"`
+			CapBytes *int64 `json:"cap_bytes,omitempty"`
+			Count    *int64 `json:"count,omitempty"`
+		} `json:"packs,omitempty"`
+
+		// PacksWarning Packs are at or past `stickers_packs_warn_percent` of their cap
+		PacksWarning *bool `json:"packs_warning,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r GetStickerUsageResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetStickerUsageResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteStoredStickerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteStoredStickerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteStoredStickerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetAdminSurveyResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -25132,6 +27198,27 @@ func (r CreateAlliancePushInviteResponse) StatusCode() int {
 	return 0
 }
 
+type GetAllianceUploadResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAllianceUploadResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAllianceUploadResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CreateAllianceVoiceGrantResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -25155,6 +27242,77 @@ func (r CreateAllianceVoiceGrantResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateAllianceVoiceGrantResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApplicationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApplicationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApplicationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SubmitApplicationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SubmitApplicationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SubmitApplicationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApplicationStatusResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Reason *string `json:"reason,omitempty"`
+
+		// RetryAfter Unix seconds from which a rejected applicant may apply again.
+		RetryAfter *int64                       `json:"retry_after,omitempty"`
+		State      GetApplicationStatus200State `json:"state"`
+	}
+}
+type GetApplicationStatus200State string
+
+// Status returns HTTPResponse.Status
+func (r GetApplicationStatusResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApplicationStatusResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -26609,6 +28767,29 @@ func (r MarkChannelReadResponse) StatusCode() int {
 	return 0
 }
 
+type EnsureChannelStickerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Sticker
+	JSON201      *Sticker
+}
+
+// Status returns HTTPResponse.Status
+func (r EnsureChannelStickerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r EnsureChannelStickerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListChannelTagsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -26719,15 +28900,7 @@ func (r SetChannelTalkPowerResponse) StatusCode() int {
 type UploadChannelFileResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON201      *struct {
-		Filename  *string `json:"filename,omitempty"`
-		Id        *string `json:"id,omitempty"`
-		MimeType  *string `json:"mime_type,omitempty"`
-		SizeBytes *int64  `json:"size_bytes,omitempty"`
-
-		// Url Path under /uploads/
-		Url *string `json:"url,omitempty"`
-	}
+	JSON201      *AttachmentRef
 }
 
 // Status returns HTTPResponse.Status
@@ -27694,6 +29867,27 @@ func (r GetFederationListingResponse) StatusCode() int {
 	return 0
 }
 
+type FederationGetStickerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r FederationGetStickerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FederationGetStickerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListFriendsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -27803,7 +29997,13 @@ type GetHealthResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
-		Status *string `json:"status,omitempty"`
+		// DbStatus `ok`, or `error: ` followed by the reason the database did not answer.
+		DbStatus      string `json:"db_status"`
+		Status        string `json:"status"`
+		UptimeSeconds int64  `json:"uptime_seconds"`
+
+		// Version The hub's version.
+		Version string `json:"version"`
 	}
 }
 
@@ -27953,6 +30153,16 @@ func (r ListHubMembersResponse) StatusCode() int {
 type ListHubPendingResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *[]struct {
+		// BanEvasionMatch The banned identity whose last address this joiner arrived from, when that is why they wait. Approving clears it. Present on hubs advertising `admission.banevasion`.
+		BanEvasionMatch *string `json:"ban_evasion_match"`
+		DisplayName     *string `json:"display_name"`
+		FirstSeenAt     int64   `json:"first_seen_at"`
+
+		// HasApplication Whether they filled the join application.
+		HasApplication *bool  `json:"has_application,omitempty"`
+		PublicKey      string `json:"public_key"`
+	}
 }
 
 // Status returns HTTPResponse.Status
@@ -27986,6 +30196,27 @@ func (r ApproveHubPendingResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ApproveHubPendingResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RejectHubPendingResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RejectHubPendingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RejectHubPendingResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -29253,9 +31484,11 @@ type GetPreviewResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *struct {
 		Description *string `json:"description"`
-		ImageUrl    *string `json:"image_url"`
-		Title       *string `json:"title"`
-		Url         *string `json:"url,omitempty"`
+
+		// ImageUrl The page's image as fetched and served by this hub (`/preview/image/{id}` under its public URL), so readers never contact the third-party host. Null when the page has no PNG/JPEG/GIF/WebP/AVIF image of at most 1 MB, or the hub has no public URL.
+		ImageUrl *string `json:"image_url"`
+		Title    *string `json:"title"`
+		Url      *string `json:"url,omitempty"`
 	}
 }
 
@@ -29269,6 +31502,27 @@ func (r GetPreviewResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetPreviewResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPreviewImageResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPreviewImageResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPreviewImageResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -29925,6 +32179,156 @@ func (r MarkSoundboardSoundPlayedResponse) StatusCode() int {
 	return 0
 }
 
+type ListStickerPacksResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]StickerPack
+}
+
+// Status returns HTTPResponse.Status
+func (r ListStickerPacksResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListStickerPacksResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateStickerPackResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *StickerPack
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateStickerPackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateStickerPackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteStickerPackResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteStickerPackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteStickerPackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RenameStickerPackResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RenameStickerPackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RenameStickerPackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AddStickerToPackResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *Sticker
+}
+
+// Status returns HTTPResponse.Status
+func (r AddStickerToPackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AddStickerToPackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RemoveStickerFromPackResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RemoveStickerFromPackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveStickerFromPackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetStickerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetStickerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetStickerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetSurveyCurrentResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -30004,6 +32408,27 @@ func (r UpdateTagResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateTagResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RemoveUploadResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RemoveUploadResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveUploadResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -30274,6 +32699,41 @@ func (r ConnectWebSocketResponse) StatusCode() int {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
+}
+
+// GetAdminApplicationWithResponse request returning *GetAdminApplicationResponse
+func (c *ClientWithResponses) GetAdminApplicationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminApplicationResponse, error) {
+	rsp, err := c.GetAdminApplication(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAdminApplicationResponse(rsp)
+}
+
+// SetAdminApplicationWithBodyWithResponse request with arbitrary body returning *SetAdminApplicationResponse
+func (c *ClientWithResponses) SetAdminApplicationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAdminApplicationResponse, error) {
+	rsp, err := c.SetAdminApplicationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAdminApplicationResponse(rsp)
+}
+
+func (c *ClientWithResponses) SetAdminApplicationWithResponse(ctx context.Context, body SetAdminApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAdminApplicationResponse, error) {
+	rsp, err := c.SetAdminApplication(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAdminApplicationResponse(rsp)
+}
+
+// GetAdminApplicationResponseWithResponse request returning *GetAdminApplicationResponseResponse
+func (c *ClientWithResponses) GetAdminApplicationResponseWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetAdminApplicationResponseResponse, error) {
+	rsp, err := c.GetAdminApplicationResponse(ctx, pubkey, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAdminApplicationResponseResponse(rsp)
 }
 
 // ListAdminAuditLogWithResponse request returning *ListAdminAuditLogResponse
@@ -30859,6 +33319,51 @@ func (c *ClientWithResponses) UpdateAdminSettingsTagsWithResponse(ctx context.Co
 	return ParseUpdateAdminSettingsTagsResponse(rsp)
 }
 
+// ListStoredStickersWithResponse request returning *ListStoredStickersResponse
+func (c *ClientWithResponses) ListStoredStickersWithResponse(ctx context.Context, params *ListStoredStickersParams, reqEditors ...RequestEditorFn) (*ListStoredStickersResponse, error) {
+	rsp, err := c.ListStoredStickers(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListStoredStickersResponse(rsp)
+}
+
+// ListStickerBlocklistWithResponse request returning *ListStickerBlocklistResponse
+func (c *ClientWithResponses) ListStickerBlocklistWithResponse(ctx context.Context, params *ListStickerBlocklistParams, reqEditors ...RequestEditorFn) (*ListStickerBlocklistResponse, error) {
+	rsp, err := c.ListStickerBlocklist(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListStickerBlocklistResponse(rsp)
+}
+
+// UnblockStickerWithResponse request returning *UnblockStickerResponse
+func (c *ClientWithResponses) UnblockStickerWithResponse(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*UnblockStickerResponse, error) {
+	rsp, err := c.UnblockSticker(ctx, sha256, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUnblockStickerResponse(rsp)
+}
+
+// GetStickerUsageWithResponse request returning *GetStickerUsageResponse
+func (c *ClientWithResponses) GetStickerUsageWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetStickerUsageResponse, error) {
+	rsp, err := c.GetStickerUsage(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetStickerUsageResponse(rsp)
+}
+
+// DeleteStoredStickerWithResponse request returning *DeleteStoredStickerResponse
+func (c *ClientWithResponses) DeleteStoredStickerWithResponse(ctx context.Context, id string, params *DeleteStoredStickerParams, reqEditors ...RequestEditorFn) (*DeleteStoredStickerResponse, error) {
+	rsp, err := c.DeleteStoredSticker(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteStoredStickerResponse(rsp)
+}
+
 // GetAdminSurveyWithResponse request returning *GetAdminSurveyResponse
 func (c *ClientWithResponses) GetAdminSurveyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminSurveyResponse, error) {
 	rsp, err := c.GetAdminSurvey(ctx, reqEditors...)
@@ -31287,6 +33792,15 @@ func (c *ClientWithResponses) CreateAlliancePushInviteWithResponse(ctx context.C
 	return ParseCreateAlliancePushInviteResponse(rsp)
 }
 
+// GetAllianceUploadWithResponse request returning *GetAllianceUploadResponse
+func (c *ClientWithResponses) GetAllianceUploadWithResponse(ctx context.Context, allianceId string, id string, reqEditors ...RequestEditorFn) (*GetAllianceUploadResponse, error) {
+	rsp, err := c.GetAllianceUpload(ctx, allianceId, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAllianceUploadResponse(rsp)
+}
+
 // CreateAllianceVoiceGrantWithBodyWithResponse request with arbitrary body returning *CreateAllianceVoiceGrantResponse
 func (c *ClientWithResponses) CreateAllianceVoiceGrantWithBodyWithResponse(ctx context.Context, allianceId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAllianceVoiceGrantResponse, error) {
 	rsp, err := c.CreateAllianceVoiceGrantWithBody(ctx, allianceId, contentType, body, reqEditors...)
@@ -31302,6 +33816,41 @@ func (c *ClientWithResponses) CreateAllianceVoiceGrantWithResponse(ctx context.C
 		return nil, err
 	}
 	return ParseCreateAllianceVoiceGrantResponse(rsp)
+}
+
+// GetApplicationWithResponse request returning *GetApplicationResponse
+func (c *ClientWithResponses) GetApplicationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApplicationResponse, error) {
+	rsp, err := c.GetApplication(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApplicationResponse(rsp)
+}
+
+// SubmitApplicationWithBodyWithResponse request with arbitrary body returning *SubmitApplicationResponse
+func (c *ClientWithResponses) SubmitApplicationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SubmitApplicationResponse, error) {
+	rsp, err := c.SubmitApplicationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSubmitApplicationResponse(rsp)
+}
+
+func (c *ClientWithResponses) SubmitApplicationWithResponse(ctx context.Context, body SubmitApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*SubmitApplicationResponse, error) {
+	rsp, err := c.SubmitApplication(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSubmitApplicationResponse(rsp)
+}
+
+// GetApplicationStatusWithResponse request returning *GetApplicationStatusResponse
+func (c *ClientWithResponses) GetApplicationStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApplicationStatusResponse, error) {
+	rsp, err := c.GetApplicationStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApplicationStatusResponse(rsp)
 }
 
 // ListAppsWithResponse request returning *ListAppsResponse
@@ -31470,8 +34019,8 @@ func (c *ClientWithResponses) ListCertsRevocationsWithResponse(ctx context.Conte
 }
 
 // GetNewChallengeWithResponse request returning *GetNewChallengeResponse
-func (c *ClientWithResponses) GetNewChallengeWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetNewChallengeResponse, error) {
-	rsp, err := c.GetNewChallenge(ctx, reqEditors...)
+func (c *ClientWithResponses) GetNewChallengeWithResponse(ctx context.Context, params *GetNewChallengeParams, reqEditors ...RequestEditorFn) (*GetNewChallengeResponse, error) {
+	rsp, err := c.GetNewChallenge(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -32027,6 +34576,23 @@ func (c *ClientWithResponses) MarkChannelReadWithResponse(ctx context.Context, c
 		return nil, err
 	}
 	return ParseMarkChannelReadResponse(rsp)
+}
+
+// EnsureChannelStickerWithBodyWithResponse request with arbitrary body returning *EnsureChannelStickerResponse
+func (c *ClientWithResponses) EnsureChannelStickerWithBodyWithResponse(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnsureChannelStickerResponse, error) {
+	rsp, err := c.EnsureChannelStickerWithBody(ctx, channelId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEnsureChannelStickerResponse(rsp)
+}
+
+func (c *ClientWithResponses) EnsureChannelStickerWithResponse(ctx context.Context, channelId string, body EnsureChannelStickerJSONRequestBody, reqEditors ...RequestEditorFn) (*EnsureChannelStickerResponse, error) {
+	rsp, err := c.EnsureChannelSticker(ctx, channelId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEnsureChannelStickerResponse(rsp)
 }
 
 // ListChannelTagsWithResponse request returning *ListChannelTagsResponse
@@ -32643,6 +35209,15 @@ func (c *ClientWithResponses) GetFederationListingWithResponse(ctx context.Conte
 	return ParseGetFederationListingResponse(rsp)
 }
 
+// FederationGetStickerWithResponse request returning *FederationGetStickerResponse
+func (c *ClientWithResponses) FederationGetStickerWithResponse(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*FederationGetStickerResponse, error) {
+	rsp, err := c.FederationGetSticker(ctx, sha256, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFederationGetStickerResponse(rsp)
+}
+
 // ListFriendsWithResponse request returning *ListFriendsResponse
 func (c *ClientWithResponses) ListFriendsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListFriendsResponse, error) {
 	rsp, err := c.ListFriends(ctx, reqEditors...)
@@ -32799,6 +35374,23 @@ func (c *ClientWithResponses) ApproveHubPendingWithResponse(ctx context.Context,
 		return nil, err
 	}
 	return ParseApproveHubPendingResponse(rsp)
+}
+
+// RejectHubPendingWithBodyWithResponse request with arbitrary body returning *RejectHubPendingResponse
+func (c *ClientWithResponses) RejectHubPendingWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RejectHubPendingResponse, error) {
+	rsp, err := c.RejectHubPendingWithBody(ctx, pubkey, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRejectHubPendingResponse(rsp)
+}
+
+func (c *ClientWithResponses) RejectHubPendingWithResponse(ctx context.Context, pubkey string, body RejectHubPendingJSONRequestBody, reqEditors ...RequestEditorFn) (*RejectHubPendingResponse, error) {
+	rsp, err := c.RejectHubPending(ctx, pubkey, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRejectHubPendingResponse(rsp)
 }
 
 // GetHubSettingsWithResponse request returning *GetHubSettingsResponse
@@ -33498,6 +36090,15 @@ func (c *ClientWithResponses) GetPreviewWithResponse(ctx context.Context, params
 	return ParseGetPreviewResponse(rsp)
 }
 
+// GetPreviewImageWithResponse request returning *GetPreviewImageResponse
+func (c *ClientWithResponses) GetPreviewImageWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetPreviewImageResponse, error) {
+	rsp, err := c.GetPreviewImage(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPreviewImageResponse(rsp)
+}
+
 // GetProfileWithResponse request returning *GetProfileResponse
 func (c *ClientWithResponses) GetProfileWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetProfileResponse, error) {
 	rsp, err := c.GetProfile(ctx, pubkey, reqEditors...)
@@ -33829,6 +36430,93 @@ func (c *ClientWithResponses) MarkSoundboardSoundPlayedWithResponse(ctx context.
 	return ParseMarkSoundboardSoundPlayedResponse(rsp)
 }
 
+// ListStickerPacksWithResponse request returning *ListStickerPacksResponse
+func (c *ClientWithResponses) ListStickerPacksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListStickerPacksResponse, error) {
+	rsp, err := c.ListStickerPacks(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListStickerPacksResponse(rsp)
+}
+
+// CreateStickerPackWithBodyWithResponse request with arbitrary body returning *CreateStickerPackResponse
+func (c *ClientWithResponses) CreateStickerPackWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateStickerPackResponse, error) {
+	rsp, err := c.CreateStickerPackWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateStickerPackResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateStickerPackWithResponse(ctx context.Context, body CreateStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateStickerPackResponse, error) {
+	rsp, err := c.CreateStickerPack(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateStickerPackResponse(rsp)
+}
+
+// DeleteStickerPackWithResponse request returning *DeleteStickerPackResponse
+func (c *ClientWithResponses) DeleteStickerPackWithResponse(ctx context.Context, packId string, reqEditors ...RequestEditorFn) (*DeleteStickerPackResponse, error) {
+	rsp, err := c.DeleteStickerPack(ctx, packId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteStickerPackResponse(rsp)
+}
+
+// RenameStickerPackWithBodyWithResponse request with arbitrary body returning *RenameStickerPackResponse
+func (c *ClientWithResponses) RenameStickerPackWithBodyWithResponse(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameStickerPackResponse, error) {
+	rsp, err := c.RenameStickerPackWithBody(ctx, packId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRenameStickerPackResponse(rsp)
+}
+
+func (c *ClientWithResponses) RenameStickerPackWithResponse(ctx context.Context, packId string, body RenameStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameStickerPackResponse, error) {
+	rsp, err := c.RenameStickerPack(ctx, packId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRenameStickerPackResponse(rsp)
+}
+
+// AddStickerToPackWithBodyWithResponse request with arbitrary body returning *AddStickerToPackResponse
+func (c *ClientWithResponses) AddStickerToPackWithBodyWithResponse(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddStickerToPackResponse, error) {
+	rsp, err := c.AddStickerToPackWithBody(ctx, packId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddStickerToPackResponse(rsp)
+}
+
+func (c *ClientWithResponses) AddStickerToPackWithResponse(ctx context.Context, packId string, body AddStickerToPackJSONRequestBody, reqEditors ...RequestEditorFn) (*AddStickerToPackResponse, error) {
+	rsp, err := c.AddStickerToPack(ctx, packId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddStickerToPackResponse(rsp)
+}
+
+// RemoveStickerFromPackWithResponse request returning *RemoveStickerFromPackResponse
+func (c *ClientWithResponses) RemoveStickerFromPackWithResponse(ctx context.Context, packId string, stickerId string, reqEditors ...RequestEditorFn) (*RemoveStickerFromPackResponse, error) {
+	rsp, err := c.RemoveStickerFromPack(ctx, packId, stickerId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveStickerFromPackResponse(rsp)
+}
+
+// GetStickerWithResponse request returning *GetStickerResponse
+func (c *ClientWithResponses) GetStickerWithResponse(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*GetStickerResponse, error) {
+	rsp, err := c.GetSticker(ctx, sha256, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetStickerResponse(rsp)
+}
+
 // GetSurveyCurrentWithResponse request returning *GetSurveyCurrentResponse
 func (c *ClientWithResponses) GetSurveyCurrentWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSurveyCurrentResponse, error) {
 	rsp, err := c.GetSurveyCurrent(ctx, reqEditors...)
@@ -33881,9 +36569,18 @@ func (c *ClientWithResponses) UpdateTagWithResponse(ctx context.Context, tagId s
 	return ParseUpdateTagResponse(rsp)
 }
 
+// RemoveUploadWithResponse request returning *RemoveUploadResponse
+func (c *ClientWithResponses) RemoveUploadWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*RemoveUploadResponse, error) {
+	rsp, err := c.RemoveUpload(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveUploadResponse(rsp)
+}
+
 // GetUploadWithResponse request returning *GetUploadResponse
-func (c *ClientWithResponses) GetUploadWithResponse(ctx context.Context, filename string, reqEditors ...RequestEditorFn) (*GetUploadResponse, error) {
-	rsp, err := c.GetUpload(ctx, filename, reqEditors...)
+func (c *ClientWithResponses) GetUploadWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetUploadResponse, error) {
+	rsp, err := c.GetUpload(ctx, id, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -33994,6 +36691,54 @@ func (c *ClientWithResponses) ConnectWebSocketWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseConnectWebSocketResponse(rsp)
+}
+
+// ParseGetAdminApplicationResponse parses an HTTP response from a GetAdminApplicationWithResponse call
+func ParseGetAdminApplicationResponse(rsp *http.Response) (*GetAdminApplicationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAdminApplicationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSetAdminApplicationResponse parses an HTTP response from a SetAdminApplicationWithResponse call
+func ParseSetAdminApplicationResponse(rsp *http.Response) (*SetAdminApplicationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetAdminApplicationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetAdminApplicationResponseResponse parses an HTTP response from a GetAdminApplicationResponseWithResponse call
+func ParseGetAdminApplicationResponseResponse(rsp *http.Response) (*GetAdminApplicationResponseResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAdminApplicationResponseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
 }
 
 // ParseListAdminAuditLogResponse parses an HTTP response from a ListAdminAuditLogWithResponse call
@@ -35128,6 +37873,138 @@ func ParseUpdateAdminSettingsTagsResponse(rsp *http.Response) (*UpdateAdminSetti
 	return response, nil
 }
 
+// ParseListStoredStickersResponse parses an HTTP response from a ListStoredStickersWithResponse call
+func ParseListStoredStickersResponse(rsp *http.Response) (*ListStoredStickersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListStoredStickersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []AdminSticker
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListStickerBlocklistResponse parses an HTTP response from a ListStickerBlocklistWithResponse call
+func ParseListStickerBlocklistResponse(rsp *http.Response) (*ListStickerBlocklistResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListStickerBlocklistResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []struct {
+			BlockedBy *string `json:"blocked_by,omitempty"`
+			CreatedAt *int64  `json:"created_at,omitempty"`
+			Reason    *string `json:"reason"`
+			Sha256    *string `json:"sha256,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUnblockStickerResponse parses an HTTP response from a UnblockStickerWithResponse call
+func ParseUnblockStickerResponse(rsp *http.Response) (*UnblockStickerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UnblockStickerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetStickerUsageResponse parses an HTTP response from a GetStickerUsageWithResponse call
+func ParseGetStickerUsageResponse(rsp *http.Response) (*GetStickerUsageResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetStickerUsageResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Copies *struct {
+				Bytes    *int64 `json:"bytes,omitempty"`
+				CapBytes *int64 `json:"cap_bytes,omitempty"`
+				Count    *int64 `json:"count,omitempty"`
+			} `json:"copies,omitempty"`
+
+			// Evictions Copies whose bytes were dropped for space and have not come back
+			Evictions *int64 `json:"evictions,omitempty"`
+			Packs     *struct {
+				Bytes    *int64 `json:"bytes,omitempty"`
+				CapBytes *int64 `json:"cap_bytes,omitempty"`
+				Count    *int64 `json:"count,omitempty"`
+			} `json:"packs,omitempty"`
+
+			// PacksWarning Packs are at or past `stickers_packs_warn_percent` of their cap
+			PacksWarning *bool `json:"packs_warning,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteStoredStickerResponse parses an HTTP response from a DeleteStoredStickerWithResponse call
+func ParseDeleteStoredStickerResponse(rsp *http.Response) (*DeleteStoredStickerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteStoredStickerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseGetAdminSurveyResponse parses an HTTP response from a GetAdminSurveyWithResponse call
 func ParseGetAdminSurveyResponse(rsp *http.Response) (*GetAdminSurveyResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -35881,6 +38758,22 @@ func ParseCreateAlliancePushInviteResponse(rsp *http.Response) (*CreateAllianceP
 	return response, nil
 }
 
+// ParseGetAllianceUploadResponse parses an HTTP response from a GetAllianceUploadWithResponse call
+func ParseGetAllianceUploadResponse(rsp *http.Response) (*GetAllianceUploadResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAllianceUploadResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseCreateAllianceVoiceGrantResponse parses an HTTP response from a CreateAllianceVoiceGrantWithResponse call
 func ParseCreateAllianceVoiceGrantResponse(rsp *http.Response) (*CreateAllianceVoiceGrantResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -35903,6 +38796,70 @@ func ParseCreateAllianceVoiceGrantResponse(rsp *http.Response) (*CreateAllianceV
 			Grant          *map[string]interface{} `json:"grant,omitempty"`
 			OwnerHubPubkey *string                 `json:"owner_hub_pubkey,omitempty"`
 			OwnerHubUrl    *string                 `json:"owner_hub_url,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApplicationResponse parses an HTTP response from a GetApplicationWithResponse call
+func ParseGetApplicationResponse(rsp *http.Response) (*GetApplicationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApplicationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSubmitApplicationResponse parses an HTTP response from a SubmitApplicationWithResponse call
+func ParseSubmitApplicationResponse(rsp *http.Response) (*SubmitApplicationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SubmitApplicationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetApplicationStatusResponse parses an HTTP response from a GetApplicationStatusWithResponse call
+func ParseGetApplicationStatusResponse(rsp *http.Response) (*GetApplicationStatusResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApplicationStatusResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Reason *string `json:"reason,omitempty"`
+
+			// RetryAfter Unix seconds from which a rejected applicant may apply again.
+			RetryAfter *int64                       `json:"retry_after,omitempty"`
+			State      GetApplicationStatus200State `json:"state"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -37331,6 +40288,39 @@ func ParseMarkChannelReadResponse(rsp *http.Response) (*MarkChannelReadResponse,
 	return response, nil
 }
 
+// ParseEnsureChannelStickerResponse parses an HTTP response from a EnsureChannelStickerWithResponse call
+func ParseEnsureChannelStickerResponse(rsp *http.Response) (*EnsureChannelStickerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &EnsureChannelStickerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Sticker
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Sticker
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListChannelTagsResponse parses an HTTP response from a ListChannelTagsWithResponse call
 func ParseListChannelTagsResponse(rsp *http.Response) (*ListChannelTagsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -37446,15 +40436,7 @@ func ParseUploadChannelFileResponse(rsp *http.Response) (*UploadChannelFileRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest struct {
-			Filename  *string `json:"filename,omitempty"`
-			Id        *string `json:"id,omitempty"`
-			MimeType  *string `json:"mime_type,omitempty"`
-			SizeBytes *int64  `json:"size_bytes,omitempty"`
-
-			// Url Path under /uploads/
-			Url *string `json:"url,omitempty"`
-		}
+		var dest AttachmentRef
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -38389,6 +41371,22 @@ func ParseGetFederationListingResponse(rsp *http.Response) (*GetFederationListin
 	return response, nil
 }
 
+// ParseFederationGetStickerResponse parses an HTTP response from a FederationGetStickerWithResponse call
+func ParseFederationGetStickerResponse(rsp *http.Response) (*FederationGetStickerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FederationGetStickerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseListFriendsResponse parses an HTTP response from a ListFriendsWithResponse call
 func ParseListFriendsResponse(rsp *http.Response) (*ListFriendsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -38485,7 +41483,13 @@ func ParseGetHealthResponse(rsp *http.Response) (*GetHealthResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
-			Status *string `json:"status,omitempty"`
+			// DbStatus `ok`, or `error: ` followed by the reason the database did not answer.
+			DbStatus      string `json:"db_status"`
+			Status        string `json:"status"`
+			UptimeSeconds int64  `json:"uptime_seconds"`
+
+			// Version The hub's version.
+			Version string `json:"version"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -38616,6 +41620,25 @@ func ParseListHubPendingResponse(rsp *http.Response) (*ListHubPendingResponse, e
 		HTTPResponse: rsp,
 	}
 
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []struct {
+			// BanEvasionMatch The banned identity whose last address this joiner arrived from, when that is why they wait. Approving clears it. Present on hubs advertising `admission.banevasion`.
+			BanEvasionMatch *string `json:"ban_evasion_match"`
+			DisplayName     *string `json:"display_name"`
+			FirstSeenAt     int64   `json:"first_seen_at"`
+
+			// HasApplication Whether they filled the join application.
+			HasApplication *bool  `json:"has_application,omitempty"`
+			PublicKey      string `json:"public_key"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
 	return response, nil
 }
 
@@ -38628,6 +41651,22 @@ func ParseApproveHubPendingResponse(rsp *http.Response) (*ApproveHubPendingRespo
 	}
 
 	response := &ApproveHubPendingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseRejectHubPendingResponse parses an HTTP response from a RejectHubPendingWithResponse call
+func ParseRejectHubPendingResponse(rsp *http.Response) (*RejectHubPendingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RejectHubPendingResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -39793,15 +42832,33 @@ func ParseGetPreviewResponse(rsp *http.Response) (*GetPreviewResponse, error) {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
 			Description *string `json:"description"`
-			ImageUrl    *string `json:"image_url"`
-			Title       *string `json:"title"`
-			Url         *string `json:"url,omitempty"`
+
+			// ImageUrl The page's image as fetched and served by this hub (`/preview/image/{id}` under its public URL), so readers never contact the third-party host. Null when the page has no PNG/JPEG/GIF/WebP/AVIF image of at most 1 MB, or the hub has no public URL.
+			ImageUrl *string `json:"image_url"`
+			Title    *string `json:"title"`
+			Url      *string `json:"url,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseGetPreviewImageResponse parses an HTTP response from a GetPreviewImageWithResponse call
+func ParseGetPreviewImageResponse(rsp *http.Response) (*GetPreviewImageResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPreviewImageResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -40464,6 +43521,148 @@ func ParseMarkSoundboardSoundPlayedResponse(rsp *http.Response) (*MarkSoundboard
 	return response, nil
 }
 
+// ParseListStickerPacksResponse parses an HTTP response from a ListStickerPacksWithResponse call
+func ParseListStickerPacksResponse(rsp *http.Response) (*ListStickerPacksResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListStickerPacksResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []StickerPack
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateStickerPackResponse parses an HTTP response from a CreateStickerPackWithResponse call
+func ParseCreateStickerPackResponse(rsp *http.Response) (*CreateStickerPackResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateStickerPackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest StickerPack
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteStickerPackResponse parses an HTTP response from a DeleteStickerPackWithResponse call
+func ParseDeleteStickerPackResponse(rsp *http.Response) (*DeleteStickerPackResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteStickerPackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseRenameStickerPackResponse parses an HTTP response from a RenameStickerPackWithResponse call
+func ParseRenameStickerPackResponse(rsp *http.Response) (*RenameStickerPackResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RenameStickerPackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseAddStickerToPackResponse parses an HTTP response from a AddStickerToPackWithResponse call
+func ParseAddStickerToPackResponse(rsp *http.Response) (*AddStickerToPackResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AddStickerToPackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Sticker
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRemoveStickerFromPackResponse parses an HTTP response from a RemoveStickerFromPackWithResponse call
+func ParseRemoveStickerFromPackResponse(rsp *http.Response) (*RemoveStickerFromPackResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveStickerFromPackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetStickerResponse parses an HTTP response from a GetStickerWithResponse call
+func ParseGetStickerResponse(rsp *http.Response) (*GetStickerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetStickerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseGetSurveyCurrentResponse parses an HTTP response from a GetSurveyCurrentWithResponse call
 func ParseGetSurveyCurrentResponse(rsp *http.Response) (*GetSurveyCurrentResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -40533,6 +43732,22 @@ func ParseUpdateTagResponse(rsp *http.Response) (*UpdateTagResponse, error) {
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseRemoveUploadResponse parses an HTTP response from a RemoveUploadWithResponse call
+func ParseRemoveUploadResponse(rsp *http.Response) (*RemoveUploadResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveUploadResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
