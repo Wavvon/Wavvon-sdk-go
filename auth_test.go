@@ -17,20 +17,40 @@ import (
 
 var seedHex = strings.Repeat("5a", 32)
 
+var challengeHubKey = strings.Repeat("cd", 32)
+
 func str(s string) *string { return &s }
 
 func TestTaggedV1PrefixesTheTag(t *testing.T) {
 	c := bytes.Repeat([]byte{9}, 32)
-	b, err := AuthChallengeSigningBytes(c, str("tagged-v1"))
+	b, err := AuthChallengeSigningBytes(c, str("tagged-v1"), "")
 	if err != nil || string(b[:25]) != "wavvon/auth-challenge/v1\x00" || !bytes.Equal(b[25:], c) {
 		t.Fatalf("got %x, %v", b, err)
 	}
 }
 
-func TestUnknownOrMissingSchemeIsRefused(t *testing.T) {
-	for _, s := range []*string{nil, str(""), str("tagged-v2")} {
+func TestTaggedV2BindsTheServerKey(t *testing.T) {
+	c := bytes.Repeat([]byte{9}, 32)
+	b, err := AuthChallengeSigningBytes(c, str("tagged-v2"), "ab")
+	want := append([]byte("wavvon/auth-challenge/v2\x00\x02\x00\x00\x00ab"), c...)
+	if err != nil || !bytes.Equal(b, want) {
+		t.Fatalf("got %x, %v", b, err)
+	}
+}
+
+func TestChallengeThatIsNot32BytesIsRefused(t *testing.T) {
+	for _, s := range []string{"tagged-v1", "tagged-v2"} {
 		var se *AuthSchemeError
-		if _, err := AuthChallengeSigningBytes(make([]byte, 32), s); !errors.As(err, &se) {
+		if _, err := AuthChallengeSigningBytes(make([]byte, 31), str(s), challengeHubKey); !errors.As(err, &se) {
+			t.Errorf("scheme %s: want AuthSchemeError, got %v", s, err)
+		}
+	}
+}
+
+func TestUnknownOrMissingSchemeIsRefused(t *testing.T) {
+	for _, s := range []*string{nil, str(""), str("tagged-v3")} {
+		var se *AuthSchemeError
+		if _, err := AuthChallengeSigningBytes(make([]byte, 32), s, challengeHubKey); !errors.As(err, &se) {
 			t.Errorf("scheme %v: want AuthSchemeError, got %v", s, err)
 		}
 	}
@@ -72,6 +92,8 @@ func (h *authHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var body map[string]string
 	_ = json.Unmarshal(raw.Bytes(), &body)
 	switch r.URL.Path {
+	case "/info":
+		_ = json.NewEncoder(w).Encode(map[string]string{"public_key": challengeHubKey})
 	case "/auth/challenge":
 		ch := hex.EncodeToString(bytes.Repeat([]byte{byte(len(h.challenges) + 1)}, 32))
 		h.challenges = append(h.challenges, ch)
@@ -92,7 +114,7 @@ func (h *authHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		ch, _ := hex.DecodeString(body["challenge"])
-		msg, _ := AuthChallengeSigningBytes(ch, h.scheme)
+		msg, _ := AuthChallengeSigningBytes(ch, h.scheme, challengeHubKey)
 		sig, _ := hex.DecodeString(body["signature"])
 		pub, _ := hex.DecodeString(body["public_key"])
 		if len(pub) != ed25519.PublicKeySize || !ed25519.Verify(pub, msg, sig) {
@@ -112,6 +134,16 @@ func identity(t *testing.T) *Identity {
 		t.Fatal(err)
 	}
 	return id
+}
+
+func TestLoginWithTaggedV2SignsForTheKeyInfoPresented(t *testing.T) {
+	h := &authHub{scheme: str("tagged-v2")}
+	srv := httptest.NewServer(h)
+	defer srv.Close()
+	s, err := Authenticate(context.Background(), srv.URL, identity(t), AuthOptions{})
+	if err != nil || s.Token != "tok" {
+		t.Fatalf("got %+v, %v", s, err)
+	}
 }
 
 func TestLoginWithTaggedV1PassesTheInvite(t *testing.T) {

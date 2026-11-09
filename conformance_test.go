@@ -113,7 +113,19 @@ func TestConformance(t *testing.T) {
 
 	t.Run("auth_challenge", func(t *testing.T) {
 		v := vec("auth_challenge")
-		bytes, err := AuthChallengeSigningBytes(unhex(t, v.s("inputs", "challenge")), str("tagged-v1"))
+		bytes, err := AuthChallengeSigningBytes(unhex(t, v.s("inputs", "challenge")), str("tagged-v1"), "")
+		if err != nil || hex.EncodeToString(bytes) != v.s("signing_bytes") {
+			t.Fatalf("signing bytes %x, %v", bytes, err)
+		}
+		id, _ := IdentityFromHexSeed(v.s("inputs", "signer_seed"))
+		if hex.EncodeToString(id.Sign(bytes)) != v.s("signature") {
+			t.Fatal("signature differs")
+		}
+	})
+
+	t.Run("bound_auth_challenge", func(t *testing.T) {
+		v := vec("bound_auth_challenge")
+		bytes, err := AuthChallengeSigningBytes(unhex(t, v.s("inputs", "challenge")), str("tagged-v2"), v.s("inputs", "server_pubkey"))
 		if err != nil || hex.EncodeToString(bytes) != v.s("signing_bytes") {
 			t.Fatalf("signing bytes %x, %v", bytes, err)
 		}

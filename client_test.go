@@ -33,7 +33,7 @@ func (h *fakeHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{"public_key": "aa", "capabilities": h.capabilities})
 		return
 	case "/auth/challenge":
-		_ = json.NewEncoder(w).Encode(map[string]string{"challenge": strings.Repeat("00", 32), "scheme": "tagged-v1"})
+		_ = json.NewEncoder(w).Encode(map[string]string{"challenge": strings.Repeat("00", 32), "scheme": "tagged-v2"})
 		return
 	case "/auth/verify":
 		h.tokens++
