@@ -5,7 +5,6 @@ go 1.23
 require (
 	github.com/coder/websocket v1.8.13
 	github.com/oapi-codegen/runtime v1.1.2
-	golang.org/x/crypto v0.31.0
 )
 
 require (
