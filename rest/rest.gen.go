@@ -119,6 +119,14 @@ const (
 	SurveyQuestionAdminKindText    SurveyQuestionAdminKind = "text"
 )
 
+// Defines values for WidgetSettingsMode.
+const (
+	WidgetSettingsModeCounts WidgetSettingsMode = "counts"
+	WidgetSettingsModeNames  WidgetSettingsMode = "names"
+	WidgetSettingsModeOff    WidgetSettingsMode = "off"
+	WidgetSettingsModeVoice  WidgetSettingsMode = "voice"
+)
+
 // Defines values for CreateAdminBanlistOverrideJSONBodyOverrideType.
 const (
 	Blacklist CreateAdminBanlistOverrideJSONBodyOverrideType = "blacklist"
@@ -159,10 +167,10 @@ const (
 
 // Defines values for PatchAdminSettingsChallengeJSONBodyChallengeMode.
 const (
-	Both   PatchAdminSettingsChallengeJSONBodyChallengeMode = "both"
-	Click  PatchAdminSettingsChallengeJSONBodyChallengeMode = "click"
-	Off    PatchAdminSettingsChallengeJSONBodyChallengeMode = "off"
-	Puzzle PatchAdminSettingsChallengeJSONBodyChallengeMode = "puzzle"
+	PatchAdminSettingsChallengeJSONBodyChallengeModeBoth   PatchAdminSettingsChallengeJSONBodyChallengeMode = "both"
+	PatchAdminSettingsChallengeJSONBodyChallengeModeClick  PatchAdminSettingsChallengeJSONBodyChallengeMode = "click"
+	PatchAdminSettingsChallengeJSONBodyChallengeModeOff    PatchAdminSettingsChallengeJSONBodyChallengeMode = "off"
+	PatchAdminSettingsChallengeJSONBodyChallengeModePuzzle PatchAdminSettingsChallengeJSONBodyChallengeMode = "puzzle"
 )
 
 // Defines values for ListStoredStickersParamsState.
@@ -209,6 +217,12 @@ const (
 	Going    RsvpEventJSONBodyStatus = "going"
 	Maybe    RsvpEventJSONBodyStatus = "maybe"
 	NotGoing RsvpEventJSONBodyStatus = "not_going"
+)
+
+// Defines values for GetWidgetPageParamsTheme.
+const (
+	Dark  GetWidgetPageParamsTheme = "dark"
+	Light GetWidgetPageParamsTheme = "light"
 )
 
 // AdminSticker defines model for AdminSticker.
@@ -450,6 +464,9 @@ type Channel struct {
 	OwnerPubkey *string `json:"owner_pubkey,omitempty"`
 	ParentId    *string `json:"parent_id"`
 
+	// SlowmodeSecs Seconds a member must wait between messages here; 0 is off (capability channels.slowmode)
+	SlowmodeSecs *int `json:"slowmode_secs,omitempty"`
+
 	// SpawnerNameTemplate Spawner channels only (omitted otherwise) — the name template for spawned rooms.
 	SpawnerNameTemplate *string `json:"spawner_name_template,omitempty"`
 }
@@ -683,12 +700,15 @@ type HubInfo struct {
 	LanMode        bool    `json:"lan_mode"`
 
 	// LanTls Omitted unless set.
-	LanTls             *string `json:"lan_tls,omitempty"`
-	MaxAttachmentBytes int64   `json:"max_attachment_bytes"`
-	MinPowLevel        int     `json:"min_pow_level"`
-	MinSecurityLevel   int     `json:"min_security_level"`
-	Name               string  `json:"name"`
-	Nsfw               bool    `json:"nsfw"`
+	LanTls *string `json:"lan_tls,omitempty"`
+
+	// Landing The invite landing look, the same value as the invite preview's. `image` is present only when an image is set, so a client can skip requesting it. Absent on hubs that predate the field.
+	Landing            *Landing `json:"landing,omitempty"`
+	MaxAttachmentBytes int64    `json:"max_attachment_bytes"`
+	MinPowLevel        int      `json:"min_pow_level"`
+	MinSecurityLevel   int      `json:"min_security_level"`
+	Name               string   `json:"name"`
+	Nsfw               bool     `json:"nsfw"`
 
 	// PublicKey The hub's Ed25519 identity, hex. This is the hub's ID.
 	PublicKey string `json:"public_key"`
@@ -699,6 +719,9 @@ type HubInfo struct {
 
 	// SfuUrl Omitted unless the hub runs an SFU.
 	SfuUrl *string `json:"sfu_url,omitempty"`
+
+	// StreamLimits The most a screen share or camera may declare in `screen_share_start` (hubs advertising `screenshare.limits`). Each field is omitted when uncapped. Read-only on `/info` and `GET /hub/settings`; in `PATCH /hub` the object replaces all four, and a field left out or 0 clears it.
+	StreamLimits *StreamLimits `json:"stream_limits,omitempty"`
 
 	// Timezone Omitted unless set.
 	Timezone *string `json:"timezone,omitempty"`
@@ -745,6 +768,14 @@ type Invite struct {
 // InviteStatus Whether this invite can still admit anyone, and if not, which of the two ways it retired.
 type InviteStatus string
 
+// Landing How the invite landing looks (hubs advertising `hub.landing`). Each field is omitted when unset.
+type Landing struct {
+	Colors *[]string `json:"colors,omitempty"`
+
+	// Image Path of the image on this hub: /hub/landing-image.
+	Image *string `json:"image,omitempty"`
+}
+
 // LobbyStatus defines model for LobbyStatus.
 type LobbyStatus struct {
 	CurrentLevel  *int               `json:"current_level,omitempty"`
@@ -756,6 +787,16 @@ type LobbyStatus struct {
 
 // LobbyStatusStatus defines model for LobbyStatus.Status.
 type LobbyStatusStatus string
+
+// LockdownSettings defines model for LockdownSettings.
+type LockdownSettings struct {
+	AutoLockdown  bool `json:"auto_lockdown"`
+	Enabled       bool `json:"enabled"`
+	FreezeMinutes int  `json:"freeze_minutes"`
+
+	// RaidJoinThreshold Joins per minute that raise a raid alert; 0 is off
+	RaidJoinThreshold int `json:"raid_join_threshold"`
+}
 
 // Masquerade defines model for Masquerade.
 type Masquerade struct {
@@ -786,6 +827,9 @@ type MeInfo struct {
 	Roles            []Role  `json:"roles"`
 	ShowHubs         bool    `json:"show_hubs"`
 	StatusMessage    *string `json:"status_message"`
+
+	// WidgetHidden Left out of the hub's public online widget. Hubs advertising `hub.widget`.
+	WidgetHidden bool `json:"widget_hidden"`
 }
 
 // MeInfoApprovalStatus defines model for MeInfo.ApprovalStatus.
@@ -878,7 +922,10 @@ type PostDetail struct {
 	CreatedAt    *int64  `json:"created_at,omitempty"`
 
 	// EditedAt Omitted when never edited
-	EditedAt       *int64       `json:"edited_at,omitempty"`
+	EditedAt *int64 `json:"edited_at,omitempty"`
+
+	// Excerpt The body on one line, at most 240 characters and an ellipsis when cut. Omitted on a deleted post.
+	Excerpt        *string      `json:"excerpt,omitempty"`
 	Id             *string      `json:"id,omitempty"`
 	IsDeleted      *bool        `json:"is_deleted,omitempty"`
 	IsLocked       *bool        `json:"is_locked,omitempty"`
@@ -915,7 +962,10 @@ type PostSummary struct {
 	CreatedAt    *int64  `json:"created_at,omitempty"`
 
 	// EditedAt Omitted when never edited
-	EditedAt       *int64      `json:"edited_at,omitempty"`
+	EditedAt *int64 `json:"edited_at,omitempty"`
+
+	// Excerpt The body on one line, at most 240 characters and an ellipsis when cut. Omitted on a deleted post.
+	Excerpt        *string     `json:"excerpt,omitempty"`
 	Id             *string     `json:"id,omitempty"`
 	IsDeleted      *bool       `json:"is_deleted,omitempty"`
 	IsLocked       *bool       `json:"is_locked,omitempty"`
@@ -1067,6 +1117,14 @@ type StickerPack struct {
 	Stickers  *[]Sticker `json:"stickers,omitempty"`
 }
 
+// StreamLimits The most a screen share or camera may declare in `screen_share_start` (hubs advertising `screenshare.limits`). Each field is omitted when uncapped. Read-only on `/info` and `GET /hub/settings`; in `PATCH /hub` the object replaces all four, and a field left out or 0 clears it.
+type StreamLimits struct {
+	MaxFps    *int `json:"max_fps,omitempty"`
+	MaxHeight *int `json:"max_height,omitempty"`
+	MaxKbps   *int `json:"max_kbps,omitempty"`
+	MaxWidth  *int `json:"max_width,omitempty"`
+}
+
 // SubkeyCert defines model for SubkeyCert.
 type SubkeyCert struct {
 	DeviceLabel  string    `json:"device_label"`
@@ -1129,9 +1187,12 @@ type UserInfo struct {
 	Birthday    *string `json:"birthday"`
 	DisplayName *string `json:"display_name"`
 	GroupRole   *string `json:"group_role"`
-	NameColor   *string `json:"name_color"`
-	Online      bool    `json:"online"`
-	PublicKey   string  `json:"public_key"`
+
+	// GroupRolePriority Priority of group_role; omitted when there is none.
+	GroupRolePriority *int64  `json:"group_role_priority,omitempty"`
+	NameColor         *string `json:"name_color"`
+	Online            bool    `json:"online"`
+	PublicKey         string  `json:"public_key"`
 
 	// Status Presence status. Omitted unless set.
 	Status *string `json:"status,omitempty"`
@@ -1145,6 +1206,38 @@ type WebhookSubscriptionDto struct {
 	Channels *[]string `json:"channels,omitempty"`
 	Event    string    `json:"event"`
 }
+
+// WidgetData What the public widget shows. Never a public key; invisible members and members with `widget_hidden` are not counted.
+type WidgetData struct {
+	Icon      *string `json:"icon,omitempty"`
+	InviteUrl *string `json:"invite_url,omitempty"`
+
+	// Members In `names` and `voice` modes.
+	Members *[]struct {
+		Avatar *string `json:"avatar,omitempty"`
+		Name   string  `json:"name"`
+	} `json:"members,omitempty"`
+	Name        string `json:"name"`
+	OnlineCount int    `json:"online_count"`
+
+	// Voice In `voice` mode, the occupied voice rooms.
+	Voice *[]struct {
+		Channel string   `json:"channel"`
+		Members []string `json:"members"`
+	} `json:"voice,omitempty"`
+}
+
+// WidgetSettings defines model for WidgetSettings.
+type WidgetSettings struct {
+	// InviteCode The invite the widget's Join button opens; empty or absent for none
+	InviteCode *string `json:"invite_code"`
+
+	// Mode off (default), the online count, names too, or names plus who is in which voice room
+	Mode WidgetSettingsMode `json:"mode"`
+}
+
+// WidgetSettingsMode off (default), the online count, names too, or names plus who is in which voice room
+type WidgetSettingsMode string
 
 // SetAdminApplicationJSONBody defines parameters for SetAdminApplication.
 type SetAdminApplicationJSONBody struct {
@@ -1731,6 +1824,9 @@ type UpdateChannelJSONBody struct {
 	Nsfw            *bool                             `json:"nsfw,omitempty"`
 	ParentId        *string                           `json:"parent_id"`
 	RetentionDays   *int64                            `json:"retention_days"`
+
+	// SlowmodeSecs Seconds between one member's messages here, 0 to turn slowmode off. Needs channels.manage.
+	SlowmodeSecs *int `json:"slowmode_secs,omitempty"`
 }
 
 // UpdateChannelJSONBodyChannelType defines parameters for UpdateChannel.
@@ -1946,12 +2042,18 @@ type ListConversationMessagesParams struct {
 
 // CreateConversationMessageJSONBody defines parameters for CreateConversationMessage.
 type CreateConversationMessageJSONBody struct {
-	Attachments            *[]Attachment           `json:"attachments,omitempty"`
-	Content                *string                 `json:"content,omitempty"`
+	Attachments *[]Attachment `json:"attachments,omitempty"`
+	Content     *string       `json:"content,omitempty"`
+
+	// CreatedAt With a v2 plaintext_signature: the unix time the client signed, within five minutes of the hub's clock. The hub adopts it.
+	CreatedAt              *int64                  `json:"created_at,omitempty"`
 	EncryptedEnvelope      *EncryptedDmEnvelope    `json:"encrypted_envelope,omitempty"`
 	GroupEncryptedEnvelope *GroupEncryptedEnvelope `json:"group_encrypted_envelope,omitempty"`
 
-	// PlaintextSignature Hex Ed25519 signature over the federated plaintext DM bytes (wire-format.md). A recipient on another hub refuses an unsigned plaintext DM.
+	// MessageId With a v2 plaintext_signature: the id the client chose and signed. The hub adopts it. Required alongside a signature on a dms.plaintext.v2 hub.
+	MessageId *openapi_types.UUID `json:"message_id,omitempty"`
+
+	// PlaintextSignature Hex Ed25519 signature over the federated plaintext DM bytes (wire-format.md, v2 on a hub advertising dms.plaintext.v2). A recipient on another hub refuses an unsigned plaintext DM.
 	PlaintextSignature *string `json:"plaintext_signature,omitempty"`
 
 	// PlaintextSignerCert When the signing key is not the sender's canonical key: the master-signed cert tying the two. Only on a hub advertising `dms.plaintext.signercert`.
@@ -2166,7 +2268,13 @@ type UpdateHubJSONBody struct {
 	Description            *string `json:"description,omitempty"`
 	FarewellLabel          *string `json:"farewell_label,omitempty"`
 	Icon                   *string `json:"icon,omitempty"`
-	MaxAttachmentBytes     *int64  `json:"max_attachment_bytes,omitempty"`
+
+	// LandingColors Two colours for the invite landing; an empty array clears them.
+	LandingColors *[]string `json:"landing_colors,omitempty"`
+
+	// LandingImage Invite landing image as a base64 data: URL, at most 1 MB decoded, re-encoded by the hub. Empty clears it. 413 when too large, 400 when not an image.
+	LandingImage       *string `json:"landing_image,omitempty"`
+	MaxAttachmentBytes *int64  `json:"max_attachment_bytes,omitempty"`
 
 	// MaxAttachmentsPerMessage 1 to 25, default 10. That message is refused.
 	MaxAttachmentsPerMessage *int `json:"max_attachments_per_message,omitempty"`
@@ -2202,10 +2310,13 @@ type UpdateHubJSONBody struct {
 	StickersPacksWarnPercent *int `json:"stickers_packs_warn_percent,omitempty"`
 
 	// StickersPerPack 1 to 500, default 60
-	StickersPerPack  *int    `json:"stickers_per_pack,omitempty"`
-	Timezone         *string `json:"timezone,omitempty"`
-	WelcomeInviteUrl *string `json:"welcome_invite_url,omitempty"`
-	WelcomeLabel     *string `json:"welcome_label,omitempty"`
+	StickersPerPack *int `json:"stickers_per_pack,omitempty"`
+
+	// StreamLimits The most a screen share or camera may declare in `screen_share_start` (hubs advertising `screenshare.limits`). Each field is omitted when uncapped. Read-only on `/info` and `GET /hub/settings`; in `PATCH /hub` the object replaces all four, and a field left out or 0 clears it.
+	StreamLimits     *StreamLimits `json:"stream_limits,omitempty"`
+	Timezone         *string       `json:"timezone,omitempty"`
+	WelcomeInviteUrl *string       `json:"welcome_invite_url,omitempty"`
+	WelcomeLabel     *string       `json:"welcome_label,omitempty"`
 }
 
 // CreateHubIconJSONBody defines parameters for CreateHubIcon.
@@ -2320,12 +2431,14 @@ type CreateInviteJSONBody struct {
 	// BoundPubkey 64 hex characters. The only identity this invite admits.
 	BoundPubkey *string `json:"bound_pubkey"`
 
-	// ExpiresInSeconds Lifetime in seconds from now. Omitted means no expiry, except as noted under `grant_role_id`.
+	// ExpiresInSeconds Lifetime in seconds from now. Omitted means no expiry, except as noted under `grant_role_id`. Below 1, or large enough to overflow the expiry timestamp, is a 400.
 	ExpiresInSeconds *int64 `json:"expires_in_seconds"`
 
 	// GrantRoleId Role granted to the joining member besides the everyone role. Must exist, and the creator must be able to grant every permission it carries. A role that amounts to a takeover caps the invite to one use and a short expiry.
 	GrantRoleId *string `json:"grant_role_id"`
-	MaxUses     *int64  `json:"max_uses"`
+
+	// MaxUses Omitted means unlimited. Below 1 is a 400.
+	MaxUses *int64 `json:"max_uses"`
 }
 
 // SubmitLobbyPowJSONBody defines parameters for SubmitLobbyPow.
@@ -2350,6 +2463,9 @@ type UpdateMeJSONBody struct {
 	Pronouns         *string `json:"pronouns,omitempty"`
 	ShowHubs         *bool   `json:"show_hubs,omitempty"`
 	StatusMessage    *string `json:"status_message,omitempty"`
+
+	// WidgetHidden Leave me out of the public online widget. Hubs advertising `hub.widget`.
+	WidgetHidden *bool `json:"widget_hidden,omitempty"`
 }
 
 // SetMeAppCommandsJSONBody defines parameters for SetMeAppCommands.
@@ -2523,6 +2639,12 @@ type CreateRoleJSONBody struct {
 	Priority          int64    `json:"priority"`
 }
 
+// ReorderRolesJSONBody defines parameters for ReorderRoles.
+type ReorderRolesJSONBody struct {
+	// RoleIds highest first
+	RoleIds []string `json:"role_ids"`
+}
+
 // UpdateRoleJSONBody defines parameters for UpdateRole.
 type UpdateRoleJSONBody struct {
 	CategoryId        *string   `json:"category_id"`
@@ -2639,10 +2761,21 @@ type ExecuteWebhookJSONBody struct {
 	Username *string `json:"username,omitempty"`
 }
 
+// GetWidgetPageParams defines parameters for GetWidgetPage.
+type GetWidgetPageParams struct {
+	Theme *GetWidgetPageParamsTheme `form:"theme,omitempty" json:"theme,omitempty"`
+}
+
+// GetWidgetPageParamsTheme defines parameters for GetWidgetPage.
+type GetWidgetPageParamsTheme string
+
 // ConnectWebSocketParams defines parameters for ConnectWebSocket.
 type ConnectWebSocketParams struct {
-	// Token Session token from `POST /auth/verify`.
-	Token string `form:"token" json:"token"`
+	// Ticket Single-use ticket from `POST /ws/ticket`, valid 30 seconds.
+	Ticket *string `form:"ticket,omitempty" json:"ticket,omitempty"`
+
+	// Token Session token from `POST /auth/verify`, when no ticket is used.
+	Token *string `form:"token,omitempty" json:"token,omitempty"`
 }
 
 // SetAdminApplicationJSONRequestBody defines body for SetAdminApplication for application/json ContentType.
@@ -2699,6 +2832,9 @@ type UpdateAdminSettingsListingJSONRequestBody UpdateAdminSettingsListingJSONBod
 // PatchAdminSettingsLobbyJSONRequestBody defines body for PatchAdminSettingsLobby for application/json ContentType.
 type PatchAdminSettingsLobbyJSONRequestBody PatchAdminSettingsLobbyJSONBody
 
+// PutLockdownSettingsJSONRequestBody defines body for PutLockdownSettings for application/json ContentType.
+type PutLockdownSettingsJSONRequestBody = LockdownSettings
+
 // UpdateAdminSettingsModerationJSONRequestBody defines body for UpdateAdminSettingsModeration for application/json ContentType.
 type UpdateAdminSettingsModerationJSONRequestBody UpdateAdminSettingsModerationJSONBody
 
@@ -2707,6 +2843,9 @@ type UpdateAdminSettingsPowJSONRequestBody UpdateAdminSettingsPowJSONBody
 
 // UpdateAdminSettingsTagsJSONRequestBody defines body for UpdateAdminSettingsTags for application/json ContentType.
 type UpdateAdminSettingsTagsJSONRequestBody UpdateAdminSettingsTagsJSONBody
+
+// PutWidgetSettingsJSONRequestBody defines body for PutWidgetSettings for application/json ContentType.
+type PutWidgetSettingsJSONRequestBody = WidgetSettings
 
 // SetAdminSurveyJSONRequestBody defines body for SetAdminSurvey for application/json ContentType.
 type SetAdminSurveyJSONRequestBody SetAdminSurveyJSONBody
@@ -3004,6 +3143,9 @@ type UpdateRoleCategoryJSONRequestBody UpdateRoleCategoryJSONBody
 
 // CreateRoleJSONRequestBody defines body for CreateRole for application/json ContentType.
 type CreateRoleJSONRequestBody CreateRoleJSONBody
+
+// ReorderRolesJSONRequestBody defines body for ReorderRoles for application/json ContentType.
+type ReorderRolesJSONRequestBody ReorderRolesJSONBody
 
 // UpdateRoleJSONRequestBody defines body for UpdateRole for application/json ContentType.
 type UpdateRoleJSONRequestBody UpdateRoleJSONBody
@@ -3321,6 +3463,14 @@ type ClientInterface interface {
 
 	PatchAdminSettingsLobby(ctx context.Context, body PatchAdminSettingsLobbyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetLockdownSettings request
+	GetLockdownSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutLockdownSettingsWithBody request with any body
+	PutLockdownSettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutLockdownSettings(ctx context.Context, body PutLockdownSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetAdminSettingsModeration request
 	GetAdminSettingsModeration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3344,6 +3494,14 @@ type ClientInterface interface {
 	UpdateAdminSettingsTagsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateAdminSettingsTags(ctx context.Context, body UpdateAdminSettingsTagsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetWidgetSettings request
+	GetWidgetSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutWidgetSettingsWithBody request with any body
+	PutWidgetSettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutWidgetSettings(ctx context.Context, body PutWidgetSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListStoredStickers request
 	ListStoredStickers(ctx context.Context, params *ListStoredStickersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3977,6 +4135,9 @@ type ClientInterface interface {
 
 	UpdateHubIcon(ctx context.Context, iconId string, body UpdateHubIconJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetHubLandingImage request
+	GetHubLandingImage(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListHubMembers request
 	ListHubMembers(ctx context.Context, params *ListHubMembersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4219,6 +4380,9 @@ type ClientInterface interface {
 
 	SetProfile(ctx context.Context, pubkey string, body SetProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetPublicWidget request
+	GetPublicWidget(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListRecoveryContacts request
 	ListRecoveryContacts(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4272,6 +4436,11 @@ type ClientInterface interface {
 	CreateRoleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateRole(ctx context.Context, body CreateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ReorderRolesWithBody request with any body
+	ReorderRolesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ReorderRoles(ctx context.Context, body ReorderRolesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteRole request
 	DeleteRole(ctx context.Context, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -4394,8 +4563,14 @@ type ClientInterface interface {
 
 	ExecuteWebhook(ctx context.Context, id string, token string, body ExecuteWebhookJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetWidgetPage request
+	GetWidgetPage(ctx context.Context, params *GetWidgetPageParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ConnectWebSocket request
 	ConnectWebSocket(ctx context.Context, params *ConnectWebSocketParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateWsTicket request
+	CreateWsTicket(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetAdminApplication(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5142,6 +5317,42 @@ func (c *Client) PatchAdminSettingsLobby(ctx context.Context, body PatchAdminSet
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetLockdownSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetLockdownSettingsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutLockdownSettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutLockdownSettingsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutLockdownSettings(ctx context.Context, body PutLockdownSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutLockdownSettingsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetAdminSettingsModeration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAdminSettingsModerationRequest(c.Server)
 	if err != nil {
@@ -5240,6 +5451,42 @@ func (c *Client) UpdateAdminSettingsTagsWithBody(ctx context.Context, contentTyp
 
 func (c *Client) UpdateAdminSettingsTags(ctx context.Context, body UpdateAdminSettingsTagsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateAdminSettingsTagsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetWidgetSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWidgetSettingsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutWidgetSettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutWidgetSettingsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutWidgetSettings(ctx context.Context, body PutWidgetSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutWidgetSettingsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8046,6 +8293,18 @@ func (c *Client) UpdateHubIcon(ctx context.Context, iconId string, body UpdateHu
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetHubLandingImage(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHubLandingImageRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListHubMembers(ctx context.Context, params *ListHubMembersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListHubMembersRequest(c.Server, params)
 	if err != nil {
@@ -9114,6 +9373,18 @@ func (c *Client) SetProfile(ctx context.Context, pubkey string, body SetProfileJ
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetPublicWidget(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPublicWidgetRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListRecoveryContacts(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListRecoveryContactsRequest(c.Server)
 	if err != nil {
@@ -9344,6 +9615,30 @@ func (c *Client) CreateRoleWithBody(ctx context.Context, contentType string, bod
 
 func (c *Client) CreateRole(ctx context.Context, body CreateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateRoleRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ReorderRolesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewReorderRolesRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ReorderRoles(ctx context.Context, body ReorderRolesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewReorderRolesRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9882,8 +10177,32 @@ func (c *Client) ExecuteWebhook(ctx context.Context, id string, token string, bo
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetWidgetPage(ctx context.Context, params *GetWidgetPageParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWidgetPageRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ConnectWebSocket(ctx context.Context, params *ConnectWebSocketParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewConnectWebSocketRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateWsTicket(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateWsTicketRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -11753,6 +12072,73 @@ func NewPatchAdminSettingsLobbyRequestWithBody(server string, contentType string
 	return req, nil
 }
 
+// NewGetLockdownSettingsRequest generates requests for GetLockdownSettings
+func NewGetLockdownSettingsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/settings/lockdown")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutLockdownSettingsRequest calls the generic PutLockdownSettings builder with application/json body
+func NewPutLockdownSettingsRequest(server string, body PutLockdownSettingsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutLockdownSettingsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPutLockdownSettingsRequestWithBody generates requests for PutLockdownSettings with any type of body
+func NewPutLockdownSettingsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/settings/lockdown")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetAdminSettingsModerationRequest generates requests for GetAdminSettingsModeration
 func NewGetAdminSettingsModerationRequest(server string) (*http.Request, error) {
 	var err error
@@ -11945,6 +12331,73 @@ func NewUpdateAdminSettingsTagsRequestWithBody(server string, contentType string
 	}
 
 	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetWidgetSettingsRequest generates requests for GetWidgetSettings
+func NewGetWidgetSettingsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/settings/widget")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutWidgetSettingsRequest calls the generic PutWidgetSettings builder with application/json body
+func NewPutWidgetSettingsRequest(server string, body PutWidgetSettingsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutWidgetSettingsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPutWidgetSettingsRequestWithBody generates requests for PutWidgetSettings with any type of body
+func NewPutWidgetSettingsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/settings/widget")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -19360,6 +19813,33 @@ func NewUpdateHubIconRequestWithBody(server string, iconId string, contentType s
 	return req, nil
 }
 
+// NewGetHubLandingImageRequest generates requests for GetHubLandingImage
+func NewGetHubLandingImageRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/hub/landing-image")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListHubMembersRequest generates requests for ListHubMembers
 func NewListHubMembersRequest(server string, params *ListHubMembersParams) (*http.Request, error) {
 	var err error
@@ -21885,6 +22365,33 @@ func NewSetProfileRequestWithBody(server string, pubkey string, contentType stri
 	return req, nil
 }
 
+// NewGetPublicWidgetRequest generates requests for GetPublicWidget
+func NewGetPublicWidgetRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/public/widget.json")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListRecoveryContactsRequest generates requests for ListRecoveryContacts
 func NewListRecoveryContactsRequest(server string) (*http.Request, error) {
 	var err error
@@ -22367,6 +22874,46 @@ func NewCreateRoleRequestWithBody(server string, contentType string, body io.Rea
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewReorderRolesRequest calls the generic ReorderRoles builder with application/json body
+func NewReorderRolesRequest(server string, body ReorderRolesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewReorderRolesRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewReorderRolesRequestWithBody generates requests for ReorderRoles with any type of body
+func NewReorderRolesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/roles/order")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -23709,6 +24256,55 @@ func NewExecuteWebhookRequestWithBody(server string, id string, token string, co
 	return req, nil
 }
 
+// NewGetWidgetPageRequest generates requests for GetWidgetPage
+func NewGetWidgetPageRequest(server string, params *GetWidgetPageParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/widget")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Theme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "theme", runtime.ParamLocationQuery, *params.Theme); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewConnectWebSocketRequest generates requests for ConnectWebSocket
 func NewConnectWebSocketRequest(server string, params *ConnectWebSocketParams) (*http.Request, error) {
 	var err error
@@ -23731,22 +24327,69 @@ func NewConnectWebSocketRequest(server string, params *ConnectWebSocketParams) (
 	if params != nil {
 		queryValues := queryURL.Query()
 
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "token", runtime.ParamLocationQuery, params.Token); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
+		if params.Ticket != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "ticket", runtime.ParamLocationQuery, *params.Ticket); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
 				}
 			}
+
+		}
+
+		if params.Token != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "token", runtime.ParamLocationQuery, *params.Token); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
 		}
 
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateWsTicketRequest generates requests for CreateWsTicket
+func NewCreateWsTicketRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/ws/ticket")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23965,6 +24608,14 @@ type ClientWithResponsesInterface interface {
 
 	PatchAdminSettingsLobbyWithResponse(ctx context.Context, body PatchAdminSettingsLobbyJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAdminSettingsLobbyResponse, error)
 
+	// GetLockdownSettingsWithResponse request
+	GetLockdownSettingsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLockdownSettingsResponse, error)
+
+	// PutLockdownSettingsWithBodyWithResponse request with any body
+	PutLockdownSettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutLockdownSettingsResponse, error)
+
+	PutLockdownSettingsWithResponse(ctx context.Context, body PutLockdownSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*PutLockdownSettingsResponse, error)
+
 	// GetAdminSettingsModerationWithResponse request
 	GetAdminSettingsModerationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminSettingsModerationResponse, error)
 
@@ -23988,6 +24639,14 @@ type ClientWithResponsesInterface interface {
 	UpdateAdminSettingsTagsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAdminSettingsTagsResponse, error)
 
 	UpdateAdminSettingsTagsWithResponse(ctx context.Context, body UpdateAdminSettingsTagsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAdminSettingsTagsResponse, error)
+
+	// GetWidgetSettingsWithResponse request
+	GetWidgetSettingsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetWidgetSettingsResponse, error)
+
+	// PutWidgetSettingsWithBodyWithResponse request with any body
+	PutWidgetSettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutWidgetSettingsResponse, error)
+
+	PutWidgetSettingsWithResponse(ctx context.Context, body PutWidgetSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*PutWidgetSettingsResponse, error)
 
 	// ListStoredStickersWithResponse request
 	ListStoredStickersWithResponse(ctx context.Context, params *ListStoredStickersParams, reqEditors ...RequestEditorFn) (*ListStoredStickersResponse, error)
@@ -24621,6 +25280,9 @@ type ClientWithResponsesInterface interface {
 
 	UpdateHubIconWithResponse(ctx context.Context, iconId string, body UpdateHubIconJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateHubIconResponse, error)
 
+	// GetHubLandingImageWithResponse request
+	GetHubLandingImageWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHubLandingImageResponse, error)
+
 	// ListHubMembersWithResponse request
 	ListHubMembersWithResponse(ctx context.Context, params *ListHubMembersParams, reqEditors ...RequestEditorFn) (*ListHubMembersResponse, error)
 
@@ -24863,6 +25525,9 @@ type ClientWithResponsesInterface interface {
 
 	SetProfileWithResponse(ctx context.Context, pubkey string, body SetProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*SetProfileResponse, error)
 
+	// GetPublicWidgetWithResponse request
+	GetPublicWidgetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPublicWidgetResponse, error)
+
 	// ListRecoveryContactsWithResponse request
 	ListRecoveryContactsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRecoveryContactsResponse, error)
 
@@ -24916,6 +25581,11 @@ type ClientWithResponsesInterface interface {
 	CreateRoleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateRoleResponse, error)
 
 	CreateRoleWithResponse(ctx context.Context, body CreateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateRoleResponse, error)
+
+	// ReorderRolesWithBodyWithResponse request with any body
+	ReorderRolesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ReorderRolesResponse, error)
+
+	ReorderRolesWithResponse(ctx context.Context, body ReorderRolesJSONRequestBody, reqEditors ...RequestEditorFn) (*ReorderRolesResponse, error)
 
 	// DeleteRoleWithResponse request
 	DeleteRoleWithResponse(ctx context.Context, roleId string, reqEditors ...RequestEditorFn) (*DeleteRoleResponse, error)
@@ -25038,8 +25708,14 @@ type ClientWithResponsesInterface interface {
 
 	ExecuteWebhookWithResponse(ctx context.Context, id string, token string, body ExecuteWebhookJSONRequestBody, reqEditors ...RequestEditorFn) (*ExecuteWebhookResponse, error)
 
+	// GetWidgetPageWithResponse request
+	GetWidgetPageWithResponse(ctx context.Context, params *GetWidgetPageParams, reqEditors ...RequestEditorFn) (*GetWidgetPageResponse, error)
+
 	// ConnectWebSocketWithResponse request
 	ConnectWebSocketWithResponse(ctx context.Context, params *ConnectWebSocketParams, reqEditors ...RequestEditorFn) (*ConnectWebSocketResponse, error)
+
+	// CreateWsTicketWithResponse request
+	CreateWsTicketWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateWsTicketResponse, error)
 }
 
 type GetAdminApplicationResponse struct {
@@ -26120,6 +26796,50 @@ func (r PatchAdminSettingsLobbyResponse) StatusCode() int {
 	return 0
 }
 
+type GetLockdownSettingsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *LockdownSettings
+}
+
+// Status returns HTTPResponse.Status
+func (r GetLockdownSettingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetLockdownSettingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutLockdownSettingsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *LockdownSettings
+}
+
+// Status returns HTTPResponse.Status
+func (r PutLockdownSettingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutLockdownSettingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetAdminSettingsModerationResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -26255,6 +26975,50 @@ func (r UpdateAdminSettingsTagsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateAdminSettingsTagsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetWidgetSettingsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WidgetSettings
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWidgetSettingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWidgetSettingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutWidgetSettingsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WidgetSettings
+}
+
+// Status returns HTTPResponse.Status
+func (r PutWidgetSettingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutWidgetSettingsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -27363,7 +28127,7 @@ type CreateAuthChallengeResponse struct {
 		// Challenge 32 random bytes, lowercase hex (64 chars)
 		Challenge string `json:"challenge"`
 
-		// Scheme Present when the answer may be signed over "wavvon/auth-challenge/v1\0" || hex-decoded challenge (wire-format.md). Omitted by older hubs, which take a signature over the raw decoded bytes only. A hub that sends it still accepts the raw form.
+		// Scheme tagged-v2 from a current hub or farm: the answer must be bound to the server's public key (wire-format.md), and no other answer is accepted. tagged-v1 from an older one.
 		Scheme *CreateAuthChallenge200Scheme `json:"scheme,omitempty"`
 	}
 }
@@ -30128,6 +30892,27 @@ func (r UpdateHubIconResponse) StatusCode() int {
 	return 0
 }
 
+type GetHubLandingImageResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetHubLandingImageResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetHubLandingImageResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListHubMembersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -30697,8 +31482,15 @@ type GetJoinInviteResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *struct {
 		Code        *string `json:"code,omitempty"`
+		Description *string `json:"description"`
 		HubName     *string `json:"hub_name,omitempty"`
-		MemberCount *int64  `json:"member_count,omitempty"`
+
+		// Landing How the invite landing looks (hubs advertising `hub.landing`). Each field is omitted when unset.
+		Landing     *Landing `json:"landing,omitempty"`
+		MemberCount *int64   `json:"member_count,omitempty"`
+
+		// OnlineCount Connected members, not counting invisible ones.
+		OnlineCount *int64 `json:"online_count,omitempty"`
 	}
 }
 
@@ -31373,6 +32165,9 @@ type ListPermissionsResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *struct {
 		Permissions *[]struct {
+			// Category The section a roles screen shows it under: messages, voice, moderation, members, channels, events, hub, integrations, federation. Hubs advertising `permissions.categories`.
+			Category *string `json:"category,omitempty"`
+
 			// Group Dotted prefix, for grouping without re-splitting the id.
 			Group *string `json:"group,omitempty"`
 			Id    *string `json:"id,omitempty"`
@@ -31565,6 +32360,28 @@ func (r SetProfileResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SetProfileResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPublicWidgetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WidgetData
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPublicWidgetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPublicWidgetResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -31909,6 +32726,28 @@ func (r CreateRoleResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateRoleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ReorderRolesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Role
+}
+
+// Status returns HTTPResponse.Status
+func (r ReorderRolesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ReorderRolesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -32680,6 +33519,27 @@ func (r ExecuteWebhookResponse) StatusCode() int {
 	return 0
 }
 
+type GetWidgetPageResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWidgetPageResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWidgetPageResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ConnectWebSocketResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -32695,6 +33555,31 @@ func (r ConnectWebSocketResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ConnectWebSocketResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateWsTicketResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		ExpiresIn int    `json:"expires_in"`
+		Ticket    string `json:"ticket"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateWsTicketResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateWsTicketResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -33241,6 +34126,32 @@ func (c *ClientWithResponses) PatchAdminSettingsLobbyWithResponse(ctx context.Co
 	return ParsePatchAdminSettingsLobbyResponse(rsp)
 }
 
+// GetLockdownSettingsWithResponse request returning *GetLockdownSettingsResponse
+func (c *ClientWithResponses) GetLockdownSettingsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLockdownSettingsResponse, error) {
+	rsp, err := c.GetLockdownSettings(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetLockdownSettingsResponse(rsp)
+}
+
+// PutLockdownSettingsWithBodyWithResponse request with arbitrary body returning *PutLockdownSettingsResponse
+func (c *ClientWithResponses) PutLockdownSettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutLockdownSettingsResponse, error) {
+	rsp, err := c.PutLockdownSettingsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutLockdownSettingsResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutLockdownSettingsWithResponse(ctx context.Context, body PutLockdownSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*PutLockdownSettingsResponse, error) {
+	rsp, err := c.PutLockdownSettings(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutLockdownSettingsResponse(rsp)
+}
+
 // GetAdminSettingsModerationWithResponse request returning *GetAdminSettingsModerationResponse
 func (c *ClientWithResponses) GetAdminSettingsModerationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminSettingsModerationResponse, error) {
 	rsp, err := c.GetAdminSettingsModeration(ctx, reqEditors...)
@@ -33317,6 +34228,32 @@ func (c *ClientWithResponses) UpdateAdminSettingsTagsWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseUpdateAdminSettingsTagsResponse(rsp)
+}
+
+// GetWidgetSettingsWithResponse request returning *GetWidgetSettingsResponse
+func (c *ClientWithResponses) GetWidgetSettingsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetWidgetSettingsResponse, error) {
+	rsp, err := c.GetWidgetSettings(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWidgetSettingsResponse(rsp)
+}
+
+// PutWidgetSettingsWithBodyWithResponse request with arbitrary body returning *PutWidgetSettingsResponse
+func (c *ClientWithResponses) PutWidgetSettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutWidgetSettingsResponse, error) {
+	rsp, err := c.PutWidgetSettingsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutWidgetSettingsResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutWidgetSettingsWithResponse(ctx context.Context, body PutWidgetSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*PutWidgetSettingsResponse, error) {
+	rsp, err := c.PutWidgetSettings(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutWidgetSettingsResponse(rsp)
 }
 
 // ListStoredStickersWithResponse request returning *ListStoredStickersResponse
@@ -35349,6 +36286,15 @@ func (c *ClientWithResponses) UpdateHubIconWithResponse(ctx context.Context, ico
 	return ParseUpdateHubIconResponse(rsp)
 }
 
+// GetHubLandingImageWithResponse request returning *GetHubLandingImageResponse
+func (c *ClientWithResponses) GetHubLandingImageWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHubLandingImageResponse, error) {
+	rsp, err := c.GetHubLandingImage(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetHubLandingImageResponse(rsp)
+}
+
 // ListHubMembersWithResponse request returning *ListHubMembersResponse
 func (c *ClientWithResponses) ListHubMembersWithResponse(ctx context.Context, params *ListHubMembersParams, reqEditors ...RequestEditorFn) (*ListHubMembersResponse, error) {
 	rsp, err := c.ListHubMembers(ctx, params, reqEditors...)
@@ -36125,6 +37071,15 @@ func (c *ClientWithResponses) SetProfileWithResponse(ctx context.Context, pubkey
 	return ParseSetProfileResponse(rsp)
 }
 
+// GetPublicWidgetWithResponse request returning *GetPublicWidgetResponse
+func (c *ClientWithResponses) GetPublicWidgetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPublicWidgetResponse, error) {
+	rsp, err := c.GetPublicWidget(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPublicWidgetResponse(rsp)
+}
+
 // ListRecoveryContactsWithResponse request returning *ListRecoveryContactsResponse
 func (c *ClientWithResponses) ListRecoveryContactsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRecoveryContactsResponse, error) {
 	rsp, err := c.ListRecoveryContacts(ctx, reqEditors...)
@@ -36297,6 +37252,23 @@ func (c *ClientWithResponses) CreateRoleWithResponse(ctx context.Context, body C
 		return nil, err
 	}
 	return ParseCreateRoleResponse(rsp)
+}
+
+// ReorderRolesWithBodyWithResponse request with arbitrary body returning *ReorderRolesResponse
+func (c *ClientWithResponses) ReorderRolesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ReorderRolesResponse, error) {
+	rsp, err := c.ReorderRolesWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseReorderRolesResponse(rsp)
+}
+
+func (c *ClientWithResponses) ReorderRolesWithResponse(ctx context.Context, body ReorderRolesJSONRequestBody, reqEditors ...RequestEditorFn) (*ReorderRolesResponse, error) {
+	rsp, err := c.ReorderRoles(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseReorderRolesResponse(rsp)
 }
 
 // DeleteRoleWithResponse request returning *DeleteRoleResponse
@@ -36684,6 +37656,15 @@ func (c *ClientWithResponses) ExecuteWebhookWithResponse(ctx context.Context, id
 	return ParseExecuteWebhookResponse(rsp)
 }
 
+// GetWidgetPageWithResponse request returning *GetWidgetPageResponse
+func (c *ClientWithResponses) GetWidgetPageWithResponse(ctx context.Context, params *GetWidgetPageParams, reqEditors ...RequestEditorFn) (*GetWidgetPageResponse, error) {
+	rsp, err := c.GetWidgetPage(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWidgetPageResponse(rsp)
+}
+
 // ConnectWebSocketWithResponse request returning *ConnectWebSocketResponse
 func (c *ClientWithResponses) ConnectWebSocketWithResponse(ctx context.Context, params *ConnectWebSocketParams, reqEditors ...RequestEditorFn) (*ConnectWebSocketResponse, error) {
 	rsp, err := c.ConnectWebSocket(ctx, params, reqEditors...)
@@ -36691,6 +37672,15 @@ func (c *ClientWithResponses) ConnectWebSocketWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseConnectWebSocketResponse(rsp)
+}
+
+// CreateWsTicketWithResponse request returning *CreateWsTicketResponse
+func (c *ClientWithResponses) CreateWsTicketWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateWsTicketResponse, error) {
+	rsp, err := c.CreateWsTicket(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateWsTicketResponse(rsp)
 }
 
 // ParseGetAdminApplicationResponse parses an HTTP response from a GetAdminApplicationWithResponse call
@@ -37735,6 +38725,58 @@ func ParsePatchAdminSettingsLobbyResponse(rsp *http.Response) (*PatchAdminSettin
 	return response, nil
 }
 
+// ParseGetLockdownSettingsResponse parses an HTTP response from a GetLockdownSettingsWithResponse call
+func ParseGetLockdownSettingsResponse(rsp *http.Response) (*GetLockdownSettingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetLockdownSettingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest LockdownSettings
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutLockdownSettingsResponse parses an HTTP response from a PutLockdownSettingsWithResponse call
+func ParsePutLockdownSettingsResponse(rsp *http.Response) (*PutLockdownSettingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutLockdownSettingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest LockdownSettings
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetAdminSettingsModerationResponse parses an HTTP response from a GetAdminSettingsModerationWithResponse call
 func ParseGetAdminSettingsModerationResponse(rsp *http.Response) (*GetAdminSettingsModerationResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -37868,6 +38910,58 @@ func ParseUpdateAdminSettingsTagsResponse(rsp *http.Response) (*UpdateAdminSetti
 	response := &UpdateAdminSettingsTagsResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetWidgetSettingsResponse parses an HTTP response from a GetWidgetSettingsWithResponse call
+func ParseGetWidgetSettingsResponse(rsp *http.Response) (*GetWidgetSettingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWidgetSettingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WidgetSettings
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutWidgetSettingsResponse parses an HTTP response from a PutWidgetSettingsWithResponse call
+func ParsePutWidgetSettingsResponse(rsp *http.Response) (*PutWidgetSettingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutWidgetSettingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WidgetSettings
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil
@@ -38931,7 +40025,7 @@ func ParseCreateAuthChallengeResponse(rsp *http.Response) (*CreateAuthChallengeR
 			// Challenge 32 random bytes, lowercase hex (64 chars)
 			Challenge string `json:"challenge"`
 
-			// Scheme Present when the answer may be signed over "wavvon/auth-challenge/v1\0" || hex-decoded challenge (wire-format.md). Omitted by older hubs, which take a signature over the raw decoded bytes only. A hub that sends it still accepts the raw form.
+			// Scheme tagged-v2 from a current hub or farm: the answer must be bound to the server's public key (wire-format.md), and no other answer is accepted. tagged-v1 from an older one.
 			Scheme *CreateAuthChallenge200Scheme `json:"scheme,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -41581,6 +42675,22 @@ func ParseUpdateHubIconResponse(rsp *http.Response) (*UpdateHubIconResponse, err
 	return response, nil
 }
 
+// ParseGetHubLandingImageResponse parses an HTTP response from a GetHubLandingImageWithResponse call
+func ParseGetHubLandingImageResponse(rsp *http.Response) (*GetHubLandingImageResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetHubLandingImageResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseListHubMembersResponse parses an HTTP response from a ListHubMembersWithResponse call
 func ParseListHubMembersResponse(rsp *http.Response) (*ListHubMembersResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -42095,8 +43205,15 @@ func ParseGetJoinInviteResponse(rsp *http.Response) (*GetJoinInviteResponse, err
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
 			Code        *string `json:"code,omitempty"`
+			Description *string `json:"description"`
 			HubName     *string `json:"hub_name,omitempty"`
-			MemberCount *int64  `json:"member_count,omitempty"`
+
+			// Landing How the invite landing looks (hubs advertising `hub.landing`). Each field is omitted when unset.
+			Landing     *Landing `json:"landing,omitempty"`
+			MemberCount *int64   `json:"member_count,omitempty"`
+
+			// OnlineCount Connected members, not counting invisible ones.
+			OnlineCount *int64 `json:"online_count,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -42724,6 +43841,9 @@ func ParseListPermissionsResponse(rsp *http.Response) (*ListPermissionsResponse,
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
 			Permissions *[]struct {
+				// Category The section a roles screen shows it under: messages, voice, moderation, members, channels, events, hub, integrations, federation. Hubs advertising `permissions.categories`.
+				Category *string `json:"category,omitempty"`
+
 				// Group Dotted prefix, for grouping without re-splitting the id.
 				Group *string `json:"group,omitempty"`
 				Id    *string `json:"id,omitempty"`
@@ -42891,6 +44011,32 @@ func ParseSetProfileResponse(rsp *http.Response) (*SetProfileResponse, error) {
 	response := &SetProfileResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetPublicWidgetResponse parses an HTTP response from a GetPublicWidgetWithResponse call
+func ParseGetPublicWidgetResponse(rsp *http.Response) (*GetPublicWidgetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPublicWidgetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WidgetData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil
@@ -43252,6 +44398,32 @@ func ParseCreateRoleResponse(rsp *http.Response) (*CreateRoleResponse, error) {
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseReorderRolesResponse parses an HTTP response from a ReorderRolesWithResponse call
+func ParseReorderRolesResponse(rsp *http.Response) (*ReorderRolesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ReorderRolesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Role
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	}
 
@@ -43992,6 +45164,22 @@ func ParseExecuteWebhookResponse(rsp *http.Response) (*ExecuteWebhookResponse, e
 	return response, nil
 }
 
+// ParseGetWidgetPageResponse parses an HTTP response from a GetWidgetPageWithResponse call
+func ParseGetWidgetPageResponse(rsp *http.Response) (*GetWidgetPageResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWidgetPageResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseConnectWebSocketResponse parses an HTTP response from a ConnectWebSocketWithResponse call
 func ParseConnectWebSocketResponse(rsp *http.Response) (*ConnectWebSocketResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -44003,6 +45191,35 @@ func ParseConnectWebSocketResponse(rsp *http.Response) (*ConnectWebSocketRespons
 	response := &ConnectWebSocketResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseCreateWsTicketResponse parses an HTTP response from a CreateWsTicketWithResponse call
+func ParseCreateWsTicketResponse(rsp *http.Response) (*CreateWsTicketResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateWsTicketResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			ExpiresIn int    `json:"expires_in"`
+			Ticket    string `json:"ticket"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil
