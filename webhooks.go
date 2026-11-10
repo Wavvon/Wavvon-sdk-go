@@ -15,8 +15,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"golang.org/x/crypto/hkdf"
 )
 
 // Wire shapes from Wavvon-server crates/hub/src/routes/app_models.rs.
@@ -202,12 +200,16 @@ func DecodeWebhookSecret(shown string) ([]byte, error) {
 // OutgoingWebhookSigningKey derives the HMAC key from the secret's raw bytes:
 // HKDF-SHA256, salt "wavvon-webhook-signing", empty info, 32 bytes. The HMAC
 // is keyed with these bytes, not their hex.
+//
+// 32 bytes is one SHA-256 block, so RFC 5869 reduces to extract then a single
+// expand round, written out here rather than importing x/crypto/hkdf, whose
+// current releases need a newer Go than this module supports.
 func OutgoingWebhookSigningKey(rawSecret []byte) []byte {
-	key := make([]byte, 32)
-	if _, err := io.ReadFull(hkdf.New(sha256.New, rawSecret, []byte(webhookHKDFSalt), nil), key); err != nil {
-		panic(err) // unreachable: 32 bytes is far below HKDF's limit
-	}
-	return key
+	extract := hmac.New(sha256.New, []byte(webhookHKDFSalt))
+	extract.Write(rawSecret)
+	expand := hmac.New(sha256.New, extract.Sum(nil))
+	expand.Write([]byte{1})
+	return expand.Sum(nil)
 }
 
 // VerifyOptions tune timestamp checking.
