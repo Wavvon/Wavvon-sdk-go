@@ -79,7 +79,7 @@ A fuller one is [examples/echobot](examples/echobot/main.go).
 | Capability checks | `Client.HasCapability`, `Client.RequireCapability` |
 | Keyset paging to the end of a list | `Paginate` (an `iter.Seq2`) |
 | WebSocket events with resume after reconnect | `Client.Connect` -> `*EventStream`, `Next` |
-| HTTP polling instead of a socket | `Client.PollEvents`, `Client.AckEvents` |
+| HTTP polling instead of a socket | `Client.PollEvents` (cursor = last `Seq`) |
 | App registration | `SetAppProfile`, `SetAppCommands`, `SetAppSubscriptions` |
 | Slash command and button webhooks | `DispatchHandler` (an `http.Handler`), `VerifyDispatch` |
 | Outgoing webhook receiver | `VerifyOutgoingWebhook` |
@@ -122,8 +122,9 @@ Login, REST, the socket and polling need no capability.
   If the gap is older than the hub keeps (72 hours) you get
   `*ReplayUnavailable`. Register the app profile before `Connect`: the hub
   only pushes and replays events on a socket opened by a registered app.
-- **Polling is implemented, not relied on.** Today's hub never writes the
-  `GET /me/events` queue ([Wavvon-server#170](https://github.com/Wavvon/Wavvon-server/issues/170)); use the socket.
+- **Polling reads the same events.** `PollEvents` returns the envelopes the
+  socket replays; pass the last `Seq` as the cursor. A cursor older than 72
+  hours is `*ReplayUnavailableError`.
 - **The seed stays with you.** No call sends a seed or private key anywhere.
 
 ## Conformance
@@ -131,7 +132,7 @@ Login, REST, the socket and polling need no capability.
 Every signed byte sequence is checked against the shared wire vectors in
 Wavvon-server (`crates/identity/wire-vectors.json`): the auth challenge, the
 Ed25519 dispatch signature, and the outgoing-webhook HKDF + HMAC. CI reads
-them from Wavvon-server at commit `eb11d75657ee8362dd42a7982fc5b13a3dcc4e68`.
+them from Wavvon-server at commit `78ff4aab3ba905ef4480d02d47f24d63762cc697`.
 
 The REST client was generated from Wavvon-docs at the commit in
 [rest/SPEC_COMMIT](rest/SPEC_COMMIT).

@@ -59,10 +59,14 @@ explain choices in the commit message.
   as `*UnknownEvent` / `*UnknownDispatch` with the raw bytes, never dropped.
   A known type whose fields do not decode is delivered as unknown too.
 - **Re-auth on its own**, with the state observable (`OnStateChange`).
-- **Auth challenge**: the challenge is hex. `scheme: "tagged-v1"` -> sign
-  `"wavvon/auth-challenge/v1\0" || challenge`; no scheme -> raw only at
-  exactly 32 bytes; any other scheme (including "") -> `*AuthSchemeError`,
-  not retried.
+- **Auth challenge**: the challenge is hex, exactly 32 bytes.
+  `scheme: "tagged-v2"` -> sign
+  `"wavvon/auth-challenge/v2\0" || u32le(len) || server_pubkey || challenge`,
+  where `server_pubkey` is the hub's own `GET /info` `public_key`, never a key
+  from the challenge response (Wavvon-server#294). `"tagged-v1"` (older hubs)
+  -> sign `"wavvon/auth-challenge/v1\0" || challenge`. No scheme or any other
+  scheme (including "") -> `*AuthSchemeError`, not retried. Never sign the
+  raw challenge (Wavvon-server#199).
 - **Never send the seed** or any private key anywhere. Never invent a wire
   format: signed bytes come from wire-format.md and the vectors; a new one is
   a server-side change first. Never model a bot as an account or send
@@ -88,7 +92,8 @@ report the doc bug to Wavvon-docs.
   capability ignores the cursor: `Paginate` returns `ErrCursorIgnored`.
 - Outgoing-webhook secret as shown is base64url without padding; HKDF input
   is the **decoded** bytes; the HMAC key is the 32 HKDF bytes, not hex.
-- The hub never writes `GET /me/events` today (Wavvon-server#170).
+- `GET /me/events` reads the audit log (Wavvon-server#183): `hub_event`
+  envelopes after a `seq` cursor, 410 outside the 72-hour window, no ack.
 - A fresh hub has no channel; the smoke creates one.
 
 ## Smoke test

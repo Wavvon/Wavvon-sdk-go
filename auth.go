@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/ed25519"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -12,13 +13,19 @@ import (
 	"strings"
 )
 
-// AuthChallengeScheme is the only named challenge scheme this SDK signs.
+// AuthChallengeScheme is the challenge scheme older hubs name: the answer
+// names no server.
 const AuthChallengeScheme = "tagged-v1"
 
-// AuthChallengeLen is the only length a raw (untagged) challenge is signed at.
-const AuthChallengeLen = 32
+// BoundAuthChallengeScheme is the challenge scheme current hubs and farms
+// name: the answer is bound to their public key.
+const BoundAuthChallengeScheme = "tagged-v2"
 
-const authChallengeTag = "wavvon/auth-challenge/v1\x00"
+const (
+	authChallengeTag      = "wavvon/auth-challenge/v1\x00"
+	boundAuthChallengeTag = "wavvon/auth-challenge/v2\x00"
+	authChallengeLen      = 32
+)
 
 // Identity is a keypair the program holds. The private key never leaves it:
 // only signatures do.
@@ -51,23 +58,34 @@ func IdentityFromHexSeed(seed string) (*Identity, error) {
 func (id *Identity) Sign(message []byte) []byte { return ed25519.Sign(id.key, message) }
 
 // AuthChallengeSigningBytes returns what a client signs to answer a challenge
-// (wire-format.md, "Auth challenge answer"). scheme is nil when the hub's
-// response has no scheme field. "tagged-v1" is the domain tag plus the
-// challenge. No scheme (an older hub) is the raw challenge, and only at
-// exactly 32 bytes, so this can never sign arbitrary bytes. Any other scheme,
-// the empty string included, is refused rather than guessed at.
-func AuthChallengeSigningBytes(challenge []byte, scheme *string) ([]byte, error) {
-	switch {
-	case scheme == nil:
-		if len(challenge) != AuthChallengeLen {
-			return nil, &AuthSchemeError{fmt.Sprintf("refusing to sign a raw %d-byte challenge; only %d bytes are ever signed raw", len(challenge), AuthChallengeLen)}
-		}
-		return append([]byte(nil), challenge...), nil
-	case *scheme == AuthChallengeScheme:
-		return append([]byte(authChallengeTag), challenge...), nil
-	default:
+// (wire-format.md, "Auth challenge answer"). Under "tagged-v2": the v2 tag,
+// serverPubkey (u32 little-endian length, lowercase hex), then the challenge.
+// serverPubkey must be the key the server's own GET /info presented, never one
+// from the challenge response, or a hostile hub could relay another hub's
+// challenge and sign in there. Under "tagged-v1" (older hubs): the v1 tag plus
+// the challenge; serverPubkey is unused. scheme is nil when the hub's response
+// has no scheme field. Any other scheme, a missing one included, and a
+// challenge that is not 32 bytes are refused.
+func AuthChallengeSigningBytes(challenge []byte, scheme *string, serverPubkey string) ([]byte, error) {
+	if scheme == nil {
+		return nil, &AuthSchemeError{"hub named no auth challenge scheme"}
+	}
+	if *scheme != AuthChallengeScheme && *scheme != BoundAuthChallengeScheme {
 		return nil, &AuthSchemeError{fmt.Sprintf("unknown auth challenge scheme %q", *scheme)}
 	}
+	if len(challenge) != authChallengeLen {
+		return nil, &AuthSchemeError{fmt.Sprintf("auth challenge is %d bytes, expected %d", len(challenge), authChallengeLen)}
+	}
+	if *scheme == AuthChallengeScheme {
+		return append([]byte(authChallengeTag), challenge...), nil
+	}
+	if serverPubkey == "" {
+		return nil, &AuthSchemeError{"tagged-v2 needs the server public key"}
+	}
+	b := []byte(boundAuthChallengeTag)
+	b = binary.LittleEndian.AppendUint32(b, uint32(len(serverPubkey)))
+	b = append(b, serverPubkey...)
+	return append(b, challenge...), nil
 }
 
 // Session is a logged-in session on one hub.
@@ -107,6 +125,7 @@ func Authenticate(ctx context.Context, hubURL string, id *Identity, opts AuthOpt
 		return hc.Do(req)
 	}
 
+	var serverPubkey string
 	res, err := DoWithRetry(ctx, opts.Retry, func(ctx context.Context) (*http.Response, error) {
 		ch, err := post(ctx, "/auth/challenge", map[string]string{"public_key": id.PublicKey})
 		if err != nil || ch.StatusCode != http.StatusOK {
@@ -125,7 +144,26 @@ func Authenticate(ctx context.Context, hubURL string, id *Identity, opts AuthOpt
 		if err != nil {
 			return nil, &permanentError{&AuthSchemeError{"challenge is not hex"}}
 		}
-		msg, err := AuthChallengeSigningBytes(raw, c.Scheme)
+		if c.Scheme != nil && *c.Scheme == BoundAuthChallengeScheme && serverPubkey == "" {
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, base+"/info", nil)
+			if err != nil {
+				return nil, err
+			}
+			info, err := hc.Do(req)
+			if err != nil || info.StatusCode != http.StatusOK {
+				return info, err
+			}
+			var i struct {
+				PublicKey string `json:"public_key"`
+			}
+			err = json.NewDecoder(info.Body).Decode(&i)
+			info.Body.Close()
+			if err != nil {
+				return nil, err
+			}
+			serverPubkey = i.PublicKey
+		}
+		msg, err := AuthChallengeSigningBytes(raw, c.Scheme, serverPubkey)
 		if err != nil {
 			return nil, &permanentError{err}
 		}

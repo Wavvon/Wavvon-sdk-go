@@ -21,10 +21,30 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// Defines values for AdminStickerState.
+const (
+	AdminStickerStateEvicted AdminStickerState = "evicted"
+	AdminStickerStateOk      AdminStickerState = "ok"
+	AdminStickerStateRemoved AdminStickerState = "removed"
+)
+
 // Defines values for AppCommandDefScope.
 const (
 	AppCommandDefScopeChannel AppCommandDefScope = "channel"
 	AppCommandDefScopeHub     AppCommandDefScope = "hub"
+)
+
+// Defines values for AttachmentRefKind.
+const (
+	File  AttachmentRefKind = "file"
+	Image AttachmentRefKind = "image"
+)
+
+// Defines values for AttachmentRefState.
+const (
+	AttachmentRefStateExpired AttachmentRefState = "expired"
+	AttachmentRefStateOk      AttachmentRefState = "ok"
+	AttachmentRefStateRemoved AttachmentRefState = "removed"
 )
 
 // Defines values for CertPayloadStanding.
@@ -38,6 +58,16 @@ const (
 	ChallengePromptModeBoth   ChallengePromptMode = "both"
 	ChallengePromptModeClick  ChallengePromptMode = "click"
 	ChallengePromptModePuzzle ChallengePromptMode = "puzzle"
+)
+
+// Defines values for ComponentRowType.
+const (
+	Row ComponentRowType = "row"
+)
+
+// Defines values for HubEventType.
+const (
+	HubEventTypeHubEvent HubEventType = "hub_event"
 )
 
 // Defines values for HubInfoChallengeMode.
@@ -66,6 +96,35 @@ const (
 const (
 	MeInfoApprovalStatusApproved MeInfoApprovalStatus = "approved"
 	MeInfoApprovalStatusPending  MeInfoApprovalStatus = "pending"
+)
+
+// Defines values for MessageComponentType.
+const (
+	Button MessageComponentType = "button"
+	Select MessageComponentType = "select"
+)
+
+// Defines values for StickerState.
+const (
+	StickerStateEvicted StickerState = "evicted"
+	StickerStateOk      StickerState = "ok"
+	StickerStateRemoved StickerState = "removed"
+)
+
+// Defines values for SurveyQuestionAdminKind.
+const (
+	SurveyQuestionAdminKindChoice  SurveyQuestionAdminKind = "choice"
+	SurveyQuestionAdminKindConsent SurveyQuestionAdminKind = "consent"
+	SurveyQuestionAdminKindMulti   SurveyQuestionAdminKind = "multi"
+	SurveyQuestionAdminKindText    SurveyQuestionAdminKind = "text"
+)
+
+// Defines values for WidgetSettingsMode.
+const (
+	WidgetSettingsModeCounts WidgetSettingsMode = "counts"
+	WidgetSettingsModeNames  WidgetSettingsMode = "names"
+	WidgetSettingsModeOff    WidgetSettingsMode = "off"
+	WidgetSettingsModeVoice  WidgetSettingsMode = "voice"
 )
 
 // Defines values for CreateAdminBanlistOverrideJSONBodyOverrideType.
@@ -106,6 +165,34 @@ const (
 	UpdateAdminSettingsCertsJSONBodyCertModeTrusted UpdateAdminSettingsCertsJSONBodyCertMode = "trusted"
 )
 
+// Defines values for PatchAdminSettingsChallengeJSONBodyChallengeMode.
+const (
+	PatchAdminSettingsChallengeJSONBodyChallengeModeBoth   PatchAdminSettingsChallengeJSONBodyChallengeMode = "both"
+	PatchAdminSettingsChallengeJSONBodyChallengeModeClick  PatchAdminSettingsChallengeJSONBodyChallengeMode = "click"
+	PatchAdminSettingsChallengeJSONBodyChallengeModeOff    PatchAdminSettingsChallengeJSONBodyChallengeMode = "off"
+	PatchAdminSettingsChallengeJSONBodyChallengeModePuzzle PatchAdminSettingsChallengeJSONBodyChallengeMode = "puzzle"
+)
+
+// Defines values for ListStoredStickersParamsState.
+const (
+	ListStoredStickersParamsStateEvicted ListStoredStickersParamsState = "evicted"
+	ListStoredStickersParamsStateOk      ListStoredStickersParamsState = "ok"
+	ListStoredStickersParamsStateRemoved ListStoredStickersParamsState = "removed"
+)
+
+// Defines values for ListStoredStickersParamsSort.
+const (
+	Created ListStoredStickersParamsSort = "created"
+	Size    ListStoredStickersParamsSort = "size"
+	Used    ListStoredStickersParamsSort = "used"
+)
+
+// Defines values for ListAdminSurveyResponsesParamsStatus.
+const (
+	All     ListAdminSurveyResponsesParamsStatus = "all"
+	Pending ListAdminSurveyResponsesParamsStatus = "pending"
+)
+
 // Defines values for CreateAllianceChannelJSONBodyForumRemoteWrite.
 const (
 	CreateAllianceChannelJSONBodyForumRemoteWriteNone            CreateAllianceChannelJSONBodyForumRemoteWrite = "none"
@@ -119,6 +206,12 @@ const (
 	None    CreateAllianceChannelJSONBodyVoiceRemoteJoin = "none"
 )
 
+// Defines values for UpdateChannelJSONBodyChannelType.
+const (
+	UpdateChannelJSONBodyChannelTypeText  UpdateChannelJSONBodyChannelType = "text"
+	UpdateChannelJSONBodyChannelTypeVoice UpdateChannelJSONBodyChannelType = "voice"
+)
+
 // Defines values for RsvpEventJSONBodyStatus.
 const (
 	Going    RsvpEventJSONBodyStatus = "going"
@@ -126,13 +219,34 @@ const (
 	NotGoing RsvpEventJSONBodyStatus = "not_going"
 )
 
-// Defines values for SetHubSettingsChallengeJSONBodyChallengeMode.
+// Defines values for GetWidgetPageParamsTheme.
 const (
-	Both   SetHubSettingsChallengeJSONBodyChallengeMode = "both"
-	Click  SetHubSettingsChallengeJSONBodyChallengeMode = "click"
-	Off    SetHubSettingsChallengeJSONBodyChallengeMode = "off"
-	Puzzle SetHubSettingsChallengeJSONBodyChallengeMode = "puzzle"
+	Dark  GetWidgetPageParamsTheme = "dark"
+	Light GetWidgetPageParamsTheme = "light"
 )
+
+// AdminSticker defines model for AdminSticker.
+type AdminSticker struct {
+	CreatedAt     *int64  `json:"created_at,omitempty"`
+	Height        *int    `json:"height,omitempty"`
+	Id            *string `json:"id,omitempty"`
+	LastUsedAt    *int64  `json:"last_used_at,omitempty"`
+	MessageCount  *int64  `json:"message_count,omitempty"`
+	Name          *string `json:"name,omitempty"`
+	OriginHubName *string `json:"origin_hub_name"`
+	OriginHubUrl  *string `json:"origin_hub_url"`
+
+	// PackId Null for a copy
+	PackId    *string            `json:"pack_id"`
+	Sha256    *string            `json:"sha256,omitempty"`
+	SizeBytes *int64             `json:"size_bytes,omitempty"`
+	State     *AdminStickerState `json:"state,omitempty"`
+	Uploader  *string            `json:"uploader,omitempty"`
+	Width     *int               `json:"width,omitempty"`
+}
+
+// AdminStickerState defines model for AdminSticker.State.
+type AdminStickerState string
 
 // AllianceInfo defines model for AllianceInfo.
 type AllianceInfo struct {
@@ -210,12 +324,37 @@ type AppSubscription struct {
 	Event    string    `json:"event"`
 }
 
-// Attachment defines model for Attachment.
+// Attachment An inline DM attachment. Channel messages, posts and replies use `attachment_ids` instead.
 type Attachment struct {
 	DataB64 string `json:"data_b64"`
 	Mime    string `json:"mime"`
 	Name    string `json:"name"`
 }
+
+// AttachmentRef One uploaded file on a message, forum post or reply (capability `attachments.stored`). `url` is relative to the hub that holds the message; on an alliance read the reader's hub rewrites it to `/alliances/{alliance_id}/uploads/{id}`. A tombstone (`removed`, `expired`) keeps `name` and carries no bytes: `mime` is `application/octet-stream` and `size` 0.
+type AttachmentRef struct {
+	Height *int   `json:"height"`
+	Id     string `json:"id"`
+
+	// Kind `image` renders inline (a re-encoded WebP or JPEG); `file` is only ever downloaded.
+	Kind AttachmentRefKind `json:"kind"`
+
+	// Mime From the magic bytes, never from what the client declared.
+	Mime string `json:"mime"`
+	Name string `json:"name"`
+	Size int64  `json:"size"`
+
+	// State `removed` by a moderator, `expired` by retention, the disk budget or the migration.
+	State AttachmentRefState `json:"state"`
+	Url   string             `json:"url"`
+	Width *int               `json:"width"`
+}
+
+// AttachmentRefKind `image` renders inline (a re-encoded WebP or JPEG); `file` is only ever downloaded.
+type AttachmentRefKind string
+
+// AttachmentRefState `removed` by a moderator, `expired` by retention, the disk budget or the migration.
+type AttachmentRefState string
 
 // AttestationInput defines model for AttestationInput.
 type AttestationInput struct {
@@ -291,10 +430,10 @@ type Channel struct {
 	// BannerUrl Omitted unless set
 	BannerUrl *string `json:"banner_url,omitempty"`
 
-	// CanMoveMembers The caller's own `voice.move_members` on this channel, resolved channel-scoped, so a move-destination picker can offer only the channels that will accept the move (events.md §7.1). Advertised as the `channels.move.targets` capability; absent on hubs that do not advertise it, which is not the same as `false`.
+	// CanMoveMembers The caller's own `voice.move_members` on this channel, resolved channel-scoped, so a move-destination picker can offer only the channels that will accept the move (events.md §7.1).
 	CanMoveMembers *bool `json:"can_move_members,omitempty"`
 
-	// ChannelType `text`, `forum`, `banner` or `spawner`. Always `text` for categories.
+	// ChannelType `text`, `voice`, `forum`, `banner` or `spawner`. Always `text` for categories. On hubs with the `channels.voice` capability only a `voice` channel can be joined for voice; it has a chat as well, and a spawner's rooms are `voice`.
 	ChannelType *string `json:"channel_type,omitempty"`
 	Color       *string `json:"color"`
 
@@ -325,9 +464,21 @@ type Channel struct {
 	OwnerPubkey *string `json:"owner_pubkey,omitempty"`
 	ParentId    *string `json:"parent_id"`
 
+	// SlowmodeSecs Seconds a member must wait between messages here; 0 is off (capability channels.slowmode)
+	SlowmodeSecs *int `json:"slowmode_secs,omitempty"`
+
 	// SpawnerNameTemplate Spawner channels only (omitted otherwise) — the name template for spawned rooms.
 	SpawnerNameTemplate *string `json:"spawner_name_template,omitempty"`
 }
+
+// ComponentRow defines model for ComponentRow.
+type ComponentRow struct {
+	Components []MessageComponent `json:"components"`
+	Type       ComponentRowType   `json:"type"`
+}
+
+// ComponentRowType defines model for ComponentRow.Type.
+type ComponentRowType string
 
 // Conversation defines model for Conversation.
 type Conversation struct {
@@ -467,6 +618,33 @@ type GroupEncryptedEnvelope struct {
 	SignerCert       *SubkeyCert `json:"signer_cert,omitempty"`
 }
 
+// HubEvent One envelope for live push, replay, polling and outgoing webhooks (docs/apps.md).
+type HubEvent struct {
+	ActorPubkey *string `json:"actor_pubkey,omitempty"`
+
+	// At Unix seconds
+	At        int64                  `json:"at"`
+	ChannelId *string                `json:"channel_id,omitempty"`
+	Event     string                 `json:"event"`
+	HubUrl    string                 `json:"hub_url"`
+	Payload   map[string]interface{} `json:"payload"`
+
+	// Replayed Set on events read back from the audit log (Resume and polling).
+	Replayed     *bool   `json:"replayed,omitempty"`
+	Seq          int64   `json:"seq"`
+	TargetPubkey *string `json:"target_pubkey,omitempty"`
+
+	// Truncated Outgoing webhooks only, when the payload was cut to the size cap.
+	Truncated *bool        `json:"truncated,omitempty"`
+	Type      HubEventType `json:"type"`
+
+	// WebhookId Outgoing webhooks only.
+	WebhookId *string `json:"webhook_id,omitempty"`
+}
+
+// HubEventType defines model for HubEvent.Type.
+type HubEventType string
+
 // HubInfo `GET /info`. Additive by rule: ignore fields you do not recognise.
 type HubInfo struct {
 	// Badges Badges other hubs issued to this hub.
@@ -489,7 +667,7 @@ type HubInfo struct {
 	// address.
 	CanonicalUrl *string `json:"canonical_url,omitempty"`
 
-	// Capabilities What this hub can do, e.g. `voice.wt`, `list.cursor`. Test
+	// Capabilities What this hub can do, e.g. `voice.alliance`, `list.cursor`. Test
 	// membership to decide what to offer; absent or empty means a hub
 	// predating capability advertising, which reads correctly as "knows
 	// nothing". The list only ever grows — a string never changes
@@ -522,23 +700,28 @@ type HubInfo struct {
 	LanMode        bool    `json:"lan_mode"`
 
 	// LanTls Omitted unless set.
-	LanTls             *string `json:"lan_tls,omitempty"`
-	MaxAttachmentBytes int64   `json:"max_attachment_bytes"`
-	MinPowLevel        int     `json:"min_pow_level"`
-	MinSecurityLevel   int     `json:"min_security_level"`
-	Name               string  `json:"name"`
-	Nsfw               bool    `json:"nsfw"`
+	LanTls *string `json:"lan_tls,omitempty"`
+
+	// Landing The invite landing look, the same value as the invite preview's. `image` is present only when an image is set, so a client can skip requesting it. Absent on hubs that predate the field.
+	Landing            *Landing `json:"landing,omitempty"`
+	MaxAttachmentBytes int64    `json:"max_attachment_bytes"`
+	MinPowLevel        int      `json:"min_pow_level"`
+	MinSecurityLevel   int      `json:"min_security_level"`
+	Name               string   `json:"name"`
+	Nsfw               bool     `json:"nsfw"`
 
 	// PublicKey The hub's Ed25519 identity, hex. This is the hub's ID.
 	PublicKey string `json:"public_key"`
 
 	// Rotation Hub key rotation payload during the transition window after a rotate-key ceremony (see `GET /key-rotation`). Omitted when no rotation is in progress.
-	Rotation      *map[string]interface{} `json:"rotation,omitempty"`
-	ScreenShareV2 bool                    `json:"screen_share_v2"`
-	SelfTags      []string                `json:"self_tags"`
+	Rotation *map[string]interface{} `json:"rotation,omitempty"`
+	SelfTags []string                `json:"self_tags"`
 
 	// SfuUrl Omitted unless the hub runs an SFU.
 	SfuUrl *string `json:"sfu_url,omitempty"`
+
+	// StreamLimits The most a screen share or camera may declare in `screen_share_start` (hubs advertising `screenshare.limits`). Each field is omitted when uncapped. Read-only on `/info` and `GET /hub/settings`; in `PATCH /hub` the object replaces all four, and a field left out or 0 clears it.
+	StreamLimits *StreamLimits `json:"stream_limits,omitempty"`
 
 	// Timezone Omitted unless set.
 	Timezone *string `json:"timezone,omitempty"`
@@ -577,13 +760,21 @@ type Invite struct {
 	GrantRoleId *string `json:"grant_role_id"`
 	MaxUses     *int64  `json:"max_uses"`
 
-	// Status Whether this invite can still admit anyone, and if not, which of the two ways it retired. Advertised as the `invites.status` capability; absent on hubs that do not advertise it.
+	// Status Whether this invite can still admit anyone, and if not, which of the two ways it retired.
 	Status *InviteStatus `json:"status,omitempty"`
 	Uses   *int64        `json:"uses,omitempty"`
 }
 
-// InviteStatus Whether this invite can still admit anyone, and if not, which of the two ways it retired. Advertised as the `invites.status` capability; absent on hubs that do not advertise it.
+// InviteStatus Whether this invite can still admit anyone, and if not, which of the two ways it retired.
 type InviteStatus string
+
+// Landing How the invite landing looks (hubs advertising `hub.landing`). Each field is omitted when unset.
+type Landing struct {
+	Colors *[]string `json:"colors,omitempty"`
+
+	// Image Path of the image on this hub: /hub/landing-image.
+	Image *string `json:"image,omitempty"`
+}
 
 // LobbyStatus defines model for LobbyStatus.
 type LobbyStatus struct {
@@ -596,6 +787,23 @@ type LobbyStatus struct {
 
 // LobbyStatusStatus defines model for LobbyStatus.Status.
 type LobbyStatusStatus string
+
+// LockdownSettings defines model for LockdownSettings.
+type LockdownSettings struct {
+	AutoLockdown  bool `json:"auto_lockdown"`
+	Enabled       bool `json:"enabled"`
+	FreezeMinutes int  `json:"freeze_minutes"`
+
+	// RaidJoinThreshold Joins per minute that raise a raid alert; 0 is off
+	RaidJoinThreshold int `json:"raid_join_threshold"`
+}
+
+// Masquerade defines model for Masquerade.
+type Masquerade struct {
+	// AvatarUrl Sent as an http(s) URL. The hub fetches it (PNG, JPEG, GIF, WebP or AVIF up to 1 MB) and stores its own copy, so on a message it is the hub-relative `/uploads/...` path; an avatar it cannot fetch is dropped and the name kept.
+	AvatarUrl *string `json:"avatar_url,omitempty"`
+	Name      string  `json:"name"`
+}
 
 // MeInfo defines model for MeInfo.
 type MeInfo struct {
@@ -619,6 +827,9 @@ type MeInfo struct {
 	Roles            []Role  `json:"roles"`
 	ShowHubs         bool    `json:"show_hubs"`
 	StatusMessage    *string `json:"status_message"`
+
+	// WidgetHidden Left out of the hub's public online widget. Hubs advertising `hub.widget`.
+	WidgetHidden bool `json:"widget_hidden"`
 }
 
 // MeInfoApprovalStatus defines model for MeInfo.ApprovalStatus.
@@ -637,25 +848,34 @@ type MemberAdminInfo struct {
 
 // Message defines model for Message.
 type Message struct {
-	Attachments *[]Attachment `json:"attachments,omitempty"`
-	ChannelId   *string       `json:"channel_id,omitempty"`
-	Content     *string       `json:"content,omitempty"`
-	CreatedAt   *int64        `json:"created_at,omitempty"`
-	EditedAt    *int64        `json:"edited_at"`
+	Attachments *[]AttachmentRef `json:"attachments,omitempty"`
+	ChannelId   *string          `json:"channel_id,omitempty"`
+
+	// Components Omitted unless set. Buttons and selects authored by an app; a click is sent back as `component_interaction` (docs/apps.md).
+	Components *[]ComponentRow `json:"components,omitempty"`
+	Content    *string         `json:"content,omitempty"`
+	CreatedAt  *int64          `json:"created_at,omitempty"`
+	EditedAt   *int64          `json:"edited_at"`
 
 	// Embeds Omitted unless set. Rich embeds authored by an app (docs/apps.md).
-	Embeds *[]map[string]interface{} `json:"embeds,omitempty"`
+	Embeds *[]Embed `json:"embeds,omitempty"`
 
 	// Game Omitted unless set. Game-modal launch card authored by an app (docs/apps.md).
-	Game      *map[string]interface{} `json:"game,omitempty"`
-	Id        *string                 `json:"id,omitempty"`
-	Reactions *[]Reaction             `json:"reactions,omitempty"`
+	Game *GameLaunchCard `json:"game,omitempty"`
+	Id   *string         `json:"id,omitempty"`
+
+	// Masquerade Omitted unless set. A name and avatar to show instead of the sender's own (a bridge relaying someone from another network, or a webhook's `username`). `sender` and `sender_name` stay the real author, and clients show both.
+	Masquerade *Masquerade `json:"masquerade,omitempty"`
+	Reactions  *[]Reaction `json:"reactions,omitempty"`
 
 	// ReplyCount Number of direct replies; non-zero only on thread roots.
 	ReplyCount *int64           `json:"reply_count,omitempty"`
 	ReplyTo    *Message_ReplyTo `json:"reply_to"`
 	Sender     *string          `json:"sender,omitempty"`
 	SenderName *string          `json:"sender_name"`
+
+	// Sticker Omitted unless set. The sticker sent with this message, held by this hub (stickers.md). A removed or evicted one carries its `state` so a client renders a sentence rather than a gap.
+	Sticker *Sticker `json:"sticker,omitempty"`
 
 	// VisibleToPubkey Omitted unless set. When present, only the named user should see this message (ephemeral bot replies).
 	VisibleToPubkey *string `json:"visible_to_pubkey,omitempty"`
@@ -666,6 +886,22 @@ type Message_ReplyTo struct {
 	union json.RawMessage
 }
 
+// MessageComponent defines model for MessageComponent.
+type MessageComponent struct {
+	CustomId    string               `json:"custom_id"`
+	Disabled    *bool                `json:"disabled,omitempty"`
+	Label       *string              `json:"label,omitempty"`
+	MaxValues   *int64               `json:"max_values,omitempty"`
+	MinValues   *int64               `json:"min_values,omitempty"`
+	Options     *[]SelectOption      `json:"options,omitempty"`
+	Placeholder *string              `json:"placeholder,omitempty"`
+	Style       *string              `json:"style,omitempty"`
+	Type        MessageComponentType `json:"type"`
+}
+
+// MessageComponentType defines model for MessageComponent.Type.
+type MessageComponentType string
+
 // PollOption defines model for PollOption.
 type PollOption struct {
 	Id   string `json:"id"`
@@ -674,12 +910,7 @@ type PollOption struct {
 
 // PostDetail defines model for PostDetail.
 type PostDetail struct {
-	Attachments *[]struct {
-		Mime string `json:"mime"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
-		Url  string `json:"url"`
-	} `json:"attachments,omitempty"`
+	Attachments *[]AttachmentRef `json:"attachments,omitempty"`
 
 	// AuthorHub Origin hub public key (hex) when the post came in through the alliance forum write-proxy. Hub-asserted, not proven: render it as mediated ("via HubName"). Omitted for local posts.
 	AuthorHub *string `json:"author_hub,omitempty"`
@@ -691,7 +922,10 @@ type PostDetail struct {
 	CreatedAt    *int64  `json:"created_at,omitempty"`
 
 	// EditedAt Omitted when never edited
-	EditedAt       *int64       `json:"edited_at,omitempty"`
+	EditedAt *int64 `json:"edited_at,omitempty"`
+
+	// Excerpt The body on one line, at most 240 characters and an ellipsis when cut. Omitted on a deleted post.
+	Excerpt        *string      `json:"excerpt,omitempty"`
 	Id             *string      `json:"id,omitempty"`
 	IsDeleted      *bool        `json:"is_deleted,omitempty"`
 	IsLocked       *bool        `json:"is_locked,omitempty"`
@@ -717,12 +951,7 @@ type PostDetail struct {
 
 // PostSummary defines model for PostSummary.
 type PostSummary struct {
-	Attachments *[]struct {
-		Mime string `json:"mime"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
-		Url  string `json:"url"`
-	} `json:"attachments,omitempty"`
+	Attachments *[]AttachmentRef `json:"attachments,omitempty"`
 
 	// AuthorHub Origin hub public key (hex) when the post came in through the alliance forum write-proxy. Hub-asserted, not proven: render it as mediated ("via HubName"). Omitted for local posts.
 	AuthorHub *string `json:"author_hub,omitempty"`
@@ -733,7 +962,10 @@ type PostSummary struct {
 	CreatedAt    *int64  `json:"created_at,omitempty"`
 
 	// EditedAt Omitted when never edited
-	EditedAt       *int64      `json:"edited_at,omitempty"`
+	EditedAt *int64 `json:"edited_at,omitempty"`
+
+	// Excerpt The body on one line, at most 240 characters and an ellipsis when cut. Omitted on a deleted post.
+	Excerpt        *string     `json:"excerpt,omitempty"`
 	Id             *string     `json:"id,omitempty"`
 	IsDeleted      *bool       `json:"is_deleted,omitempty"`
 	IsLocked       *bool       `json:"is_locked,omitempty"`
@@ -783,12 +1015,7 @@ type ReplyContext struct {
 
 // ReplyView defines model for ReplyView.
 type ReplyView struct {
-	Attachments []struct {
-		Mime string `json:"mime"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
-		Url  string `json:"url"`
-	} `json:"attachments"`
+	Attachments []AttachmentRef `json:"attachments"`
 
 	// AuthorHub Origin hub public key (hex) when authored through the alliance forum write-proxy. Omitted for local replies.
 	AuthorHub    *string `json:"author_hub,omitempty"`
@@ -832,6 +1059,13 @@ type RoleCategory struct {
 	Position  *int64  `json:"position,omitempty"`
 }
 
+// SelectOption defines model for SelectOption.
+type SelectOption struct {
+	Description *string `json:"description,omitempty"`
+	Label       string  `json:"label"`
+	Value       string  `json:"value"`
+}
+
 // SenderKeyRecipientBlob defines model for SenderKeyRecipientBlob.
 type SenderKeyRecipientBlob struct {
 	Iteration       int    `json:"iteration"`
@@ -850,6 +1084,47 @@ type SignedMemberChange struct {
 	SignerCert *SubkeyCert `json:"signer_cert,omitempty"`
 }
 
+// Sticker A sticker this hub holds (stickers.md). `url` is relative to the hub that holds it, which is the only hub a reader fetches from.
+type Sticker struct {
+	Height        *int    `json:"height,omitempty"`
+	Id            *string `json:"id,omitempty"`
+	Name          *string `json:"name,omitempty"`
+	OriginHubName *string `json:"origin_hub_name"`
+
+	// OriginHubUrl The hub whose pack it came from; null for this hub's own pack stickers. Verified: this hub fetched the hash from there.
+	OriginHubUrl *string `json:"origin_hub_url"`
+
+	// Sha256 Hash of the stored WebP, computed by this hub
+	Sha256 *string `json:"sha256,omitempty"`
+
+	// State `removed`: a moderator deleted it. `evicted`: space was needed; sending it again re-fetches it from its origin.
+	State *StickerState `json:"state,omitempty"`
+
+	// Url `/stickers/{sha256}`
+	Url   *string `json:"url,omitempty"`
+	Width *int    `json:"width,omitempty"`
+}
+
+// StickerState `removed`: a moderator deleted it. `evicted`: space was needed; sending it again re-fetches it from its origin.
+type StickerState string
+
+// StickerPack defines model for StickerPack.
+type StickerPack struct {
+	CreatedAt *int64     `json:"created_at,omitempty"`
+	CreatedBy *string    `json:"created_by,omitempty"`
+	Id        *string    `json:"id,omitempty"`
+	Name      *string    `json:"name,omitempty"`
+	Stickers  *[]Sticker `json:"stickers,omitempty"`
+}
+
+// StreamLimits The most a screen share or camera may declare in `screen_share_start` (hubs advertising `screenshare.limits`). Each field is omitted when uncapped. Read-only on `/info` and `GET /hub/settings`; in `PATCH /hub` the object replaces all four, and a field left out or 0 clears it.
+type StreamLimits struct {
+	MaxFps    *int `json:"max_fps,omitempty"`
+	MaxHeight *int `json:"max_height,omitempty"`
+	MaxKbps   *int `json:"max_kbps,omitempty"`
+	MaxWidth  *int `json:"max_width,omitempty"`
+}
+
 // SubkeyCert defines model for SubkeyCert.
 type SubkeyCert struct {
 	DeviceLabel  string    `json:"device_label"`
@@ -861,10 +1136,19 @@ type SubkeyCert struct {
 	SubkeyPubkey string    `json:"subkey_pubkey"`
 }
 
-// SurveyAnswerInput defines model for SurveyAnswerInput.
+// SurveyAnswerInput One answer; the field used follows the question's `kind`.
 type SurveyAnswerInput struct {
-	ChoiceId   *string `json:"choice_id,omitempty"`
-	QuestionId string  `json:"question_id"`
+	// Checked A `consent` answer.
+	Checked *bool `json:"checked,omitempty"`
+
+	// ChoiceId A `choice` answer.
+	ChoiceId *string `json:"choice_id,omitempty"`
+
+	// ChoiceIds A `multi` answer.
+	ChoiceIds  *[]string `json:"choice_ids,omitempty"`
+	QuestionId string    `json:"question_id"`
+
+	// TextAnswer A `text` answer.
 	TextAnswer *string `json:"text_answer,omitempty"`
 }
 
@@ -880,11 +1164,21 @@ type SurveyChoiceAdmin struct {
 type SurveyQuestionAdmin struct {
 	Choices      *[]SurveyChoiceAdmin `json:"choices,omitempty"`
 	DisplayOrder int64                `json:"display_order"`
+	Help         *string              `json:"help,omitempty"`
 	Id           string               `json:"id"`
-	Kind         string               `json:"kind"`
-	Prompt       string               `json:"prompt"`
-	Required     bool                 `json:"required"`
+
+	// Kind A required `consent` must be checked; an unchecked one is refused with 422 `consent_refused:<question id>`.
+	Kind       SurveyQuestionAdminKind `json:"kind"`
+	MaxChoices *int32                  `json:"max_choices,omitempty"`
+	MaxLen     *int32                  `json:"max_len,omitempty"`
+	MinChoices *int32                  `json:"min_choices,omitempty"`
+	Multiline  *bool                   `json:"multiline,omitempty"`
+	Prompt     string                  `json:"prompt"`
+	Required   bool                    `json:"required"`
 }
+
+// SurveyQuestionAdminKind A required `consent` must be checked; an unchecked one is refused with 422 `consent_refused:<question id>`.
+type SurveyQuestionAdminKind string
 
 // UserInfo A member as listed by `GET /users`.
 type UserInfo struct {
@@ -893,9 +1187,12 @@ type UserInfo struct {
 	Birthday    *string `json:"birthday"`
 	DisplayName *string `json:"display_name"`
 	GroupRole   *string `json:"group_role"`
-	NameColor   *string `json:"name_color"`
-	Online      bool    `json:"online"`
-	PublicKey   string  `json:"public_key"`
+
+	// GroupRolePriority Priority of group_role; omitted when there is none.
+	GroupRolePriority *int64  `json:"group_role_priority,omitempty"`
+	NameColor         *string `json:"name_color"`
+	Online            bool    `json:"online"`
+	PublicKey         string  `json:"public_key"`
 
 	// Status Presence status. Omitted unless set.
 	Status *string `json:"status,omitempty"`
@@ -910,9 +1207,51 @@ type WebhookSubscriptionDto struct {
 	Event    string    `json:"event"`
 }
 
+// WidgetData What the public widget shows. Never a public key; invisible members and members with `widget_hidden` are not counted.
+type WidgetData struct {
+	Icon      *string `json:"icon,omitempty"`
+	InviteUrl *string `json:"invite_url,omitempty"`
+
+	// Members In `names` and `voice` modes.
+	Members *[]struct {
+		Avatar *string `json:"avatar,omitempty"`
+		Name   string  `json:"name"`
+	} `json:"members,omitempty"`
+	Name        string `json:"name"`
+	OnlineCount int    `json:"online_count"`
+
+	// Voice In `voice` mode, the occupied voice rooms.
+	Voice *[]struct {
+		Channel string   `json:"channel"`
+		Members []string `json:"members"`
+	} `json:"voice,omitempty"`
+}
+
+// WidgetSettings defines model for WidgetSettings.
+type WidgetSettings struct {
+	// InviteCode The invite the widget's Join button opens; empty or absent for none
+	InviteCode *string `json:"invite_code"`
+
+	// Mode off (default), the online count, names too, or names plus who is in which voice room
+	Mode WidgetSettingsMode `json:"mode"`
+}
+
+// WidgetSettingsMode off (default), the online count, names too, or names plus who is in which voice room
+type WidgetSettingsMode string
+
+// SetAdminApplicationJSONBody defines parameters for SetAdminApplication.
+type SetAdminApplicationJSONBody struct {
+	Enabled   bool                  `json:"enabled"`
+	Id        string                `json:"id"`
+	Questions []SurveyQuestionAdmin `json:"questions"`
+}
+
 // ListAdminAuditLogParams defines parameters for ListAdminAuditLog.
 type ListAdminAuditLogParams struct {
 	EventType *string `form:"event_type,omitempty" json:"event_type,omitempty"`
+
+	// Actor Only entries by this public key
+	Actor *string `form:"actor,omitempty" json:"actor,omitempty"`
 
 	// Since Unix timestamp lower bound
 	Since *int64 `form:"since,omitempty" json:"since,omitempty"`
@@ -920,7 +1259,7 @@ type ListAdminAuditLogParams struct {
 	// Until Unix timestamp upper bound
 	Until *int64 `form:"until,omitempty" json:"until,omitempty"`
 
-	// Cursor `next_cursor` from the previous page
+	// Cursor `seq` of the oldest entry already shown
 	Cursor *int64 `form:"cursor,omitempty" json:"cursor,omitempty"`
 	Limit  *int64 `form:"limit,omitempty" json:"limit,omitempty"`
 }
@@ -937,6 +1276,10 @@ type IssueAdminBadgeJSONBody struct {
 type ListAdminBanlistEntriesParams struct {
 	// Source Filter by source hub pubkey
 	Source *string `form:"source,omitempty" json:"source,omitempty"`
+	Limit  *int64  `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor `<source_hub_pubkey>:<target_master_pubkey>` of the last entry of the previous page
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
 }
 
 // CreateAdminBanlistOverrideJSONBody defines parameters for CreateAdminBanlistOverride.
@@ -971,6 +1314,14 @@ type CreateAdminBanlistSourceJSONBody struct {
 
 // CreateAdminBanlistSourceJSONBodyPolicy defines parameters for CreateAdminBanlistSource.
 type CreateAdminBanlistSourceJSONBodyPolicy string
+
+// ListAdminCertsParams defines parameters for ListAdminCerts.
+type ListAdminCertsParams struct {
+	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor The `id` of the last issuance of the previous page
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+}
 
 // CreateAdminCertBadgeJSONBody defines parameters for CreateAdminCertBadge.
 type CreateAdminCertBadgeJSONBody struct {
@@ -1013,8 +1364,10 @@ type UpdateAdminOutgoingWebhookJSONBody struct {
 
 // ListAdminOutgoingWebhookDeliveriesParams defines parameters for ListAdminOutgoingWebhookDeliveries.
 type ListAdminOutgoingWebhookDeliveriesParams struct {
-	Limit     *int64  `form:"limit,omitempty" json:"limit,omitempty"`
-	Offset    *int64  `form:"offset,omitempty" json:"offset,omitempty"`
+	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor The id of the last delivery of the previous page
+	Cursor    *string `form:"cursor,omitempty" json:"cursor,omitempty"`
 	EventType *string `form:"event_type,omitempty" json:"event_type,omitempty"`
 	Success   *bool   `form:"success,omitempty" json:"success,omitempty"`
 }
@@ -1065,7 +1418,6 @@ type UpdateAdminSettingsCertsJSONBody struct {
 		MinMemberSinceDays *int `json:"min_member_since_days,omitempty"`
 		MinPowLevel        *int `json:"min_pow_level,omitempty"`
 	} `json:"cert_require,omitempty"`
-	CertStandingDays   *UpdateAdminSettingsCertsJSONBody_CertStandingDays `json:"cert_standing_days,omitempty"`
 	CertTrustedIssuers *[]string                                          `json:"cert_trusted_issuers,omitempty"`
 	CertValidityDays   *UpdateAdminSettingsCertsJSONBody_CertValidityDays `json:"cert_validity_days,omitempty"`
 }
@@ -1106,17 +1458,6 @@ type UpdateAdminSettingsCertsJSONBody_CertMinPowLevel struct {
 // UpdateAdminSettingsCertsJSONBodyCertMode defines parameters for UpdateAdminSettingsCerts.
 type UpdateAdminSettingsCertsJSONBodyCertMode string
 
-// UpdateAdminSettingsCertsJSONBodyCertStandingDays0 defines parameters for UpdateAdminSettingsCerts.
-type UpdateAdminSettingsCertsJSONBodyCertStandingDays0 = string
-
-// UpdateAdminSettingsCertsJSONBodyCertStandingDays1 defines parameters for UpdateAdminSettingsCerts.
-type UpdateAdminSettingsCertsJSONBodyCertStandingDays1 = int
-
-// UpdateAdminSettingsCertsJSONBody_CertStandingDays defines parameters for UpdateAdminSettingsCerts.
-type UpdateAdminSettingsCertsJSONBody_CertStandingDays struct {
-	union json.RawMessage
-}
-
 // UpdateAdminSettingsCertsJSONBodyCertValidityDays0 defines parameters for UpdateAdminSettingsCerts.
 type UpdateAdminSettingsCertsJSONBodyCertValidityDays0 = string
 
@@ -1128,9 +1469,24 @@ type UpdateAdminSettingsCertsJSONBody_CertValidityDays struct {
 	union json.RawMessage
 }
 
+// PatchAdminSettingsChallengeJSONBody defines parameters for PatchAdminSettingsChallenge.
+type PatchAdminSettingsChallengeJSONBody struct {
+	ChallengeDifficulty *string                                           `json:"challenge_difficulty,omitempty"`
+	ChallengeMode       *PatchAdminSettingsChallengeJSONBodyChallengeMode `json:"challenge_mode,omitempty"`
+}
+
+// PatchAdminSettingsChallengeJSONBodyChallengeMode defines parameters for PatchAdminSettingsChallenge.
+type PatchAdminSettingsChallengeJSONBodyChallengeMode string
+
 // UpdateAdminSettingsListingJSONBody defines parameters for UpdateAdminSettingsListing.
 type UpdateAdminSettingsListingJSONBody struct {
 	Listed bool `json:"listed"`
+}
+
+// PatchAdminSettingsLobbyJSONBody defines parameters for PatchAdminSettingsLobby.
+type PatchAdminSettingsLobbyJSONBody struct {
+	LobbyEnabled *bool   `json:"lobby_enabled,omitempty"`
+	WelcomeMd    *string `json:"welcome_md"`
 }
 
 // UpdateAdminSettingsModerationJSONBody defines parameters for UpdateAdminSettingsModeration.
@@ -1150,12 +1506,57 @@ type UpdateAdminSettingsTagsJSONBody struct {
 	Tags []string `json:"tags"`
 }
 
+// ListStoredStickersParams defines parameters for ListStoredStickers.
+type ListStoredStickersParams struct {
+	State    *ListStoredStickersParamsState `form:"state,omitempty" json:"state,omitempty"`
+	Uploader *string                        `form:"uploader,omitempty" json:"uploader,omitempty"`
+
+	// Sort Newest or largest first.
+	Sort  *ListStoredStickersParamsSort `form:"sort,omitempty" json:"sort,omitempty"`
+	Limit *int64                        `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor The `id` of the last sticker of the previous page.
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+}
+
+// ListStoredStickersParamsState defines parameters for ListStoredStickers.
+type ListStoredStickersParamsState string
+
+// ListStoredStickersParamsSort defines parameters for ListStoredStickers.
+type ListStoredStickersParamsSort string
+
+// ListStickerBlocklistParams defines parameters for ListStickerBlocklist.
+type ListStickerBlocklistParams struct {
+	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor The `sha256` of the last entry of the previous page.
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+}
+
+// DeleteStoredStickerParams defines parameters for DeleteStoredSticker.
+type DeleteStoredStickerParams struct {
+	Block  *bool   `form:"block,omitempty" json:"block,omitempty"`
+	Reason *string `form:"reason,omitempty" json:"reason,omitempty"`
+}
+
 // SetAdminSurveyJSONBody defines parameters for SetAdminSurvey.
 type SetAdminSurveyJSONBody struct {
 	Enabled   bool                  `json:"enabled"`
 	Id        string                `json:"id"`
 	Questions []SurveyQuestionAdmin `json:"questions"`
 }
+
+// ListAdminSurveyResponsesParams defines parameters for ListAdminSurveyResponses.
+type ListAdminSurveyResponsesParams struct {
+	Status *ListAdminSurveyResponsesParamsStatus `form:"status,omitempty" json:"status,omitempty"`
+	Limit  *int64                                `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor The `response_id` of the last response of the previous page
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+}
+
+// ListAdminSurveyResponsesParamsStatus defines parameters for ListAdminSurveyResponses.
+type ListAdminSurveyResponsesParamsStatus string
 
 // CreateAdminWebhookJSONBody defines parameters for CreateAdminWebhook.
 type CreateAdminWebhookJSONBody struct {
@@ -1203,12 +1604,19 @@ type CreateAllianceChannelJSONBodyForumRemoteWrite string
 // CreateAllianceChannelJSONBodyVoiceRemoteJoin defines parameters for CreateAllianceChannel.
 type CreateAllianceChannelJSONBodyVoiceRemoteJoin string
 
+// ListAllianceChannelMessagesParams defines parameters for ListAllianceChannelMessages.
+type ListAllianceChannelMessagesParams struct {
+	// Cursor The `id` of the last message of the previous page, newest first. Forwarded to the owning hub when the channel is a partner's.
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+	Limit  *int64  `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
 // CreateAllianceChannelMessageJSONBody defines parameters for CreateAllianceChannelMessage.
 type CreateAllianceChannelMessageJSONBody struct {
-	Attachments *[]Attachment   `json:"attachments,omitempty"`
-	Content     string          `json:"content"`
-	Game        *GameLaunchCard `json:"game,omitempty"`
-	ReplyTo     *string         `json:"reply_to,omitempty"`
+	AttachmentIds *[]string       `json:"attachment_ids,omitempty"`
+	Content       string          `json:"content"`
+	Game          *GameLaunchCard `json:"game,omitempty"`
+	ReplyTo       *string         `json:"reply_to,omitempty"`
 }
 
 // ListAllianceChannelPostsParams defines parameters for ListAllianceChannelPosts.
@@ -1281,20 +1689,16 @@ type CreateAllianceVoiceGrantJSONBody struct {
 	ChannelId string `json:"channel_id"`
 }
 
+// SubmitApplicationJSONBody defines parameters for SubmitApplication.
+type SubmitApplicationJSONBody struct {
+	Answers  []SurveyAnswerInput `json:"answers"`
+	SurveyId string              `json:"survey_id"`
+}
+
 // CreateAuthChallengeJSONBody defines parameters for CreateAuthChallenge.
 type CreateAuthChallengeJSONBody struct {
 	// PublicKey Hex-encoded Ed25519 public key (64 hex chars)
 	PublicKey string `json:"public_key"`
-}
-
-// CreateAuthDeviceTokenJSONBody defines parameters for CreateAuthDeviceToken.
-type CreateAuthDeviceTokenJSONBody struct {
-	DeviceName *string `json:"device_name,omitempty"`
-}
-
-// RedeemAuthDeviceTokenJSONBody defines parameters for RedeemAuthDeviceToken.
-type RedeemAuthDeviceTokenJSONBody struct {
-	Token string `json:"token"`
 }
 
 // VerifyAuthJSONBody defines parameters for VerifyAuth.
@@ -1371,6 +1775,12 @@ type ListCertsRevocationsParams struct {
 	Since *int64 `form:"since,omitempty" json:"since,omitempty"`
 }
 
+// GetNewChallengeParams defines parameters for GetNewChallenge.
+type GetNewChallengeParams struct {
+	// Pubkey Hex public key of the identity about to authenticate.
+	Pubkey string `form:"pubkey" json:"pubkey"`
+}
+
 // VerifyChallengeJSONBody defines parameters for VerifyChallenge.
 type VerifyChallengeJSONBody struct {
 	// Answer Numeric answer for puzzle mode; omit for click-only
@@ -1399,19 +1809,28 @@ type ReorderChannelsJSONBody struct {
 
 // UpdateChannelJSONBody defines parameters for UpdateChannel.
 type UpdateChannelJSONBody struct {
-	BannerFileId    *string `json:"banner_file_id,omitempty"`
-	BannerUrl       *string `json:"banner_url,omitempty"`
-	Color           *string `json:"color"`
-	CustomIconSvg   *string `json:"custom_icon_svg"`
-	Description     *string `json:"description,omitempty"`
-	ForumRequireTag *bool   `json:"forum_require_tag,omitempty"`
-	Icon            *string `json:"icon"`
-	MinTalkPower    *int64  `json:"min_talk_power,omitempty"`
-	Name            *string `json:"name,omitempty"`
-	Nsfw            *bool   `json:"nsfw,omitempty"`
-	ParentId        *string `json:"parent_id"`
-	RetentionDays   *int64  `json:"retention_days"`
+	BannerFileId *string `json:"banner_file_id,omitempty"`
+	BannerUrl    *string `json:"banner_url,omitempty"`
+
+	// ChannelType Switch between text and voice; both keep their chat.
+	ChannelType     *UpdateChannelJSONBodyChannelType `json:"channel_type,omitempty"`
+	Color           *string                           `json:"color"`
+	CustomIconSvg   *string                           `json:"custom_icon_svg"`
+	Description     *string                           `json:"description,omitempty"`
+	ForumRequireTag *bool                             `json:"forum_require_tag,omitempty"`
+	Icon            *string                           `json:"icon"`
+	MinTalkPower    *int64                            `json:"min_talk_power,omitempty"`
+	Name            *string                           `json:"name,omitempty"`
+	Nsfw            *bool                             `json:"nsfw,omitempty"`
+	ParentId        *string                           `json:"parent_id"`
+	RetentionDays   *int64                            `json:"retention_days"`
+
+	// SlowmodeSecs Seconds between one member's messages here, 0 to turn slowmode off. Needs channels.manage.
+	SlowmodeSecs *int `json:"slowmode_secs,omitempty"`
 }
+
+// UpdateChannelJSONBodyChannelType defines parameters for UpdateChannel.
+type UpdateChannelJSONBodyChannelType string
 
 // CreateChannelBanJSONBody defines parameters for CreateChannelBan.
 type CreateChannelBanJSONBody struct {
@@ -1421,19 +1840,29 @@ type CreateChannelBanJSONBody struct {
 
 // ListChannelMessagesParams defines parameters for ListChannelMessages.
 type ListChannelMessagesParams struct {
-	// Before Message ID cursor for pagination
-	Before *string `form:"before,omitempty" json:"before,omitempty"`
+	// Cursor The `id` of the last message of the previous page. Newest first; with `thread_root`, oldest first and the cursor pages forward.
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
 	Limit  *int64  `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// ThreadRoot Return only replies to this message, oldest first.
+	ThreadRoot *string `form:"thread_root,omitempty" json:"thread_root,omitempty"`
+
+	// Q Full-text search within the channel; one page of hits, `cursor` ignored.
+	Q *string `form:"q,omitempty" json:"q,omitempty"`
 }
 
 // CreateChannelMessageJSONBody defines parameters for CreateChannelMessage.
 type CreateChannelMessageJSONBody struct {
-	Attachments *[]Attachment   `json:"attachments,omitempty"`
-	Content     string          `json:"content"`
-	Game        *GameLaunchCard `json:"game,omitempty"`
+	// AttachmentIds Ids from `POST /channels/{channel_id}/upload`, shown in this order. Each must be the sender's own upload to this channel, not linked yet and not a tombstone, and the count within `max_attachments_per_message`: otherwise 400 (not found, too many, duplicate), 409 (already linked) or 410 (removed or expired). The retired inline `attachments` field answers 400.
+	AttachmentIds *[]string       `json:"attachment_ids,omitempty"`
+	Content       string          `json:"content"`
+	Game          *GameLaunchCard `json:"game,omitempty"`
 
 	// ReplyTo Message ID being replied to
 	ReplyTo *string `json:"reply_to,omitempty"`
+
+	// StickerId A sticker this hub holds (see POST /channels/{channel_id}/stickers). 404 unknown, 410 removed or evicted, 403 for a copy without stickers.external. Refused on alliance channels.
+	StickerId *string `json:"sticker_id,omitempty"`
 }
 
 // UpdateChannelMessageJSONBody defines parameters for UpdateChannelMessage.
@@ -1481,27 +1910,27 @@ type CreateChannelPollJSONBody struct {
 
 // ListChannelPostsParams defines parameters for ListChannelPosts.
 type ListChannelPostsParams struct {
-	// Cursor Opaque cursor from the previous page
+	// Cursor The id of the last post of the previous page
 	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
 	Limit  *int64  `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
 // CreateChannelPostJSONBody defines parameters for CreateChannelPost.
 type CreateChannelPostJSONBody struct {
-	Attachments *[]struct {
-		Mime string `json:"mime"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
-		Url  string `json:"url"`
-	} `json:"attachments,omitempty"`
-	Body   string    `json:"body"`
-	TagIds *[]string `json:"tag_ids,omitempty"`
-	Title  string    `json:"title"`
+	// AttachmentIds Uploads to this channel (see POST /channels/{channel_id}/messages). Outside URLs are no longer accepted; the retired `attachments` field answers 400.
+	AttachmentIds *[]string `json:"attachment_ids,omitempty"`
+	Body          string    `json:"body"`
+	TagIds        *[]string `json:"tag_ids,omitempty"`
+	Title         string    `json:"title"`
 }
 
 // SearchChannelPostsParams defines parameters for SearchChannelPosts.
 type SearchChannelPostsParams struct {
 	Q string `form:"q" json:"q"`
+
+	// Cursor The `post_id` of the last hit of the previous page
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+	Limit  *int64  `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
 // GetChannelPostParams defines parameters for GetChannelPost.
@@ -1526,13 +1955,9 @@ type CreateChannelPostReactionJSONBody struct {
 
 // CreateChannelPostReplyJSONBody defines parameters for CreateChannelPostReply.
 type CreateChannelPostReplyJSONBody struct {
-	Attachments *[]struct {
-		Mime string `json:"mime"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
-		Url  string `json:"url"`
-	} `json:"attachments,omitempty"`
-	Body string `json:"body"`
+	// AttachmentIds Uploads to this channel; see POST /channels/{channel_id}/posts.
+	AttachmentIds *[]string `json:"attachment_ids,omitempty"`
+	Body          string    `json:"body"`
 
 	// ReplyToId Optional parent reply within the same post
 	ReplyToId *string `json:"reply_to_id,omitempty"`
@@ -1547,6 +1972,13 @@ type UpdateChannelPostReplyJSONBody struct {
 type CreateChannelPostReplyReactionJSONBody struct {
 	// Emoji 1–8 chars
 	Emoji string `json:"emoji"`
+}
+
+// EnsureChannelStickerJSONBody defines parameters for EnsureChannelSticker.
+type EnsureChannelStickerJSONBody struct {
+	Name         *string `json:"name,omitempty"`
+	OriginHubUrl string  `json:"origin_hub_url"`
+	Sha256       string  `json:"sha256"`
 }
 
 // CreateChannelTagJSONBody defines parameters for CreateChannelTag.
@@ -1565,7 +1997,9 @@ type SetChannelTalkPowerJSONBody struct {
 
 // UploadChannelFileMultipartBody defines parameters for UploadChannelFile.
 type UploadChannelFileMultipartBody struct {
-	File *openapi_types.File `json:"file,omitempty"`
+	// AsFile Keep the original image bytes; download only.
+	AsFile *bool               `json:"as_file,omitempty"`
+	File   *openapi_types.File `json:"file,omitempty"`
 }
 
 // CreateChannelVoiceMuteJSONBody defines parameters for CreateChannelVoiceMute.
@@ -1602,18 +2036,24 @@ type ListConversationMessagesParams struct {
 	// Limit Page size, clamped to 1..100.
 	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
 
-	// Before Keyset cursor — the `id` of the oldest message already held.
-	Before *string `form:"before,omitempty" json:"before,omitempty"`
+	// Cursor Keyset cursor — the `id` of the oldest message already held.
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
 }
 
 // CreateConversationMessageJSONBody defines parameters for CreateConversationMessage.
 type CreateConversationMessageJSONBody struct {
-	Attachments            *[]Attachment           `json:"attachments,omitempty"`
-	Content                *string                 `json:"content,omitempty"`
+	Attachments *[]Attachment `json:"attachments,omitempty"`
+	Content     *string       `json:"content,omitempty"`
+
+	// CreatedAt With a v2 plaintext_signature: the unix time the client signed, within five minutes of the hub's clock. The hub adopts it.
+	CreatedAt              *int64                  `json:"created_at,omitempty"`
 	EncryptedEnvelope      *EncryptedDmEnvelope    `json:"encrypted_envelope,omitempty"`
 	GroupEncryptedEnvelope *GroupEncryptedEnvelope `json:"group_encrypted_envelope,omitempty"`
 
-	// PlaintextSignature Hex Ed25519 signature over the federated plaintext DM bytes (wire-format.md). A recipient on another hub refuses an unsigned plaintext DM.
+	// MessageId With a v2 plaintext_signature: the id the client chose and signed. The hub adopts it. Required alongside a signature on a dms.plaintext.v2 hub.
+	MessageId *openapi_types.UUID `json:"message_id,omitempty"`
+
+	// PlaintextSignature Hex Ed25519 signature over the federated plaintext DM bytes (wire-format.md, v2 on a hub advertising dms.plaintext.v2). A recipient on another hub refuses an unsigned plaintext DM.
 	PlaintextSignature *string `json:"plaintext_signature,omitempty"`
 
 	// PlaintextSignerCert When the signing key is not the sender's canonical key: the master-signed cert tying the two. Only on a hub advertising `dms.plaintext.signercert`.
@@ -1801,11 +2241,6 @@ type DeleteFederationForumChannelPostReplyJSONBody struct {
 	AuthorPubkey string `json:"author_pubkey"`
 }
 
-// CreateFederationPeerJSONBody defines parameters for CreateFederationPeer.
-type CreateFederationPeerJSONBody struct {
-	Url string `json:"url"`
-}
-
 // CreateFriendJSONBody defines parameters for CreateFriend.
 type CreateFriendJSONBody struct {
 	DisplayName *string `json:"display_name,omitempty"`
@@ -1817,23 +2252,71 @@ type CreateFriendJSONBody struct {
 
 // UpdateHubJSONBody defines parameters for UpdateHub.
 type UpdateHubJSONBody struct {
-	AfkChannelId        *string `json:"afk_channel_id,omitempty"`
-	AfkTimeoutSecs      *int    `json:"afk_timeout_secs,omitempty"`
-	BirthdaysEnabled    *bool   `json:"birthdays_enabled,omitempty"`
-	DefaultInviteRoleId *string `json:"default_invite_role_id,omitempty"`
-	Description         *string `json:"description,omitempty"`
-	FarewellLabel       *string `json:"farewell_label,omitempty"`
-	Icon                *string `json:"icon,omitempty"`
-	MaxAttachmentBytes  *int64  `json:"max_attachment_bytes,omitempty"`
-	MaxChannelDepth     *int    `json:"max_channel_depth,omitempty"`
-	MaxUploadBytes      *int64  `json:"max_upload_bytes,omitempty"`
-	MinSecurityLevel    *int    `json:"min_security_level,omitempty"`
-	Name                *string `json:"name,omitempty"`
-	NameColorMode       *string `json:"name_color_mode,omitempty"`
-	RequireApproval     *bool   `json:"require_approval,omitempty"`
-	Timezone            *string `json:"timezone,omitempty"`
-	WelcomeInviteUrl    *string `json:"welcome_invite_url,omitempty"`
-	WelcomeLabel        *string `json:"welcome_label,omitempty"`
+	AfkChannelId   *string `json:"afk_channel_id,omitempty"`
+	AfkTimeoutSecs *int    `json:"afk_timeout_secs,omitempty"`
+
+	// AttachmentsCapBytes 64 MB to 10 TB, default 10 GB. Whole blobs, orphans first and then least recently linked (banners excepted), expire; the upload succeeds. Never per member.
+	AttachmentsCapBytes *int64 `json:"attachments_cap_bytes,omitempty"`
+
+	// AttachmentsRetentionDays 0 (never) to 3650, default 0. Older attachments expire.
+	AttachmentsRetentionDays *int `json:"attachments_retention_days,omitempty"`
+
+	// AttachmentsWarnPercent 50 to 99, default 90. Sets attachments_usage.warning.
+	AttachmentsWarnPercent *int    `json:"attachments_warn_percent,omitempty"`
+	BirthdaysEnabled       *bool   `json:"birthdays_enabled,omitempty"`
+	DefaultInviteRoleId    *string `json:"default_invite_role_id,omitempty"`
+	Description            *string `json:"description,omitempty"`
+	FarewellLabel          *string `json:"farewell_label,omitempty"`
+	Icon                   *string `json:"icon,omitempty"`
+
+	// LandingColors Two colours for the invite landing; an empty array clears them.
+	LandingColors *[]string `json:"landing_colors,omitempty"`
+
+	// LandingImage Invite landing image as a base64 data: URL, at most 1 MB decoded, re-encoded by the hub. Empty clears it. 413 when too large, 400 when not an image.
+	LandingImage       *string `json:"landing_image,omitempty"`
+	MaxAttachmentBytes *int64  `json:"max_attachment_bytes,omitempty"`
+
+	// MaxAttachmentsPerMessage 1 to 25, default 10. That message is refused.
+	MaxAttachmentsPerMessage *int `json:"max_attachments_per_message,omitempty"`
+	MaxChannelDepth          *int `json:"max_channel_depth,omitempty"`
+
+	// MaxPreviewImageBytes Largest link-preview image in bytes, 262144 to 16777216, default 4194304. Also returned by GET /hub/settings.
+	MaxPreviewImageBytes *int64  `json:"max_preview_image_bytes,omitempty"`
+	MaxUploadBytes       *int64  `json:"max_upload_bytes,omitempty"`
+	MinSecurityLevel     *int    `json:"min_security_level,omitempty"`
+	Name                 *string `json:"name,omitempty"`
+	NameColorMode        *string `json:"name_color_mode,omitempty"`
+	RequireApproval      *bool   `json:"require_approval,omitempty"`
+
+	// StickerPacksPerHub 1 to 200, default 20
+	StickerPacksPerHub *int `json:"sticker_packs_per_hub,omitempty"`
+
+	// StickersCopiesCapBytes 64 MB to 1 TB, default 1 GB. Orphans, then least recently used copies, are evicted; a send is never refused.
+	StickersCopiesCapBytes *int64 `json:"stickers_copies_cap_bytes,omitempty"`
+
+	// StickersExport Default true. Off: GET /federation/stickers/{sha256} answers 403.
+	StickersExport *bool `json:"stickers_export,omitempty"`
+
+	// StickersMaxFileBytes 65536 to 4194304, default 524288. Also returned by GET /hub/settings, as are the other stickers_* settings.
+	StickersMaxFileBytes *int64 `json:"stickers_max_file_bytes,omitempty"`
+
+	// StickersOrphanGcDays 1 to 365, default 30
+	StickersOrphanGcDays *int `json:"stickers_orphan_gc_days,omitempty"`
+
+	// StickersPacksCapBytes 16 MB to 100 GB, default 512 MB. Pack additions are refused at the cap.
+	StickersPacksCapBytes *int64 `json:"stickers_packs_cap_bytes,omitempty"`
+
+	// StickersPacksWarnPercent 50 to 99, default 90
+	StickersPacksWarnPercent *int `json:"stickers_packs_warn_percent,omitempty"`
+
+	// StickersPerPack 1 to 500, default 60
+	StickersPerPack *int `json:"stickers_per_pack,omitempty"`
+
+	// StreamLimits The most a screen share or camera may declare in `screen_share_start` (hubs advertising `screenshare.limits`). Each field is omitted when uncapped. Read-only on `/info` and `GET /hub/settings`; in `PATCH /hub` the object replaces all four, and a field left out or 0 clears it.
+	StreamLimits     *StreamLimits `json:"stream_limits,omitempty"`
+	Timezone         *string       `json:"timezone,omitempty"`
+	WelcomeInviteUrl *string       `json:"welcome_invite_url,omitempty"`
+	WelcomeLabel     *string       `json:"welcome_label,omitempty"`
 }
 
 // CreateHubIconJSONBody defines parameters for CreateHubIcon.
@@ -1847,6 +2330,14 @@ type UpdateHubIconJSONBody struct {
 	Name string `json:"name"`
 }
 
+// ListHubMembersParams defines parameters for ListHubMembers.
+type ListHubMembersParams struct {
+	Limit *int64 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor The `public_key` of the last member of the previous page
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+}
+
 // ListHubPendingParams defines parameters for ListHubPending.
 type ListHubPendingParams struct {
 	// Limit Page size, clamped to 1..500.
@@ -1856,19 +2347,9 @@ type ListHubPendingParams struct {
 	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
 }
 
-// SetHubSettingsChallengeJSONBody defines parameters for SetHubSettingsChallenge.
-type SetHubSettingsChallengeJSONBody struct {
-	ChallengeDifficulty string                                       `json:"challenge_difficulty"`
-	ChallengeMode       SetHubSettingsChallengeJSONBodyChallengeMode `json:"challenge_mode"`
-}
-
-// SetHubSettingsChallengeJSONBodyChallengeMode defines parameters for SetHubSettingsChallenge.
-type SetHubSettingsChallengeJSONBodyChallengeMode string
-
-// SetHubSettingsLobbyJSONBody defines parameters for SetHubSettingsLobby.
-type SetHubSettingsLobbyJSONBody struct {
-	LobbyEnabled bool    `json:"lobby_enabled"`
-	WelcomeMd    *string `json:"welcome_md"`
+// RejectHubPendingJSONBody defines parameters for RejectHubPending.
+type RejectHubPendingJSONBody struct {
+	Reason *string `json:"reason,omitempty"`
 }
 
 // SetIdentityDmBlocksJSONBody defines parameters for SetIdentityDmBlocks.
@@ -1911,6 +2392,12 @@ type CreateIdentityDesignationJSONBody struct {
 	Signature    string   `json:"signature"`
 }
 
+// SetIdentityDhKeyJSONBody defines parameters for SetIdentityDhKey.
+type SetIdentityDhKeyJSONBody struct {
+	DhPubkeyHex  string `json:"dh_pubkey_hex"`
+	SignatureHex string `json:"signature_hex"`
+}
+
 // SetIdentityPrefsJSONBody defines parameters for SetIdentityPrefs.
 type SetIdentityPrefsJSONBody struct {
 	BlobVersion   int64  `json:"blob_version"`
@@ -1925,12 +2412,6 @@ type CreateIdentityRevocationJSONBody struct {
 	RevokedAt    int64  `json:"revoked_at"`
 	Signature    string `json:"signature"`
 	SubkeyPubkey string `json:"subkey_pubkey"`
-}
-
-// SetIdentityDhKeyJSONBody defines parameters for SetIdentityDhKey.
-type SetIdentityDhKeyJSONBody struct {
-	DhPubkeyHex  string `json:"dh_pubkey_hex"`
-	SignatureHex string `json:"signature_hex"`
 }
 
 // ListInvitesParams defines parameters for ListInvites.
@@ -1950,12 +2431,14 @@ type CreateInviteJSONBody struct {
 	// BoundPubkey 64 hex characters. The only identity this invite admits.
 	BoundPubkey *string `json:"bound_pubkey"`
 
-	// ExpiresInSeconds Lifetime in seconds from now. Omitted means no expiry, except as noted under `grant_role_id`.
+	// ExpiresInSeconds Lifetime in seconds from now. Omitted means no expiry, except as noted under `grant_role_id`. Below 1, or large enough to overflow the expiry timestamp, is a 400.
 	ExpiresInSeconds *int64 `json:"expires_in_seconds"`
 
 	// GrantRoleId Role granted to the joining member besides the everyone role. Must exist, and the creator must be able to grant every permission it carries. A role that amounts to a takeover caps the invite to one use and a short expiry.
 	GrantRoleId *string `json:"grant_role_id"`
-	MaxUses     *int64  `json:"max_uses"`
+
+	// MaxUses Omitted means unlimited. Below 1 is a 400.
+	MaxUses *int64 `json:"max_uses"`
 }
 
 // SubmitLobbyPowJSONBody defines parameters for SubmitLobbyPow.
@@ -1980,6 +2463,9 @@ type UpdateMeJSONBody struct {
 	Pronouns         *string `json:"pronouns,omitempty"`
 	ShowHubs         *bool   `json:"show_hubs,omitempty"`
 	StatusMessage    *string `json:"status_message,omitempty"`
+
+	// WidgetHidden Leave me out of the public online widget. Hubs advertising `hub.widget`.
+	WidgetHidden *bool `json:"widget_hidden,omitempty"`
 }
 
 // SetMeAppCommandsJSONBody defines parameters for SetMeAppCommands.
@@ -1989,15 +2475,18 @@ type SetMeAppCommandsJSONBody struct {
 
 // SetMeAppProfileJSONBody defines parameters for SetMeAppProfile.
 type SetMeAppProfileJSONBody struct {
-	AvatarUrl      *string          `json:"avatar_url,omitempty"`
-	Capabilities   *[]string        `json:"capabilities,omitempty"`
-	Commands       *[]AppCommandDef `json:"commands,omitempty"`
-	Description    *string          `json:"description,omitempty"`
-	Game           *GameLaunchCard  `json:"game,omitempty"`
-	HomepageUrl    *string          `json:"homepage_url,omitempty"`
-	MiniAppUrl     *string          `json:"mini_app_url,omitempty"`
-	Name           string           `json:"name"`
-	RequiresCamera *bool            `json:"requires_camera,omitempty"`
+	AvatarUrl    *string          `json:"avatar_url,omitempty"`
+	Capabilities *[]string        `json:"capabilities,omitempty"`
+	Commands     *[]AppCommandDef `json:"commands,omitempty"`
+	Description  *string          `json:"description,omitempty"`
+	Game         *GameLaunchCard  `json:"game,omitempty"`
+	HomepageUrl  *string          `json:"homepage_url,omitempty"`
+
+	// Masquerade Needs `messages.masquerade` in the channel (403 without it, 400 when malformed).
+	Masquerade     *Masquerade `json:"masquerade,omitempty"`
+	MiniAppUrl     *string     `json:"mini_app_url,omitempty"`
+	Name           string      `json:"name"`
+	RequiresCamera *bool       `json:"requires_camera,omitempty"`
 
 	// WebhookUrl https only; receives slash invocations
 	WebhookUrl *string `json:"webhook_url,omitempty"`
@@ -2013,15 +2502,11 @@ type UpdateMeCredentialJSONBody struct {
 	FriendlyName string `json:"friendly_name"`
 }
 
-// AckMeEventsJSONBody defines parameters for AckMeEvents.
-type AckMeEventsJSONBody struct {
-	Ids []string `json:"ids"`
-}
-
 // ListMeEventsParams defines parameters for ListMeEvents.
 type ListMeEventsParams struct {
-	// Since A `created_at` value (Unix seconds); only rows created strictly after it are returned.
-	Since *int64 `form:"since,omitempty" json:"since,omitempty"`
+	// Cursor The `seq` of the last event seen; only later events are returned.
+	Cursor *int64 `form:"cursor,omitempty" json:"cursor,omitempty"`
+	Limit  *int   `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
 // ReportMessageJSONBody defines parameters for ReportMessage.
@@ -2154,6 +2639,12 @@ type CreateRoleJSONBody struct {
 	Priority          int64    `json:"priority"`
 }
 
+// ReorderRolesJSONBody defines parameters for ReorderRoles.
+type ReorderRolesJSONBody struct {
+	// RoleIds highest first
+	RoleIds []string `json:"role_ids"`
+}
+
 // UpdateRoleJSONBody defines parameters for UpdateRole.
 type UpdateRoleJSONBody struct {
 	CategoryId        *string   `json:"category_id"`
@@ -2199,6 +2690,28 @@ type MarkSoundboardSoundPlayedJSONBody struct {
 	ChannelId string `json:"channel_id"`
 }
 
+// CreateStickerPackJSONBody defines parameters for CreateStickerPack.
+type CreateStickerPackJSONBody struct {
+	Name string `json:"name"`
+}
+
+// RenameStickerPackJSONBody defines parameters for RenameStickerPack.
+type RenameStickerPackJSONBody struct {
+	Name string `json:"name"`
+}
+
+// AddStickerToPackJSONBody defines parameters for AddStickerToPack.
+type AddStickerToPackJSONBody struct {
+	Name   *string `json:"name,omitempty"`
+	Sha256 string  `json:"sha256"`
+}
+
+// AddStickerToPackMultipartBody defines parameters for AddStickerToPack.
+type AddStickerToPackMultipartBody struct {
+	File openapi_types.File `json:"file"`
+	Name *string            `json:"name,omitempty"`
+}
+
 // SubmitSurveyJSONBody defines parameters for SubmitSurvey.
 type SubmitSurveyJSONBody struct {
 	Answers  []SurveyAnswerInput `json:"answers"`
@@ -2239,19 +2752,34 @@ type LeaveVoiceJSONBody struct {
 
 // ExecuteWebhookJSONBody defines parameters for ExecuteWebhook.
 type ExecuteWebhookJSONBody struct {
+	// AvatarUrl An http(s) URL, shown as this message's avatar (stored as its `masquerade`)
 	AvatarUrl *string                 `json:"avatar_url,omitempty"`
 	Content   string                  `json:"content"`
 	Embeds    *map[string]interface{} `json:"embeds,omitempty"`
 
-	// Username Overrides the webhook's display name
+	// Username Shown instead of the webhook's display name on this message (stored as its `masquerade`)
 	Username *string `json:"username,omitempty"`
 }
 
+// GetWidgetPageParams defines parameters for GetWidgetPage.
+type GetWidgetPageParams struct {
+	Theme *GetWidgetPageParamsTheme `form:"theme,omitempty" json:"theme,omitempty"`
+}
+
+// GetWidgetPageParamsTheme defines parameters for GetWidgetPage.
+type GetWidgetPageParamsTheme string
+
 // ConnectWebSocketParams defines parameters for ConnectWebSocket.
 type ConnectWebSocketParams struct {
-	// Token Session token from `POST /auth/verify`.
-	Token string `form:"token" json:"token"`
+	// Ticket Single-use ticket from `POST /ws/ticket`, valid 30 seconds.
+	Ticket *string `form:"ticket,omitempty" json:"ticket,omitempty"`
+
+	// Token Session token from `POST /auth/verify`, when no ticket is used.
+	Token *string `form:"token,omitempty" json:"token,omitempty"`
 }
+
+// SetAdminApplicationJSONRequestBody defines body for SetAdminApplication for application/json ContentType.
+type SetAdminApplicationJSONRequestBody SetAdminApplicationJSONBody
 
 // IssueAdminBadgeJSONRequestBody defines body for IssueAdminBadge for application/json ContentType.
 type IssueAdminBadgeJSONRequestBody IssueAdminBadgeJSONBody
@@ -2295,8 +2823,17 @@ type UpdateAdminSettingsBanlistJSONRequestBody UpdateAdminSettingsBanlistJSONBod
 // UpdateAdminSettingsCertsJSONRequestBody defines body for UpdateAdminSettingsCerts for application/json ContentType.
 type UpdateAdminSettingsCertsJSONRequestBody UpdateAdminSettingsCertsJSONBody
 
+// PatchAdminSettingsChallengeJSONRequestBody defines body for PatchAdminSettingsChallenge for application/json ContentType.
+type PatchAdminSettingsChallengeJSONRequestBody PatchAdminSettingsChallengeJSONBody
+
 // UpdateAdminSettingsListingJSONRequestBody defines body for UpdateAdminSettingsListing for application/json ContentType.
 type UpdateAdminSettingsListingJSONRequestBody UpdateAdminSettingsListingJSONBody
+
+// PatchAdminSettingsLobbyJSONRequestBody defines body for PatchAdminSettingsLobby for application/json ContentType.
+type PatchAdminSettingsLobbyJSONRequestBody PatchAdminSettingsLobbyJSONBody
+
+// PutLockdownSettingsJSONRequestBody defines body for PutLockdownSettings for application/json ContentType.
+type PutLockdownSettingsJSONRequestBody = LockdownSettings
 
 // UpdateAdminSettingsModerationJSONRequestBody defines body for UpdateAdminSettingsModeration for application/json ContentType.
 type UpdateAdminSettingsModerationJSONRequestBody UpdateAdminSettingsModerationJSONBody
@@ -2306,6 +2843,9 @@ type UpdateAdminSettingsPowJSONRequestBody UpdateAdminSettingsPowJSONBody
 
 // UpdateAdminSettingsTagsJSONRequestBody defines body for UpdateAdminSettingsTags for application/json ContentType.
 type UpdateAdminSettingsTagsJSONRequestBody UpdateAdminSettingsTagsJSONBody
+
+// PutWidgetSettingsJSONRequestBody defines body for PutWidgetSettings for application/json ContentType.
+type PutWidgetSettingsJSONRequestBody = WidgetSettings
 
 // SetAdminSurveyJSONRequestBody defines body for SetAdminSurvey for application/json ContentType.
 type SetAdminSurveyJSONRequestBody SetAdminSurveyJSONBody
@@ -2349,14 +2889,11 @@ type CreateAlliancePushInviteJSONRequestBody CreateAlliancePushInviteJSONBody
 // CreateAllianceVoiceGrantJSONRequestBody defines body for CreateAllianceVoiceGrant for application/json ContentType.
 type CreateAllianceVoiceGrantJSONRequestBody CreateAllianceVoiceGrantJSONBody
 
+// SubmitApplicationJSONRequestBody defines body for SubmitApplication for application/json ContentType.
+type SubmitApplicationJSONRequestBody SubmitApplicationJSONBody
+
 // CreateAuthChallengeJSONRequestBody defines body for CreateAuthChallenge for application/json ContentType.
 type CreateAuthChallengeJSONRequestBody CreateAuthChallengeJSONBody
-
-// CreateAuthDeviceTokenJSONRequestBody defines body for CreateAuthDeviceToken for application/json ContentType.
-type CreateAuthDeviceTokenJSONRequestBody CreateAuthDeviceTokenJSONBody
-
-// RedeemAuthDeviceTokenJSONRequestBody defines body for RedeemAuthDeviceToken for application/json ContentType.
-type RedeemAuthDeviceTokenJSONRequestBody RedeemAuthDeviceTokenJSONBody
 
 // VerifyAuthJSONRequestBody defines body for VerifyAuth for application/json ContentType.
 type VerifyAuthJSONRequestBody VerifyAuthJSONBody
@@ -2420,6 +2957,9 @@ type UpdateChannelPostReplyJSONRequestBody UpdateChannelPostReplyJSONBody
 
 // CreateChannelPostReplyReactionJSONRequestBody defines body for CreateChannelPostReplyReaction for application/json ContentType.
 type CreateChannelPostReplyReactionJSONRequestBody CreateChannelPostReplyReactionJSONBody
+
+// EnsureChannelStickerJSONRequestBody defines body for EnsureChannelSticker for application/json ContentType.
+type EnsureChannelStickerJSONRequestBody EnsureChannelStickerJSONBody
 
 // CreateChannelTagJSONRequestBody defines body for CreateChannelTag for application/json ContentType.
 type CreateChannelTagJSONRequestBody CreateChannelTagJSONBody
@@ -2499,9 +3039,6 @@ type CreateFederationForumChannelPostReplyJSONRequestBody CreateFederationForumC
 // DeleteFederationForumChannelPostReplyJSONRequestBody defines body for DeleteFederationForumChannelPostReply for application/json ContentType.
 type DeleteFederationForumChannelPostReplyJSONRequestBody DeleteFederationForumChannelPostReplyJSONBody
 
-// CreateFederationPeerJSONRequestBody defines body for CreateFederationPeer for application/json ContentType.
-type CreateFederationPeerJSONRequestBody CreateFederationPeerJSONBody
-
 // CreateFriendJSONRequestBody defines body for CreateFriend for application/json ContentType.
 type CreateFriendJSONRequestBody CreateFriendJSONBody
 
@@ -2514,11 +3051,8 @@ type CreateHubIconJSONRequestBody CreateHubIconJSONBody
 // UpdateHubIconJSONRequestBody defines body for UpdateHubIcon for application/json ContentType.
 type UpdateHubIconJSONRequestBody UpdateHubIconJSONBody
 
-// SetHubSettingsChallengeJSONRequestBody defines body for SetHubSettingsChallenge for application/json ContentType.
-type SetHubSettingsChallengeJSONRequestBody SetHubSettingsChallengeJSONBody
-
-// SetHubSettingsLobbyJSONRequestBody defines body for SetHubSettingsLobby for application/json ContentType.
-type SetHubSettingsLobbyJSONRequestBody SetHubSettingsLobbyJSONBody
+// RejectHubPendingJSONRequestBody defines body for RejectHubPending for application/json ContentType.
+type RejectHubPendingJSONRequestBody RejectHubPendingJSONBody
 
 // SetIdentityDmBlocksJSONRequestBody defines body for SetIdentityDmBlocks for application/json ContentType.
 type SetIdentityDmBlocksJSONRequestBody SetIdentityDmBlocksJSONBody
@@ -2538,14 +3072,14 @@ type CreateIdentityDesignationJSONRequestBody CreateIdentityDesignationJSONBody
 // CreateIdentityDeviceJSONRequestBody defines body for CreateIdentityDevice for application/json ContentType.
 type CreateIdentityDeviceJSONRequestBody = SubkeyCert
 
+// SetIdentityDhKeyJSONRequestBody defines body for SetIdentityDhKey for application/json ContentType.
+type SetIdentityDhKeyJSONRequestBody SetIdentityDhKeyJSONBody
+
 // SetIdentityPrefsJSONRequestBody defines body for SetIdentityPrefs for application/json ContentType.
 type SetIdentityPrefsJSONRequestBody SetIdentityPrefsJSONBody
 
 // CreateIdentityRevocationJSONRequestBody defines body for CreateIdentityRevocation for application/json ContentType.
 type CreateIdentityRevocationJSONRequestBody CreateIdentityRevocationJSONBody
-
-// SetIdentityDhKeyJSONRequestBody defines body for SetIdentityDhKey for application/json ContentType.
-type SetIdentityDhKeyJSONRequestBody SetIdentityDhKeyJSONBody
 
 // CreateInviteJSONRequestBody defines body for CreateInvite for application/json ContentType.
 type CreateInviteJSONRequestBody CreateInviteJSONBody
@@ -2567,9 +3101,6 @@ type SetMeAppSubscriptionsJSONRequestBody SetMeAppSubscriptionsJSONBody
 
 // UpdateMeCredentialJSONRequestBody defines body for UpdateMeCredential for application/json ContentType.
 type UpdateMeCredentialJSONRequestBody UpdateMeCredentialJSONBody
-
-// AckMeEventsJSONRequestBody defines body for AckMeEvents for application/json ContentType.
-type AckMeEventsJSONRequestBody AckMeEventsJSONBody
 
 // ReportMessageJSONRequestBody defines body for ReportMessage for application/json ContentType.
 type ReportMessageJSONRequestBody ReportMessageJSONBody
@@ -2613,6 +3144,9 @@ type UpdateRoleCategoryJSONRequestBody UpdateRoleCategoryJSONBody
 // CreateRoleJSONRequestBody defines body for CreateRole for application/json ContentType.
 type CreateRoleJSONRequestBody CreateRoleJSONBody
 
+// ReorderRolesJSONRequestBody defines body for ReorderRoles for application/json ContentType.
+type ReorderRolesJSONRequestBody ReorderRolesJSONBody
+
 // UpdateRoleJSONRequestBody defines body for UpdateRole for application/json ContentType.
 type UpdateRoleJSONRequestBody UpdateRoleJSONBody
 
@@ -2627,6 +3161,18 @@ type CreateSoundboardSoundMultipartRequestBody CreateSoundboardSoundMultipartBod
 
 // MarkSoundboardSoundPlayedJSONRequestBody defines body for MarkSoundboardSoundPlayed for application/json ContentType.
 type MarkSoundboardSoundPlayedJSONRequestBody MarkSoundboardSoundPlayedJSONBody
+
+// CreateStickerPackJSONRequestBody defines body for CreateStickerPack for application/json ContentType.
+type CreateStickerPackJSONRequestBody CreateStickerPackJSONBody
+
+// RenameStickerPackJSONRequestBody defines body for RenameStickerPack for application/json ContentType.
+type RenameStickerPackJSONRequestBody RenameStickerPackJSONBody
+
+// AddStickerToPackJSONRequestBody defines body for AddStickerToPack for application/json ContentType.
+type AddStickerToPackJSONRequestBody AddStickerToPackJSONBody
+
+// AddStickerToPackMultipartRequestBody defines body for AddStickerToPack for multipart/form-data ContentType.
+type AddStickerToPackMultipartRequestBody AddStickerToPackMultipartBody
 
 // SubmitSurveyJSONRequestBody defines body for SubmitSurvey for application/json ContentType.
 type SubmitSurveyJSONRequestBody SubmitSurveyJSONBody
@@ -2749,16 +3295,27 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetAdminApplication request
+	GetAdminApplication(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetAdminApplicationWithBody request with any body
+	SetAdminApplicationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetAdminApplication(ctx context.Context, body SetAdminApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAdminApplicationResponse request
+	GetAdminApplicationResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListAdminAuditLog request
 	ListAdminAuditLog(ctx context.Context, params *ListAdminAuditLogParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListAdminIssuedBadges request
+	ListAdminIssuedBadges(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// IssueAdminBadgeWithBody request with any body
 	IssueAdminBadgeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	IssueAdminBadge(ctx context.Context, body IssueAdminBadgeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ListAdminIssuedBadges request
-	ListAdminIssuedBadges(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RevokeAdminIssuedBadge request
 	RevokeAdminIssuedBadge(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2796,7 +3353,10 @@ type ClientInterface interface {
 	CreateAdminBanlistSource(ctx context.Context, body CreateAdminBanlistSourceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListAdminCerts request
-	ListAdminCerts(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListAdminCerts(ctx context.Context, params *ListAdminCertsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RevokeAdminCert request
+	RevokeAdminCert(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// IssueAdminCert request
 	IssueAdminCert(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2805,9 +3365,6 @@ type ClientInterface interface {
 	CreateAdminCertBadgeWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateAdminCertBadge(ctx context.Context, pubkey string, body CreateAdminCertBadgeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// RevokeAdminCert request
-	RevokeAdminCert(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SignAdminDirectoryListingWithBody request with any body
 	SignAdminDirectoryListingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2891,10 +3448,31 @@ type ClientInterface interface {
 
 	UpdateAdminSettingsCerts(ctx context.Context, body UpdateAdminSettingsCertsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PatchAdminSettingsChallengeWithBody request with any body
+	PatchAdminSettingsChallengeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchAdminSettingsChallenge(ctx context.Context, body PatchAdminSettingsChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// UpdateAdminSettingsListingWithBody request with any body
 	UpdateAdminSettingsListingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateAdminSettingsListing(ctx context.Context, body UpdateAdminSettingsListingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchAdminSettingsLobbyWithBody request with any body
+	PatchAdminSettingsLobbyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchAdminSettingsLobby(ctx context.Context, body PatchAdminSettingsLobbyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetLockdownSettings request
+	GetLockdownSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutLockdownSettingsWithBody request with any body
+	PutLockdownSettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutLockdownSettings(ctx context.Context, body PutLockdownSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAdminSettingsModeration request
+	GetAdminSettingsModeration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// UpdateAdminSettingsModerationWithBody request with any body
 	UpdateAdminSettingsModerationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2917,6 +3495,29 @@ type ClientInterface interface {
 
 	UpdateAdminSettingsTags(ctx context.Context, body UpdateAdminSettingsTagsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetWidgetSettings request
+	GetWidgetSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutWidgetSettingsWithBody request with any body
+	PutWidgetSettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutWidgetSettings(ctx context.Context, body PutWidgetSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListStoredStickers request
+	ListStoredStickers(ctx context.Context, params *ListStoredStickersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListStickerBlocklist request
+	ListStickerBlocklist(ctx context.Context, params *ListStickerBlocklistParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UnblockSticker request
+	UnblockSticker(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetStickerUsage request
+	GetStickerUsage(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteStoredSticker request
+	DeleteStoredSticker(ctx context.Context, id string, params *DeleteStoredStickerParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetAdminSurvey request
 	GetAdminSurvey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -2926,10 +3527,13 @@ type ClientInterface interface {
 	SetAdminSurvey(ctx context.Context, body SetAdminSurveyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListAdminSurveyResponses request
-	ListAdminSurveyResponses(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListAdminSurveyResponses(ctx context.Context, params *ListAdminSurveyResponsesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetAdminSurveyResponse request
 	GetAdminSurveyResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListAdminWebhooks request
+	ListAdminWebhooks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateAdminWebhookWithBody request with any body
 	CreateAdminWebhookWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2938,6 +3542,9 @@ type ClientInterface interface {
 
 	// DeleteAdminWebhook request
 	DeleteAdminWebhook(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RegenerateAdminWebhook request
+	RegenerateAdminWebhook(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListAlliances request
 	ListAlliances(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2978,7 +3585,7 @@ type ClientInterface interface {
 	DeleteAllianceChannel(ctx context.Context, allianceId string, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListAllianceChannelMessages request
-	ListAllianceChannelMessages(ctx context.Context, allianceId string, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListAllianceChannelMessages(ctx context.Context, allianceId string, channelId string, params *ListAllianceChannelMessagesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateAllianceChannelMessageWithBody request with any body
 	CreateAllianceChannelMessageWithBody(ctx context.Context, allianceId string, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3045,10 +3652,24 @@ type ClientInterface interface {
 
 	CreateAlliancePushInvite(ctx context.Context, allianceId string, body CreateAlliancePushInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetAllianceUpload request
+	GetAllianceUpload(ctx context.Context, allianceId string, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateAllianceVoiceGrantWithBody request with any body
 	CreateAllianceVoiceGrantWithBody(ctx context.Context, allianceId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateAllianceVoiceGrant(ctx context.Context, allianceId string, body CreateAllianceVoiceGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApplication request
+	GetApplication(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SubmitApplicationWithBody request with any body
+	SubmitApplicationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SubmitApplication(ctx context.Context, body SubmitApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApplicationStatus request
+	GetApplicationStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListApps request
 	ListApps(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3057,16 +3678,6 @@ type ClientInterface interface {
 	CreateAuthChallengeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateAuthChallenge(ctx context.Context, body CreateAuthChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CreateAuthDeviceTokenWithBody request with any body
-	CreateAuthDeviceTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CreateAuthDeviceToken(ctx context.Context, body CreateAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// RedeemAuthDeviceTokenWithBody request with any body
-	RedeemAuthDeviceTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	RedeemAuthDeviceToken(ctx context.Context, body RedeemAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// VerifyAuthWithBody request with any body
 	VerifyAuthWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3112,7 +3723,7 @@ type ClientInterface interface {
 	ListCertsRevocations(ctx context.Context, params *ListCertsRevocationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetNewChallenge request
-	GetNewChallenge(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetNewChallenge(ctx context.Context, params *GetNewChallengeParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// VerifyChallengeWithBody request with any body
 	VerifyChallengeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3286,6 +3897,11 @@ type ClientInterface interface {
 
 	// MarkChannelRead request
 	MarkChannelRead(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// EnsureChannelStickerWithBody request with any body
+	EnsureChannelStickerWithBody(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	EnsureChannelSticker(ctx context.Context, channelId string, body EnsureChannelStickerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListChannelTags request
 	ListChannelTags(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3475,13 +4091,8 @@ type ClientInterface interface {
 	// GetFederationListing request
 	GetFederationListing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ListFederationPeers request
-	ListFederationPeers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CreateFederationPeerWithBody request with any body
-	CreateFederationPeerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CreateFederationPeer(ctx context.Context, body CreateFederationPeerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// FederationGetSticker request
+	FederationGetSticker(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListFriends request
 	ListFriends(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3495,10 +4106,10 @@ type ClientInterface interface {
 	ListPendingFriends(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteFriend request
-	DeleteFriend(ctx context.Context, publicKey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeleteFriend(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AcceptFriend request
-	AcceptFriend(ctx context.Context, publicKey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	AcceptFriend(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetHealth request
 	GetHealth(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3524,27 +4135,25 @@ type ClientInterface interface {
 
 	UpdateHubIcon(ctx context.Context, iconId string, body UpdateHubIconJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetHubLandingImage request
+	GetHubLandingImage(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListHubMembers request
-	ListHubMembers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListHubMembers(ctx context.Context, params *ListHubMembersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListHubPending request
 	ListHubPending(ctx context.Context, params *ListHubPendingParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ApproveHubPending request
-	ApproveHubPending(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ApproveHubPending(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RejectHubPendingWithBody request with any body
+	RejectHubPendingWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RejectHubPending(ctx context.Context, pubkey string, body RejectHubPendingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetHubSettings request
 	GetHubSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// SetHubSettingsChallengeWithBody request with any body
-	SetHubSettingsChallengeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	SetHubSettingsChallenge(ctx context.Context, body SetHubSettingsChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// SetHubSettingsLobbyWithBody request with any body
-	SetHubSettingsLobbyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	SetHubSettingsLobby(ctx context.Context, body SetHubSettingsLobbyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListIdentityDmBlocks request
 	ListIdentityDmBlocks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3572,40 +4181,24 @@ type ClientInterface interface {
 	// GetIdentityPairingStatus request
 	GetIdentityPairingStatus(ctx context.Context, token string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetIdentityDesignation request
-	GetIdentityDesignation(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CreateIdentityDesignationWithBody request with any body
-	CreateIdentityDesignationWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CreateIdentityDesignation(ctx context.Context, master string, body CreateIdentityDesignationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ListIdentityDevices request
-	ListIdentityDevices(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CreateIdentityDeviceWithBody request with any body
-	CreateIdentityDeviceWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CreateIdentityDevice(ctx context.Context, master string, body CreateIdentityDeviceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetIdentityPrefs request
-	GetIdentityPrefs(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// SetIdentityPrefsWithBody request with any body
-	SetIdentityPrefsWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	SetIdentityPrefs(ctx context.Context, master string, body SetIdentityPrefsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ListIdentityRevocations request
-	ListIdentityRevocations(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CreateIdentityRevocationWithBody request with any body
-	CreateIdentityRevocationWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CreateIdentityRevocation(ctx context.Context, master string, body CreateIdentityRevocationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// ListIdentityCerts request
 	ListIdentityCerts(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetIdentityDesignation request
+	GetIdentityDesignation(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateIdentityDesignationWithBody request with any body
+	CreateIdentityDesignationWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateIdentityDesignation(ctx context.Context, pubkey string, body CreateIdentityDesignationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListIdentityDevices request
+	ListIdentityDevices(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateIdentityDeviceWithBody request with any body
+	CreateIdentityDeviceWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateIdentityDevice(ctx context.Context, pubkey string, body CreateIdentityDeviceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetIdentityDhKey request
 	GetIdentityDhKey(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3614,6 +4207,22 @@ type ClientInterface interface {
 	SetIdentityDhKeyWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SetIdentityDhKey(ctx context.Context, pubkey string, body SetIdentityDhKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetIdentityPrefs request
+	GetIdentityPrefs(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetIdentityPrefsWithBody request with any body
+	SetIdentityPrefsWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetIdentityPrefs(ctx context.Context, pubkey string, body SetIdentityPrefsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListIdentityRevocations request
+	ListIdentityRevocations(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateIdentityRevocationWithBody request with any body
+	CreateIdentityRevocationWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateIdentityRevocation(ctx context.Context, pubkey string, body CreateIdentityRevocationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetInfo request
 	GetInfo(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3634,9 +4243,6 @@ type ClientInterface interface {
 
 	// RedeemJoinInvite request
 	RedeemJoinInvite(ctx context.Context, code string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetKeyRotation request
-	GetKeyRotation(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetLobbyStatus request
 	GetLobbyStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3689,17 +4295,6 @@ type ClientInterface interface {
 
 	UpdateMeCredential(ctx context.Context, id string, body UpdateMeCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ListMeDevices request
-	ListMeDevices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// DeleteMeDevice request
-	DeleteMeDevice(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// AckMeEventsWithBody request with any body
-	AckMeEventsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	AckMeEvents(ctx context.Context, body AckMeEventsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// ListMeEvents request
 	ListMeEvents(ctx context.Context, params *ListMeEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3720,7 +4315,7 @@ type ClientInterface interface {
 	CreateModerationBan(ctx context.Context, body CreateModerationBanJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteModerationBan request
-	DeleteModerationBan(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeleteModerationBan(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetModerationHistory request
 	GetModerationHistory(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3739,7 +4334,7 @@ type ClientInterface interface {
 	CreateModerationMute(ctx context.Context, body CreateModerationMuteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteModerationMute request
-	DeleteModerationMute(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeleteModerationMute(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// TimeoutUserWithBody request with any body
 	TimeoutUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3755,7 +4350,7 @@ type ClientInterface interface {
 	CreateModerationVoiceMute(ctx context.Context, body CreateModerationVoiceMuteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteModerationVoiceMute request
-	DeleteModerationVoiceMute(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeleteModerationVoiceMute(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListPermissions request
 	ListPermissions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3774,6 +4369,9 @@ type ClientInterface interface {
 	// GetPreview request
 	GetPreview(ctx context.Context, params *GetPreviewParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetPreviewImage request
+	GetPreviewImage(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetProfile request
 	GetProfile(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3781,6 +4379,9 @@ type ClientInterface interface {
 	SetProfileWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SetProfile(ctx context.Context, pubkey string, body SetProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetPublicWidget request
+	GetPublicWidget(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListRecoveryContacts request
 	ListRecoveryContacts(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3795,6 +4396,9 @@ type ClientInterface interface {
 
 	// ListRecoveryRequests request
 	ListRecoveryRequests(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListRecoveryRequestsToAttest request
+	ListRecoveryRequestsToAttest(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RotateRecoveryKeyWithBody request with any body
 	RotateRecoveryKeyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3832,6 +4436,11 @@ type ClientInterface interface {
 	CreateRoleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateRole(ctx context.Context, body CreateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ReorderRolesWithBody request with any body
+	ReorderRolesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ReorderRoles(ctx context.Context, body ReorderRolesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteRole request
 	DeleteRole(ctx context.Context, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3874,6 +4483,33 @@ type ClientInterface interface {
 
 	MarkSoundboardSoundPlayed(ctx context.Context, id string, body MarkSoundboardSoundPlayedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListStickerPacks request
+	ListStickerPacks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateStickerPackWithBody request with any body
+	CreateStickerPackWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateStickerPack(ctx context.Context, body CreateStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteStickerPack request
+	DeleteStickerPack(ctx context.Context, packId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RenameStickerPackWithBody request with any body
+	RenameStickerPackWithBody(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RenameStickerPack(ctx context.Context, packId string, body RenameStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AddStickerToPackWithBody request with any body
+	AddStickerToPackWithBody(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AddStickerToPack(ctx context.Context, packId string, body AddStickerToPackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RemoveStickerFromPack request
+	RemoveStickerFromPack(ctx context.Context, packId string, stickerId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetSticker request
+	GetSticker(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetSurveyCurrent request
 	GetSurveyCurrent(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3890,29 +4526,29 @@ type ClientInterface interface {
 
 	UpdateTag(ctx context.Context, tagId string, body UpdateTagJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// RemoveUpload request
+	RemoveUpload(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetUpload request
-	GetUpload(ctx context.Context, filename string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetUpload(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListUsers request
 	ListUsers(ctx context.Context, params *ListUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ExplainUserPermissions request
+	ExplainUserPermissions(ctx context.Context, pubkey string, params *ExplainUserPermissionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetUserProfile request
 	GetUserProfile(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ExplainUserPermissions request
-	ExplainUserPermissions(ctx context.Context, publicKey string, params *ExplainUserPermissionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// ListUserRoles request
-	ListUserRoles(ctx context.Context, publicKey string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListUserRoles(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteUserRole request
-	DeleteUserRole(ctx context.Context, publicKey string, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeleteUserRole(ctx context.Context, pubkey string, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SetUserRole request
-	SetUserRole(ctx context.Context, publicKey string, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ListVoiceActiveUsers request
-	ListVoiceActiveUsers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SetUserRole(ctx context.Context, pubkey string, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// LeaveVoiceWithBody request with any body
 	LeaveVoiceWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3922,20 +4558,83 @@ type ClientInterface interface {
 	// ListVoiceParticipants request
 	ListVoiceParticipants(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ListVoicePopulations request
-	ListVoicePopulations(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// ExecuteWebhookWithBody request with any body
 	ExecuteWebhookWithBody(ctx context.Context, id string, token string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ExecuteWebhook(ctx context.Context, id string, token string, body ExecuteWebhookJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetWidgetPage request
+	GetWidgetPage(ctx context.Context, params *GetWidgetPageParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ConnectWebSocket request
 	ConnectWebSocket(ctx context.Context, params *ConnectWebSocketParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateWsTicket request
+	CreateWsTicket(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetAdminApplication(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAdminApplicationRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAdminApplicationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAdminApplicationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetAdminApplication(ctx context.Context, body SetAdminApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetAdminApplicationRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAdminApplicationResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAdminApplicationResponseRequest(c.Server, pubkey)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) ListAdminAuditLog(ctx context.Context, params *ListAdminAuditLogParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListAdminAuditLogRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListAdminIssuedBadges(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAdminIssuedBadgesRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -3960,18 +4659,6 @@ func (c *Client) IssueAdminBadgeWithBody(ctx context.Context, contentType string
 
 func (c *Client) IssueAdminBadge(ctx context.Context, body IssueAdminBadgeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewIssueAdminBadgeRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) ListAdminIssuedBadges(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListAdminIssuedBadgesRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -4138,8 +4825,20 @@ func (c *Client) CreateAdminBanlistSource(ctx context.Context, body CreateAdminB
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListAdminCerts(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListAdminCertsRequest(c.Server)
+func (c *Client) ListAdminCerts(ctx context.Context, params *ListAdminCertsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAdminCertsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RevokeAdminCert(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeAdminCertRequest(c.Server, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -4176,18 +4875,6 @@ func (c *Client) CreateAdminCertBadgeWithBody(ctx context.Context, pubkey string
 
 func (c *Client) CreateAdminCertBadge(ctx context.Context, pubkey string, body CreateAdminCertBadgeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateAdminCertBadgeRequest(c.Server, pubkey, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) RevokeAdminCert(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRevokeAdminCertRequest(c.Server, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -4558,6 +5245,30 @@ func (c *Client) UpdateAdminSettingsCerts(ctx context.Context, body UpdateAdminS
 	return c.Client.Do(req)
 }
 
+func (c *Client) PatchAdminSettingsChallengeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchAdminSettingsChallengeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchAdminSettingsChallenge(ctx context.Context, body PatchAdminSettingsChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchAdminSettingsChallengeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) UpdateAdminSettingsListingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateAdminSettingsListingRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -4572,6 +5283,78 @@ func (c *Client) UpdateAdminSettingsListingWithBody(ctx context.Context, content
 
 func (c *Client) UpdateAdminSettingsListing(ctx context.Context, body UpdateAdminSettingsListingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateAdminSettingsListingRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchAdminSettingsLobbyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchAdminSettingsLobbyRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchAdminSettingsLobby(ctx context.Context, body PatchAdminSettingsLobbyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchAdminSettingsLobbyRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetLockdownSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetLockdownSettingsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutLockdownSettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutLockdownSettingsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutLockdownSettings(ctx context.Context, body PutLockdownSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutLockdownSettingsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAdminSettingsModeration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAdminSettingsModerationRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -4678,6 +5461,102 @@ func (c *Client) UpdateAdminSettingsTags(ctx context.Context, body UpdateAdminSe
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetWidgetSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWidgetSettingsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutWidgetSettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutWidgetSettingsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutWidgetSettings(ctx context.Context, body PutWidgetSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutWidgetSettingsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListStoredStickers(ctx context.Context, params *ListStoredStickersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListStoredStickersRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListStickerBlocklist(ctx context.Context, params *ListStickerBlocklistParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListStickerBlocklistRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UnblockSticker(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUnblockStickerRequest(c.Server, sha256)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetStickerUsage(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetStickerUsageRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteStoredSticker(ctx context.Context, id string, params *DeleteStoredStickerParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteStoredStickerRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetAdminSurvey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAdminSurveyRequest(c.Server)
 	if err != nil {
@@ -4714,8 +5593,8 @@ func (c *Client) SetAdminSurvey(ctx context.Context, body SetAdminSurveyJSONRequ
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListAdminSurveyResponses(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListAdminSurveyResponsesRequest(c.Server)
+func (c *Client) ListAdminSurveyResponses(ctx context.Context, params *ListAdminSurveyResponsesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAdminSurveyResponsesRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -4728,6 +5607,18 @@ func (c *Client) ListAdminSurveyResponses(ctx context.Context, reqEditors ...Req
 
 func (c *Client) GetAdminSurveyResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAdminSurveyResponseRequest(c.Server, pubkey)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListAdminWebhooks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAdminWebhooksRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -4764,6 +5655,18 @@ func (c *Client) CreateAdminWebhook(ctx context.Context, body CreateAdminWebhook
 
 func (c *Client) DeleteAdminWebhook(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteAdminWebhookRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RegenerateAdminWebhook(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRegenerateAdminWebhookRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -4942,8 +5845,8 @@ func (c *Client) DeleteAllianceChannel(ctx context.Context, allianceId string, c
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListAllianceChannelMessages(ctx context.Context, allianceId string, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListAllianceChannelMessagesRequest(c.Server, allianceId, channelId)
+func (c *Client) ListAllianceChannelMessages(ctx context.Context, allianceId string, channelId string, params *ListAllianceChannelMessagesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAllianceChannelMessagesRequest(c.Server, allianceId, channelId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -5242,6 +6145,18 @@ func (c *Client) CreateAlliancePushInvite(ctx context.Context, allianceId string
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetAllianceUpload(ctx context.Context, allianceId string, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAllianceUploadRequest(c.Server, allianceId, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) CreateAllianceVoiceGrantWithBody(ctx context.Context, allianceId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateAllianceVoiceGrantRequestWithBody(c.Server, allianceId, contentType, body)
 	if err != nil {
@@ -5256,6 +6171,54 @@ func (c *Client) CreateAllianceVoiceGrantWithBody(ctx context.Context, allianceI
 
 func (c *Client) CreateAllianceVoiceGrant(ctx context.Context, allianceId string, body CreateAllianceVoiceGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateAllianceVoiceGrantRequest(c.Server, allianceId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApplication(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApplicationRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SubmitApplicationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSubmitApplicationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SubmitApplication(ctx context.Context, body SubmitApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSubmitApplicationRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApplicationStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApplicationStatusRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -5292,54 +6255,6 @@ func (c *Client) CreateAuthChallengeWithBody(ctx context.Context, contentType st
 
 func (c *Client) CreateAuthChallenge(ctx context.Context, body CreateAuthChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateAuthChallengeRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateAuthDeviceTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateAuthDeviceTokenRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateAuthDeviceToken(ctx context.Context, body CreateAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateAuthDeviceTokenRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) RedeemAuthDeviceTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRedeemAuthDeviceTokenRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) RedeemAuthDeviceToken(ctx context.Context, body RedeemAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRedeemAuthDeviceTokenRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5542,8 +6457,8 @@ func (c *Client) ListCertsRevocations(ctx context.Context, params *ListCertsRevo
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetNewChallenge(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetNewChallengeRequest(c.Server)
+func (c *Client) GetNewChallenge(ctx context.Context, params *GetNewChallengeParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNewChallengeRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -6300,6 +7215,30 @@ func (c *Client) ListChannelRaiseHands(ctx context.Context, channelId string, re
 
 func (c *Client) MarkChannelRead(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewMarkChannelReadRequest(c.Server, channelId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EnsureChannelStickerWithBody(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEnsureChannelStickerRequestWithBody(c.Server, channelId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EnsureChannelSticker(ctx context.Context, channelId string, body EnsureChannelStickerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEnsureChannelStickerRequest(c.Server, channelId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7162,32 +8101,8 @@ func (c *Client) GetFederationListing(ctx context.Context, reqEditors ...Request
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListFederationPeers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListFederationPeersRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateFederationPeerWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateFederationPeerRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateFederationPeer(ctx context.Context, body CreateFederationPeerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateFederationPeerRequest(c.Server, body)
+func (c *Client) FederationGetSticker(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFederationGetStickerRequest(c.Server, sha256)
 	if err != nil {
 		return nil, err
 	}
@@ -7246,8 +8161,8 @@ func (c *Client) ListPendingFriends(ctx context.Context, reqEditors ...RequestEd
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteFriend(ctx context.Context, publicKey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteFriendRequest(c.Server, publicKey)
+func (c *Client) DeleteFriend(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteFriendRequest(c.Server, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -7258,8 +8173,8 @@ func (c *Client) DeleteFriend(ctx context.Context, publicKey string, reqEditors 
 	return c.Client.Do(req)
 }
 
-func (c *Client) AcceptFriend(ctx context.Context, publicKey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAcceptFriendRequest(c.Server, publicKey)
+func (c *Client) AcceptFriend(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAcceptFriendRequest(c.Server, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -7378,8 +8293,20 @@ func (c *Client) UpdateHubIcon(ctx context.Context, iconId string, body UpdateHu
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListHubMembers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListHubMembersRequest(c.Server)
+func (c *Client) GetHubLandingImage(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetHubLandingImageRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListHubMembers(ctx context.Context, params *ListHubMembersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListHubMembersRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -7402,8 +8329,32 @@ func (c *Client) ListHubPending(ctx context.Context, params *ListHubPendingParam
 	return c.Client.Do(req)
 }
 
-func (c *Client) ApproveHubPending(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewApproveHubPendingRequest(c.Server, targetKey)
+func (c *Client) ApproveHubPending(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewApproveHubPendingRequest(c.Server, pubkey)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RejectHubPendingWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRejectHubPendingRequestWithBody(c.Server, pubkey, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RejectHubPending(ctx context.Context, pubkey string, body RejectHubPendingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRejectHubPendingRequest(c.Server, pubkey, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7416,54 +8367,6 @@ func (c *Client) ApproveHubPending(ctx context.Context, targetKey string, reqEdi
 
 func (c *Client) GetHubSettings(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetHubSettingsRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) SetHubSettingsChallengeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetHubSettingsChallengeRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) SetHubSettingsChallenge(ctx context.Context, body SetHubSettingsChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetHubSettingsChallengeRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) SetHubSettingsLobbyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetHubSettingsLobbyRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) SetHubSettingsLobby(ctx context.Context, body SetHubSettingsLobbyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetHubSettingsLobbyRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7594,152 +8497,80 @@ func (c *Client) GetIdentityPairingStatus(ctx context.Context, token string, req
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetIdentityDesignation(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetIdentityDesignationRequest(c.Server, master)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateIdentityDesignationWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateIdentityDesignationRequestWithBody(c.Server, master, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateIdentityDesignation(ctx context.Context, master string, body CreateIdentityDesignationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateIdentityDesignationRequest(c.Server, master, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) ListIdentityDevices(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListIdentityDevicesRequest(c.Server, master)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateIdentityDeviceWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateIdentityDeviceRequestWithBody(c.Server, master, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateIdentityDevice(ctx context.Context, master string, body CreateIdentityDeviceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateIdentityDeviceRequest(c.Server, master, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetIdentityPrefs(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetIdentityPrefsRequest(c.Server, master)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) SetIdentityPrefsWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetIdentityPrefsRequestWithBody(c.Server, master, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) SetIdentityPrefs(ctx context.Context, master string, body SetIdentityPrefsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetIdentityPrefsRequest(c.Server, master, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) ListIdentityRevocations(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListIdentityRevocationsRequest(c.Server, master)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateIdentityRevocationWithBody(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateIdentityRevocationRequestWithBody(c.Server, master, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateIdentityRevocation(ctx context.Context, master string, body CreateIdentityRevocationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateIdentityRevocationRequest(c.Server, master, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) ListIdentityCerts(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListIdentityCertsRequest(c.Server, pubkey)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetIdentityDesignation(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetIdentityDesignationRequest(c.Server, pubkey)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateIdentityDesignationWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityDesignationRequestWithBody(c.Server, pubkey, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateIdentityDesignation(ctx context.Context, pubkey string, body CreateIdentityDesignationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityDesignationRequest(c.Server, pubkey, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListIdentityDevices(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListIdentityDevicesRequest(c.Server, pubkey)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateIdentityDeviceWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityDeviceRequestWithBody(c.Server, pubkey, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateIdentityDevice(ctx context.Context, pubkey string, body CreateIdentityDeviceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityDeviceRequest(c.Server, pubkey, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7776,6 +8607,78 @@ func (c *Client) SetIdentityDhKeyWithBody(ctx context.Context, pubkey string, co
 
 func (c *Client) SetIdentityDhKey(ctx context.Context, pubkey string, body SetIdentityDhKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSetIdentityDhKeyRequest(c.Server, pubkey, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetIdentityPrefs(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetIdentityPrefsRequest(c.Server, pubkey)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetIdentityPrefsWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetIdentityPrefsRequestWithBody(c.Server, pubkey, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetIdentityPrefs(ctx context.Context, pubkey string, body SetIdentityPrefsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetIdentityPrefsRequest(c.Server, pubkey, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListIdentityRevocations(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListIdentityRevocationsRequest(c.Server, pubkey)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateIdentityRevocationWithBody(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityRevocationRequestWithBody(c.Server, pubkey, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateIdentityRevocation(ctx context.Context, pubkey string, body CreateIdentityRevocationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateIdentityRevocationRequest(c.Server, pubkey, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7860,18 +8763,6 @@ func (c *Client) GetJoinInvite(ctx context.Context, code string, reqEditors ...R
 
 func (c *Client) RedeemJoinInvite(ctx context.Context, code string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRedeemJoinInviteRequest(c.Server, code)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetKeyRotation(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetKeyRotationRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -8110,54 +9001,6 @@ func (c *Client) UpdateMeCredential(ctx context.Context, id string, body UpdateM
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListMeDevices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListMeDevicesRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) DeleteMeDevice(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteMeDeviceRequest(c.Server, id)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) AckMeEventsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAckMeEventsRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) AckMeEvents(ctx context.Context, body AckMeEventsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAckMeEventsRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) ListMeEvents(ctx context.Context, params *ListMeEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListMeEventsRequest(c.Server, params)
 	if err != nil {
@@ -8242,8 +9085,8 @@ func (c *Client) CreateModerationBan(ctx context.Context, body CreateModerationB
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteModerationBan(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteModerationBanRequest(c.Server, targetKey)
+func (c *Client) DeleteModerationBan(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteModerationBanRequest(c.Server, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -8326,8 +9169,8 @@ func (c *Client) CreateModerationMute(ctx context.Context, body CreateModeration
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteModerationMute(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteModerationMuteRequest(c.Server, targetKey)
+func (c *Client) DeleteModerationMute(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteModerationMuteRequest(c.Server, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -8398,8 +9241,8 @@ func (c *Client) CreateModerationVoiceMute(ctx context.Context, body CreateModer
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteModerationVoiceMute(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteModerationVoiceMuteRequest(c.Server, targetKey)
+func (c *Client) DeleteModerationVoiceMute(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteModerationVoiceMuteRequest(c.Server, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -8482,6 +9325,18 @@ func (c *Client) GetPreview(ctx context.Context, params *GetPreviewParams, reqEd
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetPreviewImage(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPreviewImageRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetProfile(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetProfileRequest(c.Server, pubkey)
 	if err != nil {
@@ -8508,6 +9363,18 @@ func (c *Client) SetProfileWithBody(ctx context.Context, pubkey string, contentT
 
 func (c *Client) SetProfile(ctx context.Context, pubkey string, body SetProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSetProfileRequest(c.Server, pubkey, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetPublicWidget(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPublicWidgetRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -8568,6 +9435,18 @@ func (c *Client) DeleteRecoveryContact(ctx context.Context, pubkey string, reqEd
 
 func (c *Client) ListRecoveryRequests(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListRecoveryRequestsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListRecoveryRequestsToAttest(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListRecoveryRequestsToAttestRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -8736,6 +9615,30 @@ func (c *Client) CreateRoleWithBody(ctx context.Context, contentType string, bod
 
 func (c *Client) CreateRole(ctx context.Context, body CreateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateRoleRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ReorderRolesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewReorderRolesRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ReorderRoles(ctx context.Context, body ReorderRolesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewReorderRolesRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8926,6 +9829,126 @@ func (c *Client) MarkSoundboardSoundPlayed(ctx context.Context, id string, body 
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListStickerPacks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListStickerPacksRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateStickerPackWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateStickerPackRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateStickerPack(ctx context.Context, body CreateStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateStickerPackRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteStickerPack(ctx context.Context, packId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteStickerPackRequest(c.Server, packId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RenameStickerPackWithBody(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameStickerPackRequestWithBody(c.Server, packId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RenameStickerPack(ctx context.Context, packId string, body RenameStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameStickerPackRequest(c.Server, packId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddStickerToPackWithBody(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddStickerToPackRequestWithBody(c.Server, packId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddStickerToPack(ctx context.Context, packId string, body AddStickerToPackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddStickerToPackRequest(c.Server, packId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemoveStickerFromPack(ctx context.Context, packId string, stickerId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveStickerFromPackRequest(c.Server, packId, stickerId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetSticker(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetStickerRequest(c.Server, sha256)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetSurveyCurrent(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetSurveyCurrentRequest(c.Server)
 	if err != nil {
@@ -8998,8 +10021,20 @@ func (c *Client) UpdateTag(ctx context.Context, tagId string, body UpdateTagJSON
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetUpload(ctx context.Context, filename string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetUploadRequest(c.Server, filename)
+func (c *Client) RemoveUpload(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveUploadRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetUpload(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetUploadRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -9022,6 +10057,18 @@ func (c *Client) ListUsers(ctx context.Context, params *ListUsersParams, reqEdit
 	return c.Client.Do(req)
 }
 
+func (c *Client) ExplainUserPermissions(ctx context.Context, pubkey string, params *ExplainUserPermissionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewExplainUserPermissionsRequest(c.Server, pubkey, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetUserProfile(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetUserProfileRequest(c.Server, pubkey)
 	if err != nil {
@@ -9034,8 +10081,8 @@ func (c *Client) GetUserProfile(ctx context.Context, pubkey string, reqEditors .
 	return c.Client.Do(req)
 }
 
-func (c *Client) ExplainUserPermissions(ctx context.Context, publicKey string, params *ExplainUserPermissionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewExplainUserPermissionsRequest(c.Server, publicKey, params)
+func (c *Client) ListUserRoles(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListUserRolesRequest(c.Server, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -9046,8 +10093,8 @@ func (c *Client) ExplainUserPermissions(ctx context.Context, publicKey string, p
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListUserRoles(ctx context.Context, publicKey string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListUserRolesRequest(c.Server, publicKey)
+func (c *Client) DeleteUserRole(ctx context.Context, pubkey string, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteUserRoleRequest(c.Server, pubkey, roleId)
 	if err != nil {
 		return nil, err
 	}
@@ -9058,32 +10105,8 @@ func (c *Client) ListUserRoles(ctx context.Context, publicKey string, reqEditors
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteUserRole(ctx context.Context, publicKey string, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteUserRoleRequest(c.Server, publicKey, roleId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) SetUserRole(ctx context.Context, publicKey string, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSetUserRoleRequest(c.Server, publicKey, roleId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) ListVoiceActiveUsers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListVoiceActiveUsersRequest(c.Server)
+func (c *Client) SetUserRole(ctx context.Context, pubkey string, roleId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetUserRoleRequest(c.Server, pubkey, roleId)
 	if err != nil {
 		return nil, err
 	}
@@ -9130,18 +10153,6 @@ func (c *Client) ListVoiceParticipants(ctx context.Context, reqEditors ...Reques
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListVoicePopulations(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListVoicePopulationsRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) ExecuteWebhookWithBody(ctx context.Context, id string, token string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewExecuteWebhookRequestWithBody(c.Server, id, token, contentType, body)
 	if err != nil {
@@ -9166,6 +10177,18 @@ func (c *Client) ExecuteWebhook(ctx context.Context, id string, token string, bo
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetWidgetPage(ctx context.Context, params *GetWidgetPageParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWidgetPageRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ConnectWebSocket(ctx context.Context, params *ConnectWebSocketParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewConnectWebSocketRequest(c.Server, params)
 	if err != nil {
@@ -9176,6 +10199,119 @@ func (c *Client) ConnectWebSocket(ctx context.Context, params *ConnectWebSocketP
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+func (c *Client) CreateWsTicket(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateWsTicketRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// NewGetAdminApplicationRequest generates requests for GetAdminApplication
+func NewGetAdminApplicationRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/application")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetAdminApplicationRequest calls the generic SetAdminApplication builder with application/json body
+func NewSetAdminApplicationRequest(server string, body SetAdminApplicationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetAdminApplicationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSetAdminApplicationRequestWithBody generates requests for SetAdminApplication with any type of body
+func NewSetAdminApplicationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/application")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetAdminApplicationResponseRequest generates requests for GetAdminApplicationResponse
+func NewGetAdminApplicationResponseRequest(server string, pubkey string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/application/responses/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewListAdminAuditLogRequest generates requests for ListAdminAuditLog
@@ -9203,6 +10339,22 @@ func NewListAdminAuditLogRequest(server string, params *ListAdminAuditLogParams)
 		if params.EventType != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "event_type", runtime.ParamLocationQuery, *params.EventType); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Actor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "actor", runtime.ParamLocationQuery, *params.Actor); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -9291,46 +10443,6 @@ func NewListAdminAuditLogRequest(server string, params *ListAdminAuditLogParams)
 	return req, nil
 }
 
-// NewIssueAdminBadgeRequest calls the generic IssueAdminBadge builder with application/json body
-func NewIssueAdminBadgeRequest(server string, body IssueAdminBadgeJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewIssueAdminBadgeRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewIssueAdminBadgeRequestWithBody generates requests for IssueAdminBadge with any type of body
-func NewIssueAdminBadgeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/admin/badges/issue")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewListAdminIssuedBadgesRequest generates requests for ListAdminIssuedBadges
 func NewListAdminIssuedBadgesRequest(server string) (*http.Request, error) {
 	var err error
@@ -9358,6 +10470,46 @@ func NewListAdminIssuedBadgesRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewIssueAdminBadgeRequest calls the generic IssueAdminBadge builder with application/json body
+func NewIssueAdminBadgeRequest(server string, body IssueAdminBadgeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewIssueAdminBadgeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewIssueAdminBadgeRequestWithBody generates requests for IssueAdminBadge with any type of body
+func NewIssueAdminBadgeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/badges/issued")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewRevokeAdminIssuedBadgeRequest generates requests for RevokeAdminIssuedBadge
 func NewRevokeAdminIssuedBadgeRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -9374,7 +10526,7 @@ func NewRevokeAdminIssuedBadgeRequest(server string, id string) (*http.Request, 
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/admin/badges/issued/%s/revoke", pathParam0)
+	operationPath := fmt.Sprintf("/admin/badges/issued/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -9417,6 +10569,38 @@ func NewListAdminBanlistEntriesRequest(server string, params *ListAdminBanlistEn
 		if params.Source != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "source", runtime.ParamLocationQuery, *params.Source); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -9690,7 +10874,7 @@ func NewCreateAdminBanlistSourceRequestWithBody(server string, contentType strin
 }
 
 // NewListAdminCertsRequest generates requests for ListAdminCerts
-func NewListAdminCertsRequest(server string) (*http.Request, error) {
+func NewListAdminCertsRequest(server string, params *ListAdminCertsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -9708,7 +10892,79 @@ func NewListAdminCertsRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRevokeAdminCertRequest generates requests for RevokeAdminCert
+func NewRevokeAdminCertRequest(server string, pubkey string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/certs/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -9793,40 +11049,6 @@ func NewCreateAdminCertBadgeRequestWithBody(server string, pubkey string, conten
 	}
 
 	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewRevokeAdminCertRequest generates requests for RevokeAdminCert
-func NewRevokeAdminCertRequest(server string, pubkey string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/admin/certs/%s/revoke", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
 
 	return req, nil
 }
@@ -10138,9 +11360,9 @@ func NewListAdminOutgoingWebhookDeliveriesRequest(server string, id string, para
 
 		}
 
-		if params.Offset != nil {
+		if params.Cursor != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "offset", runtime.ParamLocationQuery, *params.Offset); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -10730,6 +11952,46 @@ func NewUpdateAdminSettingsCertsRequestWithBody(server string, contentType strin
 	return req, nil
 }
 
+// NewPatchAdminSettingsChallengeRequest calls the generic PatchAdminSettingsChallenge builder with application/json body
+func NewPatchAdminSettingsChallengeRequest(server string, body PatchAdminSettingsChallengeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchAdminSettingsChallengeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPatchAdminSettingsChallengeRequestWithBody generates requests for PatchAdminSettingsChallenge with any type of body
+func NewPatchAdminSettingsChallengeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/settings/challenge")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewUpdateAdminSettingsListingRequest calls the generic UpdateAdminSettingsListing builder with application/json body
 func NewUpdateAdminSettingsListingRequest(server string, body UpdateAdminSettingsListingJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -10766,6 +12028,140 @@ func NewUpdateAdminSettingsListingRequestWithBody(server string, contentType str
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPatchAdminSettingsLobbyRequest calls the generic PatchAdminSettingsLobby builder with application/json body
+func NewPatchAdminSettingsLobbyRequest(server string, body PatchAdminSettingsLobbyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchAdminSettingsLobbyRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPatchAdminSettingsLobbyRequestWithBody generates requests for PatchAdminSettingsLobby with any type of body
+func NewPatchAdminSettingsLobbyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/settings/lobby")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetLockdownSettingsRequest generates requests for GetLockdownSettings
+func NewGetLockdownSettingsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/settings/lockdown")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutLockdownSettingsRequest calls the generic PutLockdownSettings builder with application/json body
+func NewPutLockdownSettingsRequest(server string, body PutLockdownSettingsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutLockdownSettingsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPutLockdownSettingsRequestWithBody generates requests for PutLockdownSettings with any type of body
+func NewPutLockdownSettingsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/settings/lockdown")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetAdminSettingsModerationRequest generates requests for GetAdminSettingsModeration
+func NewGetAdminSettingsModerationRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/settings/moderation")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -10944,6 +12340,384 @@ func NewUpdateAdminSettingsTagsRequestWithBody(server string, contentType string
 	return req, nil
 }
 
+// NewGetWidgetSettingsRequest generates requests for GetWidgetSettings
+func NewGetWidgetSettingsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/settings/widget")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutWidgetSettingsRequest calls the generic PutWidgetSettings builder with application/json body
+func NewPutWidgetSettingsRequest(server string, body PutWidgetSettingsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutWidgetSettingsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPutWidgetSettingsRequestWithBody generates requests for PutWidgetSettings with any type of body
+func NewPutWidgetSettingsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/settings/widget")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListStoredStickersRequest generates requests for ListStoredStickers
+func NewListStoredStickersRequest(server string, params *ListStoredStickersParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/stickers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.State != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "state", runtime.ParamLocationQuery, *params.State); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Uploader != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "uploader", runtime.ParamLocationQuery, *params.Uploader); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Sort != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "sort", runtime.ParamLocationQuery, *params.Sort); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListStickerBlocklistRequest generates requests for ListStickerBlocklist
+func NewListStickerBlocklistRequest(server string, params *ListStickerBlocklistParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/stickers/blocklist")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUnblockStickerRequest generates requests for UnblockSticker
+func NewUnblockStickerRequest(server string, sha256 string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "sha256", runtime.ParamLocationPath, sha256)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/stickers/blocklist/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetStickerUsageRequest generates requests for GetStickerUsage
+func NewGetStickerUsageRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/stickers/usage")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteStoredStickerRequest generates requests for DeleteStoredSticker
+func NewDeleteStoredStickerRequest(server string, id string, params *DeleteStoredStickerParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/stickers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Block != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "block", runtime.ParamLocationQuery, *params.Block); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Reason != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "reason", runtime.ParamLocationQuery, *params.Reason); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetAdminSurveyRequest generates requests for GetAdminSurvey
 func NewGetAdminSurveyRequest(server string) (*http.Request, error) {
 	var err error
@@ -11012,7 +12786,7 @@ func NewSetAdminSurveyRequestWithBody(server string, contentType string, body io
 }
 
 // NewListAdminSurveyResponsesRequest generates requests for ListAdminSurveyResponses
-func NewListAdminSurveyResponsesRequest(server string) (*http.Request, error) {
+func NewListAdminSurveyResponsesRequest(server string, params *ListAdminSurveyResponsesParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11028,6 +12802,60 @@ func NewListAdminSurveyResponsesRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Status != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status", runtime.ParamLocationQuery, *params.Status); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -11055,6 +12883,33 @@ func NewGetAdminSurveyResponseRequest(server string, pubkey string) (*http.Reque
 	}
 
 	operationPath := fmt.Sprintf("/admin/survey/responses/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListAdminWebhooksRequest generates requests for ListAdminWebhooks
+func NewListAdminWebhooksRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/webhooks")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -11139,6 +12994,40 @@ func NewDeleteAdminWebhookRequest(server string, id string) (*http.Request, erro
 	}
 
 	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRegenerateAdminWebhookRequest generates requests for RegenerateAdminWebhook
+func NewRegenerateAdminWebhookRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/webhooks/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11518,7 +13407,7 @@ func NewDeleteAllianceChannelRequest(server string, allianceId string, channelId
 }
 
 // NewListAllianceChannelMessagesRequest generates requests for ListAllianceChannelMessages
-func NewListAllianceChannelMessagesRequest(server string, allianceId string, channelId string) (*http.Request, error) {
+func NewListAllianceChannelMessagesRequest(server string, allianceId string, channelId string, params *ListAllianceChannelMessagesParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -11548,6 +13437,44 @@ func NewListAllianceChannelMessagesRequest(server string, allianceId string, cha
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -12447,6 +14374,47 @@ func NewCreateAlliancePushInviteRequestWithBody(server string, allianceId string
 	return req, nil
 }
 
+// NewGetAllianceUploadRequest generates requests for GetAllianceUpload
+func NewGetAllianceUploadRequest(server string, allianceId string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "alliance_id", runtime.ParamLocationPath, allianceId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/alliances/%s/uploads/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewCreateAllianceVoiceGrantRequest calls the generic CreateAllianceVoiceGrant builder with application/json body
 func NewCreateAllianceVoiceGrantRequest(server string, allianceId string, body CreateAllianceVoiceGrantJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -12490,6 +14458,100 @@ func NewCreateAllianceVoiceGrantRequestWithBody(server string, allianceId string
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApplicationRequest generates requests for GetApplication
+func NewGetApplicationRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/application")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSubmitApplicationRequest calls the generic SubmitApplication builder with application/json body
+func NewSubmitApplicationRequest(server string, body SubmitApplicationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSubmitApplicationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSubmitApplicationRequestWithBody generates requests for SubmitApplication with any type of body
+func NewSubmitApplicationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/application")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApplicationStatusRequest generates requests for GetApplicationStatus
+func NewGetApplicationStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/application/status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -12542,86 +14604,6 @@ func NewCreateAuthChallengeRequestWithBody(server string, contentType string, bo
 	}
 
 	operationPath := fmt.Sprintf("/auth/challenge")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewCreateAuthDeviceTokenRequest calls the generic CreateAuthDeviceToken builder with application/json body
-func NewCreateAuthDeviceTokenRequest(server string, body CreateAuthDeviceTokenJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateAuthDeviceTokenRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewCreateAuthDeviceTokenRequestWithBody generates requests for CreateAuthDeviceToken with any type of body
-func NewCreateAuthDeviceTokenRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/auth/device-token/create")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewRedeemAuthDeviceTokenRequest calls the generic RedeemAuthDeviceToken builder with application/json body
-func NewRedeemAuthDeviceTokenRequest(server string, body RedeemAuthDeviceTokenJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewRedeemAuthDeviceTokenRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewRedeemAuthDeviceTokenRequestWithBody generates requests for RedeemAuthDeviceToken with any type of body
-func NewRedeemAuthDeviceTokenRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/auth/device-token/redeem")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -13047,7 +15029,7 @@ func NewListCertsRevocationsRequest(server string, params *ListCertsRevocationsP
 }
 
 // NewGetNewChallengeRequest generates requests for GetNewChallenge
-func NewGetNewChallengeRequest(server string) (*http.Request, error) {
+func NewGetNewChallengeRequest(server string, params *GetNewChallengeParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -13063,6 +15045,24 @@ func NewGetNewChallengeRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pubkey", runtime.ParamLocationQuery, params.Pubkey); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -13479,9 +15479,9 @@ func NewListChannelMessagesRequest(server string, channelId string, params *List
 	if params != nil {
 		queryValues := queryURL.Query()
 
-		if params.Before != nil {
+		if params.Cursor != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "before", runtime.ParamLocationQuery, *params.Before); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -13498,6 +15498,38 @@ func NewListChannelMessagesRequest(server string, channelId string, params *List
 		if params.Limit != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.ThreadRoot != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "thread_root", runtime.ParamLocationQuery, *params.ThreadRoot); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Q != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "q", runtime.ParamLocationQuery, *params.Q); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -14360,6 +16392,38 @@ func NewSearchChannelPostsRequest(server string, channelId string, params *Searc
 					queryValues.Add(k, v2)
 				}
 			}
+		}
+
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
 		}
 
 		queryURL.RawQuery = queryValues.Encode()
@@ -15276,6 +17340,53 @@ func NewMarkChannelReadRequest(server string, channelId string) (*http.Request, 
 	return req, nil
 }
 
+// NewEnsureChannelStickerRequest calls the generic EnsureChannelSticker builder with application/json body
+func NewEnsureChannelStickerRequest(server string, channelId string, body EnsureChannelStickerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewEnsureChannelStickerRequestWithBody(server, channelId, "application/json", bodyReader)
+}
+
+// NewEnsureChannelStickerRequestWithBody generates requests for EnsureChannelSticker with any type of body
+func NewEnsureChannelStickerRequestWithBody(server string, channelId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "channel_id", runtime.ParamLocationPath, channelId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/channels/%s/stickers", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListChannelTagsRequest generates requests for ListChannelTags
 func NewListChannelTagsRequest(server string, channelId string) (*http.Request, error) {
 	var err error
@@ -15922,9 +18033,9 @@ func NewListConversationMessagesRequest(server string, conversationId string, pa
 
 		}
 
-		if params.Before != nil {
+		if params.Cursor != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "before", runtime.ParamLocationQuery, *params.Before); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -17291,16 +19402,23 @@ func NewGetFederationListingRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewListFederationPeersRequest generates requests for ListFederationPeers
-func NewListFederationPeersRequest(server string) (*http.Request, error) {
+// NewFederationGetStickerRequest generates requests for FederationGetSticker
+func NewFederationGetStickerRequest(server string, sha256 string) (*http.Request, error) {
 	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "sha256", runtime.ParamLocationPath, sha256)
+	if err != nil {
+		return nil, err
+	}
 
 	serverURL, err := url.Parse(server)
 	if err != nil {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/federation/peers")
+	operationPath := fmt.Sprintf("/federation/stickers/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -17314,46 +19432,6 @@ func NewListFederationPeersRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	return req, nil
-}
-
-// NewCreateFederationPeerRequest calls the generic CreateFederationPeer builder with application/json body
-func NewCreateFederationPeerRequest(server string, body CreateFederationPeerJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateFederationPeerRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewCreateFederationPeerRequestWithBody generates requests for CreateFederationPeer with any type of body
-func NewCreateFederationPeerRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/federation/peers")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -17453,12 +19531,12 @@ func NewListPendingFriendsRequest(server string) (*http.Request, error) {
 }
 
 // NewDeleteFriendRequest generates requests for DeleteFriend
-func NewDeleteFriendRequest(server string, publicKey string) (*http.Request, error) {
+func NewDeleteFriendRequest(server string, pubkey string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "public_key", runtime.ParamLocationPath, publicKey)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -17487,12 +19565,12 @@ func NewDeleteFriendRequest(server string, publicKey string) (*http.Request, err
 }
 
 // NewAcceptFriendRequest generates requests for AcceptFriend
-func NewAcceptFriendRequest(server string, publicKey string) (*http.Request, error) {
+func NewAcceptFriendRequest(server string, pubkey string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "public_key", runtime.ParamLocationPath, publicKey)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -17735,8 +19813,35 @@ func NewUpdateHubIconRequestWithBody(server string, iconId string, contentType s
 	return req, nil
 }
 
+// NewGetHubLandingImageRequest generates requests for GetHubLandingImage
+func NewGetHubLandingImageRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/hub/landing-image")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListHubMembersRequest generates requests for ListHubMembers
-func NewListHubMembersRequest(server string) (*http.Request, error) {
+func NewListHubMembersRequest(server string, params *ListHubMembersParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -17752,6 +19857,44 @@ func NewListHubMembersRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -17828,12 +19971,12 @@ func NewListHubPendingRequest(server string, params *ListHubPendingParams) (*htt
 }
 
 // NewApproveHubPendingRequest generates requests for ApproveHubPending
-func NewApproveHubPendingRequest(server string, targetKey string) (*http.Request, error) {
+func NewApproveHubPendingRequest(server string, pubkey string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "target_key", runtime.ParamLocationPath, targetKey)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -17861,6 +20004,53 @@ func NewApproveHubPendingRequest(server string, targetKey string) (*http.Request
 	return req, nil
 }
 
+// NewRejectHubPendingRequest calls the generic RejectHubPending builder with application/json body
+func NewRejectHubPendingRequest(server string, pubkey string, body RejectHubPendingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRejectHubPendingRequestWithBody(server, pubkey, "application/json", bodyReader)
+}
+
+// NewRejectHubPendingRequestWithBody generates requests for RejectHubPending with any type of body
+func NewRejectHubPendingRequestWithBody(server string, pubkey string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/hub/pending/%s/reject", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetHubSettingsRequest generates requests for GetHubSettings
 func NewGetHubSettingsRequest(server string) (*http.Request, error) {
 	var err error
@@ -17884,86 +20074,6 @@ func NewGetHubSettingsRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	return req, nil
-}
-
-// NewSetHubSettingsChallengeRequest calls the generic SetHubSettingsChallenge builder with application/json body
-func NewSetHubSettingsChallengeRequest(server string, body SetHubSettingsChallengeJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewSetHubSettingsChallengeRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewSetHubSettingsChallengeRequestWithBody generates requests for SetHubSettingsChallenge with any type of body
-func NewSetHubSettingsChallengeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/hub/settings/challenge")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("PUT", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewSetHubSettingsLobbyRequest calls the generic SetHubSettingsLobby builder with application/json body
-func NewSetHubSettingsLobbyRequest(server string, body SetHubSettingsLobbyJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewSetHubSettingsLobbyRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewSetHubSettingsLobbyRequestWithBody generates requests for SetHubSettingsLobby with any type of body
-func NewSetHubSettingsLobbyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/hub/settings/lobby")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("PUT", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -18189,330 +20299,6 @@ func NewGetIdentityPairingStatusRequest(server string, token string) (*http.Requ
 	return req, nil
 }
 
-// NewGetIdentityDesignationRequest generates requests for GetIdentityDesignation
-func NewGetIdentityDesignationRequest(server string, master string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "master", runtime.ParamLocationPath, master)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/identity/%s/designation", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewCreateIdentityDesignationRequest calls the generic CreateIdentityDesignation builder with application/json body
-func NewCreateIdentityDesignationRequest(server string, master string, body CreateIdentityDesignationJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateIdentityDesignationRequestWithBody(server, master, "application/json", bodyReader)
-}
-
-// NewCreateIdentityDesignationRequestWithBody generates requests for CreateIdentityDesignation with any type of body
-func NewCreateIdentityDesignationRequestWithBody(server string, master string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "master", runtime.ParamLocationPath, master)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/identity/%s/designation", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewListIdentityDevicesRequest generates requests for ListIdentityDevices
-func NewListIdentityDevicesRequest(server string, master string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "master", runtime.ParamLocationPath, master)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/identity/%s/devices", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewCreateIdentityDeviceRequest calls the generic CreateIdentityDevice builder with application/json body
-func NewCreateIdentityDeviceRequest(server string, master string, body CreateIdentityDeviceJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateIdentityDeviceRequestWithBody(server, master, "application/json", bodyReader)
-}
-
-// NewCreateIdentityDeviceRequestWithBody generates requests for CreateIdentityDevice with any type of body
-func NewCreateIdentityDeviceRequestWithBody(server string, master string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "master", runtime.ParamLocationPath, master)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/identity/%s/devices", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewGetIdentityPrefsRequest generates requests for GetIdentityPrefs
-func NewGetIdentityPrefsRequest(server string, master string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "master", runtime.ParamLocationPath, master)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/identity/%s/prefs", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewSetIdentityPrefsRequest calls the generic SetIdentityPrefs builder with application/json body
-func NewSetIdentityPrefsRequest(server string, master string, body SetIdentityPrefsJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewSetIdentityPrefsRequestWithBody(server, master, "application/json", bodyReader)
-}
-
-// NewSetIdentityPrefsRequestWithBody generates requests for SetIdentityPrefs with any type of body
-func NewSetIdentityPrefsRequestWithBody(server string, master string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "master", runtime.ParamLocationPath, master)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/identity/%s/prefs", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("PUT", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewListIdentityRevocationsRequest generates requests for ListIdentityRevocations
-func NewListIdentityRevocationsRequest(server string, master string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "master", runtime.ParamLocationPath, master)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/identity/%s/revocations", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewCreateIdentityRevocationRequest calls the generic CreateIdentityRevocation builder with application/json body
-func NewCreateIdentityRevocationRequest(server string, master string, body CreateIdentityRevocationJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateIdentityRevocationRequestWithBody(server, master, "application/json", bodyReader)
-}
-
-// NewCreateIdentityRevocationRequestWithBody generates requests for CreateIdentityRevocation with any type of body
-func NewCreateIdentityRevocationRequestWithBody(server string, master string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "master", runtime.ParamLocationPath, master)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/identity/%s/revocations", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewListIdentityCertsRequest generates requests for ListIdentityCerts
 func NewListIdentityCertsRequest(server string, pubkey string) (*http.Request, error) {
 	var err error
@@ -18543,6 +20329,168 @@ func NewListIdentityCertsRequest(server string, pubkey string) (*http.Request, e
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewGetIdentityDesignationRequest generates requests for GetIdentityDesignation
+func NewGetIdentityDesignationRequest(server string, pubkey string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/identity/%s/designation", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateIdentityDesignationRequest calls the generic CreateIdentityDesignation builder with application/json body
+func NewCreateIdentityDesignationRequest(server string, pubkey string, body CreateIdentityDesignationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateIdentityDesignationRequestWithBody(server, pubkey, "application/json", bodyReader)
+}
+
+// NewCreateIdentityDesignationRequestWithBody generates requests for CreateIdentityDesignation with any type of body
+func NewCreateIdentityDesignationRequestWithBody(server string, pubkey string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/identity/%s/designation", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListIdentityDevicesRequest generates requests for ListIdentityDevices
+func NewListIdentityDevicesRequest(server string, pubkey string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/identity/%s/devices", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateIdentityDeviceRequest calls the generic CreateIdentityDevice builder with application/json body
+func NewCreateIdentityDeviceRequest(server string, pubkey string, body CreateIdentityDeviceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateIdentityDeviceRequestWithBody(server, pubkey, "application/json", bodyReader)
+}
+
+// NewCreateIdentityDeviceRequestWithBody generates requests for CreateIdentityDevice with any type of body
+func NewCreateIdentityDeviceRequestWithBody(server string, pubkey string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/identity/%s/devices", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -18619,6 +20567,168 @@ func NewSetIdentityDhKeyRequestWithBody(server string, pubkey string, contentTyp
 	}
 
 	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetIdentityPrefsRequest generates requests for GetIdentityPrefs
+func NewGetIdentityPrefsRequest(server string, pubkey string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/identity/%s/prefs", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetIdentityPrefsRequest calls the generic SetIdentityPrefs builder with application/json body
+func NewSetIdentityPrefsRequest(server string, pubkey string, body SetIdentityPrefsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetIdentityPrefsRequestWithBody(server, pubkey, "application/json", bodyReader)
+}
+
+// NewSetIdentityPrefsRequestWithBody generates requests for SetIdentityPrefs with any type of body
+func NewSetIdentityPrefsRequestWithBody(server string, pubkey string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/identity/%s/prefs", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListIdentityRevocationsRequest generates requests for ListIdentityRevocations
+func NewListIdentityRevocationsRequest(server string, pubkey string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/identity/%s/revocations", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateIdentityRevocationRequest calls the generic CreateIdentityRevocation builder with application/json body
+func NewCreateIdentityRevocationRequest(server string, pubkey string, body CreateIdentityRevocationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateIdentityRevocationRequestWithBody(server, pubkey, "application/json", bodyReader)
+}
+
+// NewCreateIdentityRevocationRequestWithBody generates requests for CreateIdentityRevocation with any type of body
+func NewCreateIdentityRevocationRequestWithBody(server string, pubkey string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/identity/%s/revocations", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -18871,33 +20981,6 @@ func NewRedeemJoinInviteRequest(server string, code string) (*http.Request, erro
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewGetKeyRotationRequest generates requests for GetKeyRotation
-func NewGetKeyRotationRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/key-rotation")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -19348,107 +21431,6 @@ func NewUpdateMeCredentialRequestWithBody(server string, id string, contentType 
 	return req, nil
 }
 
-// NewListMeDevicesRequest generates requests for ListMeDevices
-func NewListMeDevicesRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/me/devices")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewDeleteMeDeviceRequest generates requests for DeleteMeDevice
-func NewDeleteMeDeviceRequest(server string, id string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/me/devices/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewAckMeEventsRequest calls the generic AckMeEvents builder with application/json body
-func NewAckMeEventsRequest(server string, body AckMeEventsJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewAckMeEventsRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewAckMeEventsRequestWithBody generates requests for AckMeEvents with any type of body
-func NewAckMeEventsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/me/events")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("DELETE", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewListMeEventsRequest generates requests for ListMeEvents
 func NewListMeEventsRequest(server string, params *ListMeEventsParams) (*http.Request, error) {
 	var err error
@@ -19471,9 +21453,25 @@ func NewListMeEventsRequest(server string, params *ListMeEventsParams) (*http.Re
 	if params != nil {
 		queryValues := queryURL.Query()
 
-		if params.Since != nil {
+		if params.Cursor != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "since", runtime.ParamLocationQuery, *params.Since); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -19678,12 +21676,12 @@ func NewCreateModerationBanRequestWithBody(server string, contentType string, bo
 }
 
 // NewDeleteModerationBanRequest generates requests for DeleteModerationBan
-func NewDeleteModerationBanRequest(server string, targetKey string) (*http.Request, error) {
+func NewDeleteModerationBanRequest(server string, pubkey string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "target_key", runtime.ParamLocationPath, targetKey)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -19891,12 +21889,12 @@ func NewCreateModerationMuteRequestWithBody(server string, contentType string, b
 }
 
 // NewDeleteModerationMuteRequest generates requests for DeleteModerationMute
-func NewDeleteModerationMuteRequest(server string, targetKey string) (*http.Request, error) {
+func NewDeleteModerationMuteRequest(server string, pubkey string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "target_key", runtime.ParamLocationPath, targetKey)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -20032,12 +22030,12 @@ func NewCreateModerationVoiceMuteRequestWithBody(server string, contentType stri
 }
 
 // NewDeleteModerationVoiceMuteRequest generates requests for DeleteModerationVoiceMute
-func NewDeleteModerationVoiceMuteRequest(server string, targetKey string) (*http.Request, error) {
+func NewDeleteModerationVoiceMuteRequest(server string, pubkey string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "target_key", runtime.ParamLocationPath, targetKey)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -20252,6 +22250,40 @@ func NewGetPreviewRequest(server string, params *GetPreviewParams) (*http.Reques
 	return req, nil
 }
 
+// NewGetPreviewImageRequest generates requests for GetPreviewImage
+func NewGetPreviewImageRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/preview/image/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetProfileRequest generates requests for GetProfile
 func NewGetProfileRequest(server string, pubkey string) (*http.Request, error) {
 	var err error
@@ -20329,6 +22361,33 @@ func NewSetProfileRequestWithBody(server string, pubkey string, contentType stri
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetPublicWidgetRequest generates requests for GetPublicWidget
+func NewGetPublicWidgetRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/public/widget.json")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -20444,6 +22503,33 @@ func NewListRecoveryRequestsRequest(server string) (*http.Request, error) {
 	}
 
 	operationPath := fmt.Sprintf("/recovery/requests")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListRecoveryRequestsToAttestRequest generates requests for ListRecoveryRequestsToAttest
+func NewListRecoveryRequestsToAttestRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/recovery/requests/to-attest")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -20788,6 +22874,46 @@ func NewCreateRoleRequestWithBody(server string, contentType string, body io.Rea
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewReorderRolesRequest calls the generic ReorderRoles builder with application/json body
+func NewReorderRolesRequest(server string, body ReorderRolesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewReorderRolesRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewReorderRolesRequestWithBody generates requests for ReorderRoles with any type of body
+func NewReorderRolesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/roles/order")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -21224,6 +23350,276 @@ func NewMarkSoundboardSoundPlayedRequestWithBody(server string, id string, conte
 	return req, nil
 }
 
+// NewListStickerPacksRequest generates requests for ListStickerPacks
+func NewListStickerPacksRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/packs")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateStickerPackRequest calls the generic CreateStickerPack builder with application/json body
+func NewCreateStickerPackRequest(server string, body CreateStickerPackJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateStickerPackRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateStickerPackRequestWithBody generates requests for CreateStickerPack with any type of body
+func NewCreateStickerPackRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/packs")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteStickerPackRequest generates requests for DeleteStickerPack
+func NewDeleteStickerPackRequest(server string, packId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pack_id", runtime.ParamLocationPath, packId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/packs/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRenameStickerPackRequest calls the generic RenameStickerPack builder with application/json body
+func NewRenameStickerPackRequest(server string, packId string, body RenameStickerPackJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRenameStickerPackRequestWithBody(server, packId, "application/json", bodyReader)
+}
+
+// NewRenameStickerPackRequestWithBody generates requests for RenameStickerPack with any type of body
+func NewRenameStickerPackRequestWithBody(server string, packId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pack_id", runtime.ParamLocationPath, packId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/packs/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewAddStickerToPackRequest calls the generic AddStickerToPack builder with application/json body
+func NewAddStickerToPackRequest(server string, packId string, body AddStickerToPackJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAddStickerToPackRequestWithBody(server, packId, "application/json", bodyReader)
+}
+
+// NewAddStickerToPackRequestWithBody generates requests for AddStickerToPack with any type of body
+func NewAddStickerToPackRequestWithBody(server string, packId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pack_id", runtime.ParamLocationPath, packId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/packs/%s/stickers", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRemoveStickerFromPackRequest generates requests for RemoveStickerFromPack
+func NewRemoveStickerFromPackRequest(server string, packId string, stickerId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pack_id", runtime.ParamLocationPath, packId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "sticker_id", runtime.ParamLocationPath, stickerId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/packs/%s/stickers/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetStickerRequest generates requests for GetSticker
+func NewGetStickerRequest(server string, sha256 string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "sha256", runtime.ParamLocationPath, sha256)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stickers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetSurveyCurrentRequest generates requests for GetSurveyCurrent
 func NewGetSurveyCurrentRequest(server string) (*http.Request, error) {
 	var err error
@@ -21372,13 +23768,47 @@ func NewUpdateTagRequestWithBody(server string, tagId string, contentType string
 	return req, nil
 }
 
-// NewGetUploadRequest generates requests for GetUpload
-func NewGetUploadRequest(server string, filename string) (*http.Request, error) {
+// NewRemoveUploadRequest generates requests for RemoveUpload
+func NewRemoveUploadRequest(server string, id string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "filename", runtime.ParamLocationPath, filename)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/uploads/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetUploadRequest generates requests for GetUpload
+func NewGetUploadRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
 	if err != nil {
 		return nil, err
 	}
@@ -21487,47 +23917,13 @@ func NewListUsersRequest(server string, params *ListUsersParams) (*http.Request,
 	return req, nil
 }
 
-// NewGetUserProfileRequest generates requests for GetUserProfile
-func NewGetUserProfileRequest(server string, pubkey string) (*http.Request, error) {
+// NewExplainUserPermissionsRequest generates requests for ExplainUserPermissions
+func NewExplainUserPermissionsRequest(server string, pubkey string, params *ExplainUserPermissionsParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
 	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/users/%s/profile", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewExplainUserPermissionsRequest generates requests for ExplainUserPermissions
-func NewExplainUserPermissionsRequest(server string, publicKey string, params *ExplainUserPermissionsParams) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "public_key", runtime.ParamLocationPath, publicKey)
 	if err != nil {
 		return nil, err
 	}
@@ -21589,13 +23985,47 @@ func NewExplainUserPermissionsRequest(server string, publicKey string, params *E
 	return req, nil
 }
 
-// NewListUserRolesRequest generates requests for ListUserRoles
-func NewListUserRolesRequest(server string, publicKey string) (*http.Request, error) {
+// NewGetUserProfileRequest generates requests for GetUserProfile
+func NewGetUserProfileRequest(server string, pubkey string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "public_key", runtime.ParamLocationPath, publicKey)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/users/%s/profile", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListUserRolesRequest generates requests for ListUserRoles
+func NewListUserRolesRequest(server string, pubkey string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -21624,12 +24054,12 @@ func NewListUserRolesRequest(server string, publicKey string) (*http.Request, er
 }
 
 // NewDeleteUserRoleRequest generates requests for DeleteUserRole
-func NewDeleteUserRoleRequest(server string, publicKey string, roleId string) (*http.Request, error) {
+func NewDeleteUserRoleRequest(server string, pubkey string, roleId string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "public_key", runtime.ParamLocationPath, publicKey)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -21665,12 +24095,12 @@ func NewDeleteUserRoleRequest(server string, publicKey string, roleId string) (*
 }
 
 // NewSetUserRoleRequest generates requests for SetUserRole
-func NewSetUserRoleRequest(server string, publicKey string, roleId string) (*http.Request, error) {
+func NewSetUserRoleRequest(server string, pubkey string, roleId string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "public_key", runtime.ParamLocationPath, publicKey)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "pubkey", runtime.ParamLocationPath, pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -21698,33 +24128,6 @@ func NewSetUserRoleRequest(server string, publicKey string, roleId string) (*htt
 	}
 
 	req, err := http.NewRequest("PUT", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewListVoiceActiveUsersRequest generates requests for ListVoiceActiveUsers
-func NewListVoiceActiveUsersRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/voice/active-users")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21799,33 +24202,6 @@ func NewListVoiceParticipantsRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewListVoicePopulationsRequest generates requests for ListVoicePopulations
-func NewListVoicePopulationsRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/voice/populations")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewExecuteWebhookRequest calls the generic ExecuteWebhook builder with application/json body
 func NewExecuteWebhookRequest(server string, id string, token string, body ExecuteWebhookJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -21880,6 +24256,55 @@ func NewExecuteWebhookRequestWithBody(server string, id string, token string, co
 	return req, nil
 }
 
+// NewGetWidgetPageRequest generates requests for GetWidgetPage
+func NewGetWidgetPageRequest(server string, params *GetWidgetPageParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/widget")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Theme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "theme", runtime.ParamLocationQuery, *params.Theme); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewConnectWebSocketRequest generates requests for ConnectWebSocket
 func NewConnectWebSocketRequest(server string, params *ConnectWebSocketParams) (*http.Request, error) {
 	var err error
@@ -21902,22 +24327,69 @@ func NewConnectWebSocketRequest(server string, params *ConnectWebSocketParams) (
 	if params != nil {
 		queryValues := queryURL.Query()
 
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "token", runtime.ParamLocationQuery, params.Token); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
+		if params.Ticket != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "ticket", runtime.ParamLocationQuery, *params.Ticket); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
 				}
 			}
+
+		}
+
+		if params.Token != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "token", runtime.ParamLocationQuery, *params.Token); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
 		}
 
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateWsTicketRequest generates requests for CreateWsTicket
+func NewCreateWsTicketRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/ws/ticket")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21968,16 +24440,27 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetAdminApplicationWithResponse request
+	GetAdminApplicationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminApplicationResponse, error)
+
+	// SetAdminApplicationWithBodyWithResponse request with any body
+	SetAdminApplicationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAdminApplicationResponse, error)
+
+	SetAdminApplicationWithResponse(ctx context.Context, body SetAdminApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAdminApplicationResponse, error)
+
+	// GetAdminApplicationResponseWithResponse request
+	GetAdminApplicationResponseWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetAdminApplicationResponseResponse, error)
+
 	// ListAdminAuditLogWithResponse request
 	ListAdminAuditLogWithResponse(ctx context.Context, params *ListAdminAuditLogParams, reqEditors ...RequestEditorFn) (*ListAdminAuditLogResponse, error)
+
+	// ListAdminIssuedBadgesWithResponse request
+	ListAdminIssuedBadgesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminIssuedBadgesResponse, error)
 
 	// IssueAdminBadgeWithBodyWithResponse request with any body
 	IssueAdminBadgeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*IssueAdminBadgeResponse, error)
 
 	IssueAdminBadgeWithResponse(ctx context.Context, body IssueAdminBadgeJSONRequestBody, reqEditors ...RequestEditorFn) (*IssueAdminBadgeResponse, error)
-
-	// ListAdminIssuedBadgesWithResponse request
-	ListAdminIssuedBadgesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminIssuedBadgesResponse, error)
 
 	// RevokeAdminIssuedBadgeWithResponse request
 	RevokeAdminIssuedBadgeWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*RevokeAdminIssuedBadgeResponse, error)
@@ -22015,7 +24498,10 @@ type ClientWithResponsesInterface interface {
 	CreateAdminBanlistSourceWithResponse(ctx context.Context, body CreateAdminBanlistSourceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAdminBanlistSourceResponse, error)
 
 	// ListAdminCertsWithResponse request
-	ListAdminCertsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminCertsResponse, error)
+	ListAdminCertsWithResponse(ctx context.Context, params *ListAdminCertsParams, reqEditors ...RequestEditorFn) (*ListAdminCertsResponse, error)
+
+	// RevokeAdminCertWithResponse request
+	RevokeAdminCertWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*RevokeAdminCertResponse, error)
 
 	// IssueAdminCertWithResponse request
 	IssueAdminCertWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*IssueAdminCertResponse, error)
@@ -22024,9 +24510,6 @@ type ClientWithResponsesInterface interface {
 	CreateAdminCertBadgeWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAdminCertBadgeResponse, error)
 
 	CreateAdminCertBadgeWithResponse(ctx context.Context, pubkey string, body CreateAdminCertBadgeJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAdminCertBadgeResponse, error)
-
-	// RevokeAdminCertWithResponse request
-	RevokeAdminCertWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*RevokeAdminCertResponse, error)
 
 	// SignAdminDirectoryListingWithBodyWithResponse request with any body
 	SignAdminDirectoryListingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignAdminDirectoryListingResponse, error)
@@ -22110,10 +24593,31 @@ type ClientWithResponsesInterface interface {
 
 	UpdateAdminSettingsCertsWithResponse(ctx context.Context, body UpdateAdminSettingsCertsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAdminSettingsCertsResponse, error)
 
+	// PatchAdminSettingsChallengeWithBodyWithResponse request with any body
+	PatchAdminSettingsChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAdminSettingsChallengeResponse, error)
+
+	PatchAdminSettingsChallengeWithResponse(ctx context.Context, body PatchAdminSettingsChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAdminSettingsChallengeResponse, error)
+
 	// UpdateAdminSettingsListingWithBodyWithResponse request with any body
 	UpdateAdminSettingsListingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAdminSettingsListingResponse, error)
 
 	UpdateAdminSettingsListingWithResponse(ctx context.Context, body UpdateAdminSettingsListingJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAdminSettingsListingResponse, error)
+
+	// PatchAdminSettingsLobbyWithBodyWithResponse request with any body
+	PatchAdminSettingsLobbyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAdminSettingsLobbyResponse, error)
+
+	PatchAdminSettingsLobbyWithResponse(ctx context.Context, body PatchAdminSettingsLobbyJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAdminSettingsLobbyResponse, error)
+
+	// GetLockdownSettingsWithResponse request
+	GetLockdownSettingsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLockdownSettingsResponse, error)
+
+	// PutLockdownSettingsWithBodyWithResponse request with any body
+	PutLockdownSettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutLockdownSettingsResponse, error)
+
+	PutLockdownSettingsWithResponse(ctx context.Context, body PutLockdownSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*PutLockdownSettingsResponse, error)
+
+	// GetAdminSettingsModerationWithResponse request
+	GetAdminSettingsModerationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminSettingsModerationResponse, error)
 
 	// UpdateAdminSettingsModerationWithBodyWithResponse request with any body
 	UpdateAdminSettingsModerationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAdminSettingsModerationResponse, error)
@@ -22136,6 +24640,29 @@ type ClientWithResponsesInterface interface {
 
 	UpdateAdminSettingsTagsWithResponse(ctx context.Context, body UpdateAdminSettingsTagsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAdminSettingsTagsResponse, error)
 
+	// GetWidgetSettingsWithResponse request
+	GetWidgetSettingsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetWidgetSettingsResponse, error)
+
+	// PutWidgetSettingsWithBodyWithResponse request with any body
+	PutWidgetSettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutWidgetSettingsResponse, error)
+
+	PutWidgetSettingsWithResponse(ctx context.Context, body PutWidgetSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*PutWidgetSettingsResponse, error)
+
+	// ListStoredStickersWithResponse request
+	ListStoredStickersWithResponse(ctx context.Context, params *ListStoredStickersParams, reqEditors ...RequestEditorFn) (*ListStoredStickersResponse, error)
+
+	// ListStickerBlocklistWithResponse request
+	ListStickerBlocklistWithResponse(ctx context.Context, params *ListStickerBlocklistParams, reqEditors ...RequestEditorFn) (*ListStickerBlocklistResponse, error)
+
+	// UnblockStickerWithResponse request
+	UnblockStickerWithResponse(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*UnblockStickerResponse, error)
+
+	// GetStickerUsageWithResponse request
+	GetStickerUsageWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetStickerUsageResponse, error)
+
+	// DeleteStoredStickerWithResponse request
+	DeleteStoredStickerWithResponse(ctx context.Context, id string, params *DeleteStoredStickerParams, reqEditors ...RequestEditorFn) (*DeleteStoredStickerResponse, error)
+
 	// GetAdminSurveyWithResponse request
 	GetAdminSurveyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminSurveyResponse, error)
 
@@ -22145,10 +24672,13 @@ type ClientWithResponsesInterface interface {
 	SetAdminSurveyWithResponse(ctx context.Context, body SetAdminSurveyJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAdminSurveyResponse, error)
 
 	// ListAdminSurveyResponsesWithResponse request
-	ListAdminSurveyResponsesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminSurveyResponsesResponse, error)
+	ListAdminSurveyResponsesWithResponse(ctx context.Context, params *ListAdminSurveyResponsesParams, reqEditors ...RequestEditorFn) (*ListAdminSurveyResponsesResponse, error)
 
 	// GetAdminSurveyResponseWithResponse request
 	GetAdminSurveyResponseWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetAdminSurveyResponseResponse, error)
+
+	// ListAdminWebhooksWithResponse request
+	ListAdminWebhooksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminWebhooksResponse, error)
 
 	// CreateAdminWebhookWithBodyWithResponse request with any body
 	CreateAdminWebhookWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAdminWebhookResponse, error)
@@ -22157,6 +24687,9 @@ type ClientWithResponsesInterface interface {
 
 	// DeleteAdminWebhookWithResponse request
 	DeleteAdminWebhookWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteAdminWebhookResponse, error)
+
+	// RegenerateAdminWebhookWithResponse request
+	RegenerateAdminWebhookWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*RegenerateAdminWebhookResponse, error)
 
 	// ListAlliancesWithResponse request
 	ListAlliancesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAlliancesResponse, error)
@@ -22197,7 +24730,7 @@ type ClientWithResponsesInterface interface {
 	DeleteAllianceChannelWithResponse(ctx context.Context, allianceId string, channelId string, reqEditors ...RequestEditorFn) (*DeleteAllianceChannelResponse, error)
 
 	// ListAllianceChannelMessagesWithResponse request
-	ListAllianceChannelMessagesWithResponse(ctx context.Context, allianceId string, channelId string, reqEditors ...RequestEditorFn) (*ListAllianceChannelMessagesResponse, error)
+	ListAllianceChannelMessagesWithResponse(ctx context.Context, allianceId string, channelId string, params *ListAllianceChannelMessagesParams, reqEditors ...RequestEditorFn) (*ListAllianceChannelMessagesResponse, error)
 
 	// CreateAllianceChannelMessageWithBodyWithResponse request with any body
 	CreateAllianceChannelMessageWithBodyWithResponse(ctx context.Context, allianceId string, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAllianceChannelMessageResponse, error)
@@ -22264,10 +24797,24 @@ type ClientWithResponsesInterface interface {
 
 	CreateAlliancePushInviteWithResponse(ctx context.Context, allianceId string, body CreateAlliancePushInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAlliancePushInviteResponse, error)
 
+	// GetAllianceUploadWithResponse request
+	GetAllianceUploadWithResponse(ctx context.Context, allianceId string, id string, reqEditors ...RequestEditorFn) (*GetAllianceUploadResponse, error)
+
 	// CreateAllianceVoiceGrantWithBodyWithResponse request with any body
 	CreateAllianceVoiceGrantWithBodyWithResponse(ctx context.Context, allianceId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAllianceVoiceGrantResponse, error)
 
 	CreateAllianceVoiceGrantWithResponse(ctx context.Context, allianceId string, body CreateAllianceVoiceGrantJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAllianceVoiceGrantResponse, error)
+
+	// GetApplicationWithResponse request
+	GetApplicationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApplicationResponse, error)
+
+	// SubmitApplicationWithBodyWithResponse request with any body
+	SubmitApplicationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SubmitApplicationResponse, error)
+
+	SubmitApplicationWithResponse(ctx context.Context, body SubmitApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*SubmitApplicationResponse, error)
+
+	// GetApplicationStatusWithResponse request
+	GetApplicationStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApplicationStatusResponse, error)
 
 	// ListAppsWithResponse request
 	ListAppsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAppsResponse, error)
@@ -22276,16 +24823,6 @@ type ClientWithResponsesInterface interface {
 	CreateAuthChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAuthChallengeResponse, error)
 
 	CreateAuthChallengeWithResponse(ctx context.Context, body CreateAuthChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAuthChallengeResponse, error)
-
-	// CreateAuthDeviceTokenWithBodyWithResponse request with any body
-	CreateAuthDeviceTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAuthDeviceTokenResponse, error)
-
-	CreateAuthDeviceTokenWithResponse(ctx context.Context, body CreateAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAuthDeviceTokenResponse, error)
-
-	// RedeemAuthDeviceTokenWithBodyWithResponse request with any body
-	RedeemAuthDeviceTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RedeemAuthDeviceTokenResponse, error)
-
-	RedeemAuthDeviceTokenWithResponse(ctx context.Context, body RedeemAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*RedeemAuthDeviceTokenResponse, error)
 
 	// VerifyAuthWithBodyWithResponse request with any body
 	VerifyAuthWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyAuthResponse, error)
@@ -22331,7 +24868,7 @@ type ClientWithResponsesInterface interface {
 	ListCertsRevocationsWithResponse(ctx context.Context, params *ListCertsRevocationsParams, reqEditors ...RequestEditorFn) (*ListCertsRevocationsResponse, error)
 
 	// GetNewChallengeWithResponse request
-	GetNewChallengeWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetNewChallengeResponse, error)
+	GetNewChallengeWithResponse(ctx context.Context, params *GetNewChallengeParams, reqEditors ...RequestEditorFn) (*GetNewChallengeResponse, error)
 
 	// VerifyChallengeWithBodyWithResponse request with any body
 	VerifyChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyChallengeResponse, error)
@@ -22505,6 +25042,11 @@ type ClientWithResponsesInterface interface {
 
 	// MarkChannelReadWithResponse request
 	MarkChannelReadWithResponse(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*MarkChannelReadResponse, error)
+
+	// EnsureChannelStickerWithBodyWithResponse request with any body
+	EnsureChannelStickerWithBodyWithResponse(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnsureChannelStickerResponse, error)
+
+	EnsureChannelStickerWithResponse(ctx context.Context, channelId string, body EnsureChannelStickerJSONRequestBody, reqEditors ...RequestEditorFn) (*EnsureChannelStickerResponse, error)
 
 	// ListChannelTagsWithResponse request
 	ListChannelTagsWithResponse(ctx context.Context, channelId string, reqEditors ...RequestEditorFn) (*ListChannelTagsResponse, error)
@@ -22694,13 +25236,8 @@ type ClientWithResponsesInterface interface {
 	// GetFederationListingWithResponse request
 	GetFederationListingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetFederationListingResponse, error)
 
-	// ListFederationPeersWithResponse request
-	ListFederationPeersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListFederationPeersResponse, error)
-
-	// CreateFederationPeerWithBodyWithResponse request with any body
-	CreateFederationPeerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error)
-
-	CreateFederationPeerWithResponse(ctx context.Context, body CreateFederationPeerJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error)
+	// FederationGetStickerWithResponse request
+	FederationGetStickerWithResponse(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*FederationGetStickerResponse, error)
 
 	// ListFriendsWithResponse request
 	ListFriendsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListFriendsResponse, error)
@@ -22714,10 +25251,10 @@ type ClientWithResponsesInterface interface {
 	ListPendingFriendsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListPendingFriendsResponse, error)
 
 	// DeleteFriendWithResponse request
-	DeleteFriendWithResponse(ctx context.Context, publicKey string, reqEditors ...RequestEditorFn) (*DeleteFriendResponse, error)
+	DeleteFriendWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*DeleteFriendResponse, error)
 
 	// AcceptFriendWithResponse request
-	AcceptFriendWithResponse(ctx context.Context, publicKey string, reqEditors ...RequestEditorFn) (*AcceptFriendResponse, error)
+	AcceptFriendWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*AcceptFriendResponse, error)
 
 	// GetHealthWithResponse request
 	GetHealthWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHealthResponse, error)
@@ -22743,27 +25280,25 @@ type ClientWithResponsesInterface interface {
 
 	UpdateHubIconWithResponse(ctx context.Context, iconId string, body UpdateHubIconJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateHubIconResponse, error)
 
+	// GetHubLandingImageWithResponse request
+	GetHubLandingImageWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHubLandingImageResponse, error)
+
 	// ListHubMembersWithResponse request
-	ListHubMembersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListHubMembersResponse, error)
+	ListHubMembersWithResponse(ctx context.Context, params *ListHubMembersParams, reqEditors ...RequestEditorFn) (*ListHubMembersResponse, error)
 
 	// ListHubPendingWithResponse request
 	ListHubPendingWithResponse(ctx context.Context, params *ListHubPendingParams, reqEditors ...RequestEditorFn) (*ListHubPendingResponse, error)
 
 	// ApproveHubPendingWithResponse request
-	ApproveHubPendingWithResponse(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*ApproveHubPendingResponse, error)
+	ApproveHubPendingWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*ApproveHubPendingResponse, error)
+
+	// RejectHubPendingWithBodyWithResponse request with any body
+	RejectHubPendingWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RejectHubPendingResponse, error)
+
+	RejectHubPendingWithResponse(ctx context.Context, pubkey string, body RejectHubPendingJSONRequestBody, reqEditors ...RequestEditorFn) (*RejectHubPendingResponse, error)
 
 	// GetHubSettingsWithResponse request
 	GetHubSettingsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHubSettingsResponse, error)
-
-	// SetHubSettingsChallengeWithBodyWithResponse request with any body
-	SetHubSettingsChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetHubSettingsChallengeResponse, error)
-
-	SetHubSettingsChallengeWithResponse(ctx context.Context, body SetHubSettingsChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*SetHubSettingsChallengeResponse, error)
-
-	// SetHubSettingsLobbyWithBodyWithResponse request with any body
-	SetHubSettingsLobbyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetHubSettingsLobbyResponse, error)
-
-	SetHubSettingsLobbyWithResponse(ctx context.Context, body SetHubSettingsLobbyJSONRequestBody, reqEditors ...RequestEditorFn) (*SetHubSettingsLobbyResponse, error)
 
 	// ListIdentityDmBlocksWithResponse request
 	ListIdentityDmBlocksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListIdentityDmBlocksResponse, error)
@@ -22791,40 +25326,24 @@ type ClientWithResponsesInterface interface {
 	// GetIdentityPairingStatusWithResponse request
 	GetIdentityPairingStatusWithResponse(ctx context.Context, token string, reqEditors ...RequestEditorFn) (*GetIdentityPairingStatusResponse, error)
 
-	// GetIdentityDesignationWithResponse request
-	GetIdentityDesignationWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*GetIdentityDesignationResponse, error)
-
-	// CreateIdentityDesignationWithBodyWithResponse request with any body
-	CreateIdentityDesignationWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error)
-
-	CreateIdentityDesignationWithResponse(ctx context.Context, master string, body CreateIdentityDesignationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error)
-
-	// ListIdentityDevicesWithResponse request
-	ListIdentityDevicesWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*ListIdentityDevicesResponse, error)
-
-	// CreateIdentityDeviceWithBodyWithResponse request with any body
-	CreateIdentityDeviceWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error)
-
-	CreateIdentityDeviceWithResponse(ctx context.Context, master string, body CreateIdentityDeviceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error)
-
-	// GetIdentityPrefsWithResponse request
-	GetIdentityPrefsWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*GetIdentityPrefsResponse, error)
-
-	// SetIdentityPrefsWithBodyWithResponse request with any body
-	SetIdentityPrefsWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error)
-
-	SetIdentityPrefsWithResponse(ctx context.Context, master string, body SetIdentityPrefsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error)
-
-	// ListIdentityRevocationsWithResponse request
-	ListIdentityRevocationsWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*ListIdentityRevocationsResponse, error)
-
-	// CreateIdentityRevocationWithBodyWithResponse request with any body
-	CreateIdentityRevocationWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error)
-
-	CreateIdentityRevocationWithResponse(ctx context.Context, master string, body CreateIdentityRevocationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error)
-
 	// ListIdentityCertsWithResponse request
 	ListIdentityCertsWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*ListIdentityCertsResponse, error)
+
+	// GetIdentityDesignationWithResponse request
+	GetIdentityDesignationWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetIdentityDesignationResponse, error)
+
+	// CreateIdentityDesignationWithBodyWithResponse request with any body
+	CreateIdentityDesignationWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error)
+
+	CreateIdentityDesignationWithResponse(ctx context.Context, pubkey string, body CreateIdentityDesignationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error)
+
+	// ListIdentityDevicesWithResponse request
+	ListIdentityDevicesWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*ListIdentityDevicesResponse, error)
+
+	// CreateIdentityDeviceWithBodyWithResponse request with any body
+	CreateIdentityDeviceWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error)
+
+	CreateIdentityDeviceWithResponse(ctx context.Context, pubkey string, body CreateIdentityDeviceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error)
 
 	// GetIdentityDhKeyWithResponse request
 	GetIdentityDhKeyWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetIdentityDhKeyResponse, error)
@@ -22833,6 +25352,22 @@ type ClientWithResponsesInterface interface {
 	SetIdentityDhKeyWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetIdentityDhKeyResponse, error)
 
 	SetIdentityDhKeyWithResponse(ctx context.Context, pubkey string, body SetIdentityDhKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*SetIdentityDhKeyResponse, error)
+
+	// GetIdentityPrefsWithResponse request
+	GetIdentityPrefsWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetIdentityPrefsResponse, error)
+
+	// SetIdentityPrefsWithBodyWithResponse request with any body
+	SetIdentityPrefsWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error)
+
+	SetIdentityPrefsWithResponse(ctx context.Context, pubkey string, body SetIdentityPrefsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error)
+
+	// ListIdentityRevocationsWithResponse request
+	ListIdentityRevocationsWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*ListIdentityRevocationsResponse, error)
+
+	// CreateIdentityRevocationWithBodyWithResponse request with any body
+	CreateIdentityRevocationWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error)
+
+	CreateIdentityRevocationWithResponse(ctx context.Context, pubkey string, body CreateIdentityRevocationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error)
 
 	// GetInfoWithResponse request
 	GetInfoWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetInfoResponse, error)
@@ -22853,9 +25388,6 @@ type ClientWithResponsesInterface interface {
 
 	// RedeemJoinInviteWithResponse request
 	RedeemJoinInviteWithResponse(ctx context.Context, code string, reqEditors ...RequestEditorFn) (*RedeemJoinInviteResponse, error)
-
-	// GetKeyRotationWithResponse request
-	GetKeyRotationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetKeyRotationResponse, error)
 
 	// GetLobbyStatusWithResponse request
 	GetLobbyStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLobbyStatusResponse, error)
@@ -22908,17 +25440,6 @@ type ClientWithResponsesInterface interface {
 
 	UpdateMeCredentialWithResponse(ctx context.Context, id string, body UpdateMeCredentialJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMeCredentialResponse, error)
 
-	// ListMeDevicesWithResponse request
-	ListMeDevicesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListMeDevicesResponse, error)
-
-	// DeleteMeDeviceWithResponse request
-	DeleteMeDeviceWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteMeDeviceResponse, error)
-
-	// AckMeEventsWithBodyWithResponse request with any body
-	AckMeEventsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AckMeEventsResponse, error)
-
-	AckMeEventsWithResponse(ctx context.Context, body AckMeEventsJSONRequestBody, reqEditors ...RequestEditorFn) (*AckMeEventsResponse, error)
-
 	// ListMeEventsWithResponse request
 	ListMeEventsWithResponse(ctx context.Context, params *ListMeEventsParams, reqEditors ...RequestEditorFn) (*ListMeEventsResponse, error)
 
@@ -22939,7 +25460,7 @@ type ClientWithResponsesInterface interface {
 	CreateModerationBanWithResponse(ctx context.Context, body CreateModerationBanJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateModerationBanResponse, error)
 
 	// DeleteModerationBanWithResponse request
-	DeleteModerationBanWithResponse(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*DeleteModerationBanResponse, error)
+	DeleteModerationBanWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*DeleteModerationBanResponse, error)
 
 	// GetModerationHistoryWithResponse request
 	GetModerationHistoryWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetModerationHistoryResponse, error)
@@ -22958,7 +25479,7 @@ type ClientWithResponsesInterface interface {
 	CreateModerationMuteWithResponse(ctx context.Context, body CreateModerationMuteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateModerationMuteResponse, error)
 
 	// DeleteModerationMuteWithResponse request
-	DeleteModerationMuteWithResponse(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*DeleteModerationMuteResponse, error)
+	DeleteModerationMuteWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*DeleteModerationMuteResponse, error)
 
 	// TimeoutUserWithBodyWithResponse request with any body
 	TimeoutUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TimeoutUserResponse, error)
@@ -22974,7 +25495,7 @@ type ClientWithResponsesInterface interface {
 	CreateModerationVoiceMuteWithResponse(ctx context.Context, body CreateModerationVoiceMuteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateModerationVoiceMuteResponse, error)
 
 	// DeleteModerationVoiceMuteWithResponse request
-	DeleteModerationVoiceMuteWithResponse(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*DeleteModerationVoiceMuteResponse, error)
+	DeleteModerationVoiceMuteWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*DeleteModerationVoiceMuteResponse, error)
 
 	// ListPermissionsWithResponse request
 	ListPermissionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListPermissionsResponse, error)
@@ -22993,6 +25514,9 @@ type ClientWithResponsesInterface interface {
 	// GetPreviewWithResponse request
 	GetPreviewWithResponse(ctx context.Context, params *GetPreviewParams, reqEditors ...RequestEditorFn) (*GetPreviewResponse, error)
 
+	// GetPreviewImageWithResponse request
+	GetPreviewImageWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetPreviewImageResponse, error)
+
 	// GetProfileWithResponse request
 	GetProfileWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetProfileResponse, error)
 
@@ -23000,6 +25524,9 @@ type ClientWithResponsesInterface interface {
 	SetProfileWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetProfileResponse, error)
 
 	SetProfileWithResponse(ctx context.Context, pubkey string, body SetProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*SetProfileResponse, error)
+
+	// GetPublicWidgetWithResponse request
+	GetPublicWidgetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPublicWidgetResponse, error)
 
 	// ListRecoveryContactsWithResponse request
 	ListRecoveryContactsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRecoveryContactsResponse, error)
@@ -23014,6 +25541,9 @@ type ClientWithResponsesInterface interface {
 
 	// ListRecoveryRequestsWithResponse request
 	ListRecoveryRequestsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRecoveryRequestsResponse, error)
+
+	// ListRecoveryRequestsToAttestWithResponse request
+	ListRecoveryRequestsToAttestWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRecoveryRequestsToAttestResponse, error)
 
 	// RotateRecoveryKeyWithBodyWithResponse request with any body
 	RotateRecoveryKeyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RotateRecoveryKeyResponse, error)
@@ -23051,6 +25581,11 @@ type ClientWithResponsesInterface interface {
 	CreateRoleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateRoleResponse, error)
 
 	CreateRoleWithResponse(ctx context.Context, body CreateRoleJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateRoleResponse, error)
+
+	// ReorderRolesWithBodyWithResponse request with any body
+	ReorderRolesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ReorderRolesResponse, error)
+
+	ReorderRolesWithResponse(ctx context.Context, body ReorderRolesJSONRequestBody, reqEditors ...RequestEditorFn) (*ReorderRolesResponse, error)
 
 	// DeleteRoleWithResponse request
 	DeleteRoleWithResponse(ctx context.Context, roleId string, reqEditors ...RequestEditorFn) (*DeleteRoleResponse, error)
@@ -23093,6 +25628,33 @@ type ClientWithResponsesInterface interface {
 
 	MarkSoundboardSoundPlayedWithResponse(ctx context.Context, id string, body MarkSoundboardSoundPlayedJSONRequestBody, reqEditors ...RequestEditorFn) (*MarkSoundboardSoundPlayedResponse, error)
 
+	// ListStickerPacksWithResponse request
+	ListStickerPacksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListStickerPacksResponse, error)
+
+	// CreateStickerPackWithBodyWithResponse request with any body
+	CreateStickerPackWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateStickerPackResponse, error)
+
+	CreateStickerPackWithResponse(ctx context.Context, body CreateStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateStickerPackResponse, error)
+
+	// DeleteStickerPackWithResponse request
+	DeleteStickerPackWithResponse(ctx context.Context, packId string, reqEditors ...RequestEditorFn) (*DeleteStickerPackResponse, error)
+
+	// RenameStickerPackWithBodyWithResponse request with any body
+	RenameStickerPackWithBodyWithResponse(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameStickerPackResponse, error)
+
+	RenameStickerPackWithResponse(ctx context.Context, packId string, body RenameStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameStickerPackResponse, error)
+
+	// AddStickerToPackWithBodyWithResponse request with any body
+	AddStickerToPackWithBodyWithResponse(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddStickerToPackResponse, error)
+
+	AddStickerToPackWithResponse(ctx context.Context, packId string, body AddStickerToPackJSONRequestBody, reqEditors ...RequestEditorFn) (*AddStickerToPackResponse, error)
+
+	// RemoveStickerFromPackWithResponse request
+	RemoveStickerFromPackWithResponse(ctx context.Context, packId string, stickerId string, reqEditors ...RequestEditorFn) (*RemoveStickerFromPackResponse, error)
+
+	// GetStickerWithResponse request
+	GetStickerWithResponse(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*GetStickerResponse, error)
+
 	// GetSurveyCurrentWithResponse request
 	GetSurveyCurrentWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSurveyCurrentResponse, error)
 
@@ -23109,29 +25671,29 @@ type ClientWithResponsesInterface interface {
 
 	UpdateTagWithResponse(ctx context.Context, tagId string, body UpdateTagJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateTagResponse, error)
 
+	// RemoveUploadWithResponse request
+	RemoveUploadWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*RemoveUploadResponse, error)
+
 	// GetUploadWithResponse request
-	GetUploadWithResponse(ctx context.Context, filename string, reqEditors ...RequestEditorFn) (*GetUploadResponse, error)
+	GetUploadWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetUploadResponse, error)
 
 	// ListUsersWithResponse request
 	ListUsersWithResponse(ctx context.Context, params *ListUsersParams, reqEditors ...RequestEditorFn) (*ListUsersResponse, error)
 
+	// ExplainUserPermissionsWithResponse request
+	ExplainUserPermissionsWithResponse(ctx context.Context, pubkey string, params *ExplainUserPermissionsParams, reqEditors ...RequestEditorFn) (*ExplainUserPermissionsResponse, error)
+
 	// GetUserProfileWithResponse request
 	GetUserProfileWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetUserProfileResponse, error)
 
-	// ExplainUserPermissionsWithResponse request
-	ExplainUserPermissionsWithResponse(ctx context.Context, publicKey string, params *ExplainUserPermissionsParams, reqEditors ...RequestEditorFn) (*ExplainUserPermissionsResponse, error)
-
 	// ListUserRolesWithResponse request
-	ListUserRolesWithResponse(ctx context.Context, publicKey string, reqEditors ...RequestEditorFn) (*ListUserRolesResponse, error)
+	ListUserRolesWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*ListUserRolesResponse, error)
 
 	// DeleteUserRoleWithResponse request
-	DeleteUserRoleWithResponse(ctx context.Context, publicKey string, roleId string, reqEditors ...RequestEditorFn) (*DeleteUserRoleResponse, error)
+	DeleteUserRoleWithResponse(ctx context.Context, pubkey string, roleId string, reqEditors ...RequestEditorFn) (*DeleteUserRoleResponse, error)
 
 	// SetUserRoleWithResponse request
-	SetUserRoleWithResponse(ctx context.Context, publicKey string, roleId string, reqEditors ...RequestEditorFn) (*SetUserRoleResponse, error)
-
-	// ListVoiceActiveUsersWithResponse request
-	ListVoiceActiveUsersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListVoiceActiveUsersResponse, error)
+	SetUserRoleWithResponse(ctx context.Context, pubkey string, roleId string, reqEditors ...RequestEditorFn) (*SetUserRoleResponse, error)
 
 	// LeaveVoiceWithBodyWithResponse request with any body
 	LeaveVoiceWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LeaveVoiceResponse, error)
@@ -23141,32 +25703,95 @@ type ClientWithResponsesInterface interface {
 	// ListVoiceParticipantsWithResponse request
 	ListVoiceParticipantsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListVoiceParticipantsResponse, error)
 
-	// ListVoicePopulationsWithResponse request
-	ListVoicePopulationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListVoicePopulationsResponse, error)
-
 	// ExecuteWebhookWithBodyWithResponse request with any body
 	ExecuteWebhookWithBodyWithResponse(ctx context.Context, id string, token string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExecuteWebhookResponse, error)
 
 	ExecuteWebhookWithResponse(ctx context.Context, id string, token string, body ExecuteWebhookJSONRequestBody, reqEditors ...RequestEditorFn) (*ExecuteWebhookResponse, error)
 
+	// GetWidgetPageWithResponse request
+	GetWidgetPageWithResponse(ctx context.Context, params *GetWidgetPageParams, reqEditors ...RequestEditorFn) (*GetWidgetPageResponse, error)
+
 	// ConnectWebSocketWithResponse request
 	ConnectWebSocketWithResponse(ctx context.Context, params *ConnectWebSocketParams, reqEditors ...RequestEditorFn) (*ConnectWebSocketResponse, error)
+
+	// CreateWsTicketWithResponse request
+	CreateWsTicketWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateWsTicketResponse, error)
+}
+
+type GetAdminApplicationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAdminApplicationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAdminApplicationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SetAdminApplicationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SetAdminApplicationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetAdminApplicationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAdminApplicationResponseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAdminApplicationResponseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAdminApplicationResponseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type ListAdminAuditLogResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *struct {
-		Entries *[]struct {
-			ActorPubkey  *string                 `json:"actor_pubkey"`
-			At           *int64                  `json:"at,omitempty"`
-			ChannelId    *string                 `json:"channel_id"`
-			EventType    *string                 `json:"event_type,omitempty"`
-			Payload      *map[string]interface{} `json:"payload,omitempty"`
-			Seq          *int64                  `json:"seq,omitempty"`
-			TargetPubkey *string                 `json:"target_pubkey"`
-		} `json:"entries,omitempty"`
-		NextCursor *int64 `json:"next_cursor"`
+	JSON200      *[]struct {
+		ActorPubkey  *string                 `json:"actor_pubkey"`
+		At           *int64                  `json:"at,omitempty"`
+		ChannelId    *string                 `json:"channel_id"`
+		EventType    *string                 `json:"event_type,omitempty"`
+		Payload      *map[string]interface{} `json:"payload,omitempty"`
+		Seq          *int64                  `json:"seq,omitempty"`
+		TargetPubkey *string                 `json:"target_pubkey"`
 	}
 }
 
@@ -23180,6 +25805,27 @@ func (r ListAdminAuditLogResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListAdminAuditLogResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListAdminIssuedBadgesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAdminIssuedBadgesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAdminIssuedBadgesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -23212,27 +25858,6 @@ func (r IssueAdminBadgeResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r IssueAdminBadgeResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type ListAdminIssuedBadgesResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r ListAdminIssuedBadgesResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListAdminIssuedBadgesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -23496,6 +26121,27 @@ func (r ListAdminCertsResponse) StatusCode() int {
 	return 0
 }
 
+type RevokeAdminCertResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RevokeAdminCertResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RevokeAdminCertResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type IssueAdminCertResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -23534,27 +26180,6 @@ func (r CreateAdminCertBadgeResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateAdminCertBadgeResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type RevokeAdminCertResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r RevokeAdminCertResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r RevokeAdminCertResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -23809,11 +26434,9 @@ func (r RotateAdminOutgoingWebhookSecretResponse) StatusCode() int {
 type ListAdminOutgoingWebhookSubscriptionsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *struct {
-		Subscriptions *[]struct {
-			Channels *[]string `json:"channels"`
-			Event    *string   `json:"event,omitempty"`
-		} `json:"subscriptions,omitempty"`
+	JSON200      *[]struct {
+		Channels *[]string `json:"channels"`
+		Event    *string   `json:"event,omitempty"`
 	}
 }
 
@@ -24110,6 +26733,27 @@ func (r UpdateAdminSettingsCertsResponse) StatusCode() int {
 	return 0
 }
 
+type PatchAdminSettingsChallengeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchAdminSettingsChallengeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchAdminSettingsChallengeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type UpdateAdminSettingsListingResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -24125,6 +26769,100 @@ func (r UpdateAdminSettingsListingResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateAdminSettingsListingResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PatchAdminSettingsLobbyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchAdminSettingsLobbyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchAdminSettingsLobbyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetLockdownSettingsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *LockdownSettings
+}
+
+// Status returns HTTPResponse.Status
+func (r GetLockdownSettingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetLockdownSettingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutLockdownSettingsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *LockdownSettings
+}
+
+// Status returns HTTPResponse.Status
+func (r PutLockdownSettingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutLockdownSettingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAdminSettingsModerationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		CircuitOpen      bool   `json:"circuit_open"`
+		CircuitOpenUntil *int64 `json:"circuit_open_until"`
+		WebhookSecretSet bool   `json:"webhook_secret_set"`
+
+		// WebhookUrl Omitted unless set.
+		WebhookUrl *string `json:"webhook_url,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAdminSettingsModerationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAdminSettingsModerationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -24243,6 +26981,180 @@ func (r UpdateAdminSettingsTagsResponse) StatusCode() int {
 	return 0
 }
 
+type GetWidgetSettingsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WidgetSettings
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWidgetSettingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWidgetSettingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutWidgetSettingsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WidgetSettings
+}
+
+// Status returns HTTPResponse.Status
+func (r PutWidgetSettingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutWidgetSettingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListStoredStickersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]AdminSticker
+}
+
+// Status returns HTTPResponse.Status
+func (r ListStoredStickersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListStoredStickersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListStickerBlocklistResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]struct {
+		BlockedBy *string `json:"blocked_by,omitempty"`
+		CreatedAt *int64  `json:"created_at,omitempty"`
+		Reason    *string `json:"reason"`
+		Sha256    *string `json:"sha256,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r ListStickerBlocklistResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListStickerBlocklistResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UnblockStickerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r UnblockStickerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UnblockStickerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetStickerUsageResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Copies *struct {
+			Bytes    *int64 `json:"bytes,omitempty"`
+			CapBytes *int64 `json:"cap_bytes,omitempty"`
+			Count    *int64 `json:"count,omitempty"`
+		} `json:"copies,omitempty"`
+
+		// Evictions Copies whose bytes were dropped for space and have not come back
+		Evictions *int64 `json:"evictions,omitempty"`
+		Packs     *struct {
+			Bytes    *int64 `json:"bytes,omitempty"`
+			CapBytes *int64 `json:"cap_bytes,omitempty"`
+			Count    *int64 `json:"count,omitempty"`
+		} `json:"packs,omitempty"`
+
+		// PacksWarning Packs are at or past `stickers_packs_warn_percent` of their cap
+		PacksWarning *bool `json:"packs_warning,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r GetStickerUsageResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetStickerUsageResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteStoredStickerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteStoredStickerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteStoredStickerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetAdminSurveyResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -24327,6 +27239,38 @@ func (r GetAdminSurveyResponseResponse) StatusCode() int {
 	return 0
 }
 
+type ListAdminWebhooksResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]struct {
+		ChannelId   string  `json:"channel_id"`
+		ChannelName *string `json:"channel_name"`
+		CreatedAt   int64   `json:"created_at"`
+		CreatedBy   string  `json:"created_by"`
+		DisplayName string  `json:"display_name"`
+		Id          string  `json:"id"`
+
+		// WebhookUrl Base URL only; the token is stored hashed and cannot be recovered. Regenerate to get a working URL.
+		WebhookUrl string `json:"webhook_url"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAdminWebhooksResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAdminWebhooksResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CreateAdminWebhookResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -24370,6 +27314,32 @@ func (r DeleteAdminWebhookResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r DeleteAdminWebhookResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RegenerateAdminWebhookResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		DisplayName string `json:"display_name"`
+		Id          string `json:"id"`
+		WebhookUrl  string `json:"webhook_url"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r RegenerateAdminWebhookResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RegenerateAdminWebhookResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -24635,11 +27605,7 @@ func (r CreateAllianceChannelMessageResponse) StatusCode() int {
 type ListAllianceChannelPostsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *struct {
-		// Cursor Omitted on the last page
-		Cursor *string        `json:"cursor,omitempty"`
-		Posts  *[]PostSummary `json:"posts,omitempty"`
-	}
+	JSON200      *[]PostSummary
 }
 
 // Status returns HTTPResponse.Status
@@ -24996,6 +27962,27 @@ func (r CreateAlliancePushInviteResponse) StatusCode() int {
 	return 0
 }
 
+type GetAllianceUploadResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAllianceUploadResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAllianceUploadResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CreateAllianceVoiceGrantResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -25019,6 +28006,77 @@ func (r CreateAllianceVoiceGrantResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateAllianceVoiceGrantResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApplicationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApplicationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApplicationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SubmitApplicationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SubmitApplicationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SubmitApplicationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApplicationStatusResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Reason *string `json:"reason,omitempty"`
+
+		// RetryAfter Unix seconds from which a rejected applicant may apply again.
+		RetryAfter *int64                       `json:"retry_after,omitempty"`
+		State      GetApplicationStatus200State `json:"state"`
+	}
+}
+type GetApplicationStatus200State string
+
+// Status returns HTTPResponse.Status
+func (r GetApplicationStatusResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApplicationStatusResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -25069,7 +28127,7 @@ type CreateAuthChallengeResponse struct {
 		// Challenge 32 random bytes, lowercase hex (64 chars)
 		Challenge string `json:"challenge"`
 
-		// Scheme Present when the answer may be signed over "wavvon/auth-challenge/v1\0" || hex-decoded challenge (wire-format.md). Omitted by older hubs, which take a signature over the raw decoded bytes only. A hub that sends it still accepts the raw form.
+		// Scheme tagged-v2 from a current hub or farm: the answer must be bound to the server's public key (wire-format.md), and no other answer is accepted. tagged-v1 from an older one.
 		Scheme *CreateAuthChallenge200Scheme `json:"scheme,omitempty"`
 	}
 }
@@ -25085,58 +28143,6 @@ func (r CreateAuthChallengeResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateAuthChallengeResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type CreateAuthDeviceTokenResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *struct {
-		ExpiresAt *int64  `json:"expires_at,omitempty"`
-		Id        *string `json:"id,omitempty"`
-
-		// Token Shown once — store hashed on the client
-		Token *string `json:"token,omitempty"`
-	}
-}
-
-// Status returns HTTPResponse.Status
-func (r CreateAuthDeviceTokenResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CreateAuthDeviceTokenResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type RedeemAuthDeviceTokenResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *struct {
-		SessionToken *string `json:"session_token,omitempty"`
-	}
-}
-
-// Status returns HTTPResponse.Status
-func (r RedeemAuthDeviceTokenResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r RedeemAuthDeviceTokenResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -26047,11 +29053,7 @@ func (r CreateChannelPollResponse) StatusCode() int {
 type ListChannelPostsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *struct {
-		// Cursor Omitted on the last page
-		Cursor *string        `json:"cursor,omitempty"`
-		Posts  *[]PostSummary `json:"posts,omitempty"`
-	}
+	JSON200      *[]PostSummary
 }
 
 // Status returns HTTPResponse.Status
@@ -26095,15 +29097,12 @@ func (r CreateChannelPostResponse) StatusCode() int {
 type SearchChannelPostsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *struct {
-		Cursor  *string `json:"cursor,omitempty"`
-		Results *[]struct {
-			BodySnippet  *string `json:"body_snippet,omitempty"`
-			IsReply      *bool   `json:"is_reply,omitempty"`
-			PostId       *string `json:"post_id,omitempty"`
-			ReplyId      *string `json:"reply_id,omitempty"`
-			TitleSnippet *string `json:"title_snippet,omitempty"`
-		} `json:"results,omitempty"`
+	JSON200      *[]struct {
+		BodySnippet  *string `json:"body_snippet,omitempty"`
+		IsReply      *bool   `json:"is_reply,omitempty"`
+		PostId       *string `json:"post_id,omitempty"`
+		ReplyId      *string `json:"reply_id,omitempty"`
+		TitleSnippet *string `json:"title_snippet,omitempty"`
 	}
 }
 
@@ -26532,6 +29531,29 @@ func (r MarkChannelReadResponse) StatusCode() int {
 	return 0
 }
 
+type EnsureChannelStickerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Sticker
+	JSON201      *Sticker
+}
+
+// Status returns HTTPResponse.Status
+func (r EnsureChannelStickerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r EnsureChannelStickerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListChannelTagsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -26642,15 +29664,7 @@ func (r SetChannelTalkPowerResponse) StatusCode() int {
 type UploadChannelFileResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON201      *struct {
-		Filename  *string `json:"filename,omitempty"`
-		Id        *string `json:"id,omitempty"`
-		MimeType  *string `json:"mime_type,omitempty"`
-		SizeBytes *int64  `json:"size_bytes,omitempty"`
-
-		// Url Path under /uploads/
-		Url *string `json:"url,omitempty"`
-	}
+	JSON201      *AttachmentRef
 }
 
 // Status returns HTTPResponse.Status
@@ -27617,13 +30631,13 @@ func (r GetFederationListingResponse) StatusCode() int {
 	return 0
 }
 
-type ListFederationPeersResponse struct {
+type FederationGetStickerResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 }
 
 // Status returns HTTPResponse.Status
-func (r ListFederationPeersResponse) Status() string {
+func (r FederationGetStickerResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -27631,28 +30645,7 @@ func (r ListFederationPeersResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r ListFederationPeersResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type CreateFederationPeerResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r CreateFederationPeerResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CreateFederationPeerResponse) StatusCode() int {
+func (r FederationGetStickerResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -27768,7 +30761,13 @@ type GetHealthResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
-		Status *string `json:"status,omitempty"`
+		// DbStatus `ok`, or `error: ` followed by the reason the database did not answer.
+		DbStatus      string `json:"db_status"`
+		Status        string `json:"status"`
+		UptimeSeconds int64  `json:"uptime_seconds"`
+
+		// Version The hub's version.
+		Version string `json:"version"`
 	}
 }
 
@@ -27893,6 +30892,27 @@ func (r UpdateHubIconResponse) StatusCode() int {
 	return 0
 }
 
+type GetHubLandingImageResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetHubLandingImageResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetHubLandingImageResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListHubMembersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -27918,6 +30938,16 @@ func (r ListHubMembersResponse) StatusCode() int {
 type ListHubPendingResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *[]struct {
+		// BanEvasionMatch The banned identity whose last address this joiner arrived from, when that is why they wait. Approving clears it. Present on hubs advertising `admission.banevasion`.
+		BanEvasionMatch *string `json:"ban_evasion_match"`
+		DisplayName     *string `json:"display_name"`
+		FirstSeenAt     int64   `json:"first_seen_at"`
+
+		// HasApplication Whether they filled the join application.
+		HasApplication *bool  `json:"has_application,omitempty"`
+		PublicKey      string `json:"public_key"`
+	}
 }
 
 // Status returns HTTPResponse.Status
@@ -27957,6 +30987,27 @@ func (r ApproveHubPendingResponse) StatusCode() int {
 	return 0
 }
 
+type RejectHubPendingResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RejectHubPendingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RejectHubPendingResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetHubSettingsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -27972,48 +31023,6 @@ func (r GetHubSettingsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetHubSettingsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type SetHubSettingsChallengeResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r SetHubSettingsChallengeResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r SetHubSettingsChallengeResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type SetHubSettingsLobbyResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r SetHubSettingsLobbyResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r SetHubSettingsLobbyResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -28149,6 +31158,28 @@ func (r GetIdentityPairingStatusResponse) StatusCode() int {
 	return 0
 }
 
+type ListIdentityCertsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Certification
+}
+
+// Status returns HTTPResponse.Status
+func (r ListIdentityCertsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListIdentityCertsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetIdentityDesignationResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -28233,6 +31264,48 @@ func (r CreateIdentityDeviceResponse) StatusCode() int {
 	return 0
 }
 
+type GetIdentityDhKeyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetIdentityDhKeyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetIdentityDhKeyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SetIdentityDhKeyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SetIdentityDhKeyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetIdentityDhKeyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetIdentityPrefsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -28311,70 +31384,6 @@ func (r CreateIdentityRevocationResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateIdentityRevocationResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type ListIdentityCertsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]Certification
-}
-
-// Status returns HTTPResponse.Status
-func (r ListIdentityCertsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListIdentityCertsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetIdentityDhKeyResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r GetIdentityDhKeyResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetIdentityDhKeyResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type SetIdentityDhKeyResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r SetIdentityDhKeyResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r SetIdentityDhKeyResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -28473,8 +31482,15 @@ type GetJoinInviteResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *struct {
 		Code        *string `json:"code,omitempty"`
+		Description *string `json:"description"`
 		HubName     *string `json:"hub_name,omitempty"`
-		MemberCount *int64  `json:"member_count,omitempty"`
+
+		// Landing How the invite landing looks (hubs advertising `hub.landing`). Each field is omitted when unset.
+		Landing     *Landing `json:"landing,omitempty"`
+		MemberCount *int64   `json:"member_count,omitempty"`
+
+		// OnlineCount Connected members, not counting invisible ones.
+		OnlineCount *int64 `json:"online_count,omitempty"`
 	}
 }
 
@@ -28509,27 +31525,6 @@ func (r RedeemJoinInviteResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r RedeemJoinInviteResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetKeyRotationResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r GetKeyRotationResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetKeyRotationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -28824,91 +31819,18 @@ func (r UpdateMeCredentialResponse) StatusCode() int {
 	return 0
 }
 
-type ListMeDevicesResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]struct {
-		CreatedAt  *int64  `json:"created_at,omitempty"`
-		DeviceName *string `json:"device_name"`
-		ExpiresAt  *int64  `json:"expires_at,omitempty"`
-		Id         *string `json:"id,omitempty"`
-		LastUsedAt *int64  `json:"last_used_at"`
-	}
-}
-
-// Status returns HTTPResponse.Status
-func (r ListMeDevicesResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListMeDevicesResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type DeleteMeDeviceResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r DeleteMeDeviceResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DeleteMeDeviceResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type AckMeEventsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r AckMeEventsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r AckMeEventsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type ListMeEventsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *struct {
-		Events []struct {
-			// CreatedAt Unix seconds
-			CreatedAt int64  `json:"created_at"`
-			EventType string `json:"event_type"`
-			Id        string `json:"id"`
-
-			// Payload The event payload as a JSON-encoded string; parse it
-			Payload string `json:"payload"`
-		} `json:"events"`
+	JSON200      *[]HubEvent
+	JSON410      *struct {
+		// EarliestAt Unix seconds
+		EarliestAt  int64               `json:"earliest_at"`
+		EarliestSeq int64               `json:"earliest_seq"`
+		Type        ListMeEvents410Type `json:"type"`
 	}
 }
+type ListMeEvents410Type string
 
 // Status returns HTTPResponse.Status
 func (r ListMeEventsResponse) Status() string {
@@ -29243,6 +32165,9 @@ type ListPermissionsResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *struct {
 		Permissions *[]struct {
+			// Category The section a roles screen shows it under: messages, voice, moderation, members, channels, events, hub, integrations, federation. Hubs advertising `permissions.categories`.
+			Category *string `json:"category,omitempty"`
+
 			// Group Dotted prefix, for grouping without re-splitting the id.
 			Group *string `json:"group,omitempty"`
 			Id    *string `json:"id,omitempty"`
@@ -29354,9 +32279,11 @@ type GetPreviewResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *struct {
 		Description *string `json:"description"`
-		ImageUrl    *string `json:"image_url"`
-		Title       *string `json:"title"`
-		Url         *string `json:"url,omitempty"`
+
+		// ImageUrl The page's image as fetched and served by this hub (`/preview/image/{id}` under its public URL), so readers never contact the third-party host. Null when the page has no PNG/JPEG/GIF/WebP/AVIF image of at most 1 MB, or the hub has no public URL.
+		ImageUrl *string `json:"image_url"`
+		Title    *string `json:"title"`
+		Url      *string `json:"url,omitempty"`
 	}
 }
 
@@ -29370,6 +32297,27 @@ func (r GetPreviewResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetPreviewResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPreviewImageResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPreviewImageResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPreviewImageResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -29412,6 +32360,28 @@ func (r SetProfileResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SetProfileResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPublicWidgetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WidgetData
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPublicWidgetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPublicWidgetResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -29512,6 +32482,36 @@ func (r ListRecoveryRequestsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListRecoveryRequestsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListRecoveryRequestsToAttestResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]struct {
+		AttestationCount *int64  `json:"attestation_count,omitempty"`
+		CreatedAt        *int64  `json:"created_at,omitempty"`
+		Id               *string `json:"id,omitempty"`
+		NewPubkey        *string `json:"new_pubkey,omitempty"`
+		OldPubkey        *string `json:"old_pubkey,omitempty"`
+		Reason           *string `json:"reason"`
+		Threshold        *int64  `json:"threshold,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r ListRecoveryRequestsToAttestResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListRecoveryRequestsToAttestResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -29726,6 +32726,28 @@ func (r CreateRoleResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateRoleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ReorderRolesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Role
+}
+
+// Status returns HTTPResponse.Status
+func (r ReorderRolesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ReorderRolesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -29996,6 +33018,156 @@ func (r MarkSoundboardSoundPlayedResponse) StatusCode() int {
 	return 0
 }
 
+type ListStickerPacksResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]StickerPack
+}
+
+// Status returns HTTPResponse.Status
+func (r ListStickerPacksResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListStickerPacksResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateStickerPackResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *StickerPack
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateStickerPackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateStickerPackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteStickerPackResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteStickerPackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteStickerPackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RenameStickerPackResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RenameStickerPackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RenameStickerPackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AddStickerToPackResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *Sticker
+}
+
+// Status returns HTTPResponse.Status
+func (r AddStickerToPackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AddStickerToPackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RemoveStickerFromPackResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RemoveStickerFromPackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveStickerFromPackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetStickerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetStickerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetStickerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetSurveyCurrentResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -30081,6 +33253,27 @@ func (r UpdateTagResponse) StatusCode() int {
 	return 0
 }
 
+type RemoveUploadResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RemoveUploadResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveUploadResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetUploadResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -30124,6 +33317,41 @@ func (r ListUsersResponse) StatusCode() int {
 	return 0
 }
 
+type ExplainUserPermissionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Allowed    *bool   `json:"allowed,omitempty"`
+		ChannelId  *string `json:"channel_id"`
+		IsOwner    *bool   `json:"is_owner,omitempty"`
+		Permission *string `json:"permission,omitempty"`
+		PublicKey  *string `json:"public_key,omitempty"`
+		Sources    *[]struct {
+			ChannelId *string                               `json:"channel_id"`
+			Kind      *ExplainUserPermissions200SourcesKind `json:"kind,omitempty"`
+			RoleId    *string                               `json:"role_id,omitempty"`
+			RoleName  *string                               `json:"role_name,omitempty"`
+		} `json:"sources,omitempty"`
+	}
+}
+type ExplainUserPermissions200SourcesKind string
+
+// Status returns HTTPResponse.Status
+func (r ExplainUserPermissionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ExplainUserPermissionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetUserProfileResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -30154,41 +33382,6 @@ func (r GetUserProfileResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetUserProfileResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type ExplainUserPermissionsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *struct {
-		Allowed    *bool   `json:"allowed,omitempty"`
-		ChannelId  *string `json:"channel_id"`
-		IsOwner    *bool   `json:"is_owner,omitempty"`
-		Permission *string `json:"permission,omitempty"`
-		PublicKey  *string `json:"public_key,omitempty"`
-		Sources    *[]struct {
-			ChannelId *string                               `json:"channel_id"`
-			Kind      *ExplainUserPermissions200SourcesKind `json:"kind,omitempty"`
-			RoleId    *string                               `json:"role_id,omitempty"`
-			RoleName  *string                               `json:"role_name,omitempty"`
-		} `json:"sources,omitempty"`
-	}
-}
-type ExplainUserPermissions200SourcesKind string
-
-// Status returns HTTPResponse.Status
-func (r ExplainUserPermissionsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ExplainUserPermissionsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -30259,28 +33452,6 @@ func (r SetUserRoleResponse) StatusCode() int {
 	return 0
 }
 
-type ListVoiceActiveUsersResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]string
-}
-
-// Status returns HTTPResponse.Status
-func (r ListVoiceActiveUsersResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListVoiceActiveUsersResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type LeaveVoiceResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -30323,27 +33494,6 @@ func (r ListVoiceParticipantsResponse) StatusCode() int {
 	return 0
 }
 
-type ListVoicePopulationsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r ListVoicePopulationsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListVoicePopulationsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type ExecuteWebhookResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -30363,6 +33513,27 @@ func (r ExecuteWebhookResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ExecuteWebhookResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetWidgetPageResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWidgetPageResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWidgetPageResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -30390,6 +33561,66 @@ func (r ConnectWebSocketResponse) StatusCode() int {
 	return 0
 }
 
+type CreateWsTicketResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		ExpiresIn int    `json:"expires_in"`
+		Ticket    string `json:"ticket"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateWsTicketResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateWsTicketResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// GetAdminApplicationWithResponse request returning *GetAdminApplicationResponse
+func (c *ClientWithResponses) GetAdminApplicationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminApplicationResponse, error) {
+	rsp, err := c.GetAdminApplication(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAdminApplicationResponse(rsp)
+}
+
+// SetAdminApplicationWithBodyWithResponse request with arbitrary body returning *SetAdminApplicationResponse
+func (c *ClientWithResponses) SetAdminApplicationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetAdminApplicationResponse, error) {
+	rsp, err := c.SetAdminApplicationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAdminApplicationResponse(rsp)
+}
+
+func (c *ClientWithResponses) SetAdminApplicationWithResponse(ctx context.Context, body SetAdminApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*SetAdminApplicationResponse, error) {
+	rsp, err := c.SetAdminApplication(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetAdminApplicationResponse(rsp)
+}
+
+// GetAdminApplicationResponseWithResponse request returning *GetAdminApplicationResponseResponse
+func (c *ClientWithResponses) GetAdminApplicationResponseWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetAdminApplicationResponseResponse, error) {
+	rsp, err := c.GetAdminApplicationResponse(ctx, pubkey, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAdminApplicationResponseResponse(rsp)
+}
+
 // ListAdminAuditLogWithResponse request returning *ListAdminAuditLogResponse
 func (c *ClientWithResponses) ListAdminAuditLogWithResponse(ctx context.Context, params *ListAdminAuditLogParams, reqEditors ...RequestEditorFn) (*ListAdminAuditLogResponse, error) {
 	rsp, err := c.ListAdminAuditLog(ctx, params, reqEditors...)
@@ -30397,6 +33628,15 @@ func (c *ClientWithResponses) ListAdminAuditLogWithResponse(ctx context.Context,
 		return nil, err
 	}
 	return ParseListAdminAuditLogResponse(rsp)
+}
+
+// ListAdminIssuedBadgesWithResponse request returning *ListAdminIssuedBadgesResponse
+func (c *ClientWithResponses) ListAdminIssuedBadgesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminIssuedBadgesResponse, error) {
+	rsp, err := c.ListAdminIssuedBadges(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAdminIssuedBadgesResponse(rsp)
 }
 
 // IssueAdminBadgeWithBodyWithResponse request with arbitrary body returning *IssueAdminBadgeResponse
@@ -30414,15 +33654,6 @@ func (c *ClientWithResponses) IssueAdminBadgeWithResponse(ctx context.Context, b
 		return nil, err
 	}
 	return ParseIssueAdminBadgeResponse(rsp)
-}
-
-// ListAdminIssuedBadgesWithResponse request returning *ListAdminIssuedBadgesResponse
-func (c *ClientWithResponses) ListAdminIssuedBadgesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminIssuedBadgesResponse, error) {
-	rsp, err := c.ListAdminIssuedBadges(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListAdminIssuedBadgesResponse(rsp)
 }
 
 // RevokeAdminIssuedBadgeWithResponse request returning *RevokeAdminIssuedBadgeResponse
@@ -30539,12 +33770,21 @@ func (c *ClientWithResponses) CreateAdminBanlistSourceWithResponse(ctx context.C
 }
 
 // ListAdminCertsWithResponse request returning *ListAdminCertsResponse
-func (c *ClientWithResponses) ListAdminCertsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminCertsResponse, error) {
-	rsp, err := c.ListAdminCerts(ctx, reqEditors...)
+func (c *ClientWithResponses) ListAdminCertsWithResponse(ctx context.Context, params *ListAdminCertsParams, reqEditors ...RequestEditorFn) (*ListAdminCertsResponse, error) {
+	rsp, err := c.ListAdminCerts(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseListAdminCertsResponse(rsp)
+}
+
+// RevokeAdminCertWithResponse request returning *RevokeAdminCertResponse
+func (c *ClientWithResponses) RevokeAdminCertWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*RevokeAdminCertResponse, error) {
+	rsp, err := c.RevokeAdminCert(ctx, pubkey, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeAdminCertResponse(rsp)
 }
 
 // IssueAdminCertWithResponse request returning *IssueAdminCertResponse
@@ -30571,15 +33811,6 @@ func (c *ClientWithResponses) CreateAdminCertBadgeWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParseCreateAdminCertBadgeResponse(rsp)
-}
-
-// RevokeAdminCertWithResponse request returning *RevokeAdminCertResponse
-func (c *ClientWithResponses) RevokeAdminCertWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*RevokeAdminCertResponse, error) {
-	rsp, err := c.RevokeAdminCert(ctx, pubkey, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseRevokeAdminCertResponse(rsp)
 }
 
 // SignAdminDirectoryListingWithBodyWithResponse request with arbitrary body returning *SignAdminDirectoryListingResponse
@@ -30844,6 +34075,23 @@ func (c *ClientWithResponses) UpdateAdminSettingsCertsWithResponse(ctx context.C
 	return ParseUpdateAdminSettingsCertsResponse(rsp)
 }
 
+// PatchAdminSettingsChallengeWithBodyWithResponse request with arbitrary body returning *PatchAdminSettingsChallengeResponse
+func (c *ClientWithResponses) PatchAdminSettingsChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAdminSettingsChallengeResponse, error) {
+	rsp, err := c.PatchAdminSettingsChallengeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchAdminSettingsChallengeResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchAdminSettingsChallengeWithResponse(ctx context.Context, body PatchAdminSettingsChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAdminSettingsChallengeResponse, error) {
+	rsp, err := c.PatchAdminSettingsChallenge(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchAdminSettingsChallengeResponse(rsp)
+}
+
 // UpdateAdminSettingsListingWithBodyWithResponse request with arbitrary body returning *UpdateAdminSettingsListingResponse
 func (c *ClientWithResponses) UpdateAdminSettingsListingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAdminSettingsListingResponse, error) {
 	rsp, err := c.UpdateAdminSettingsListingWithBody(ctx, contentType, body, reqEditors...)
@@ -30859,6 +34107,58 @@ func (c *ClientWithResponses) UpdateAdminSettingsListingWithResponse(ctx context
 		return nil, err
 	}
 	return ParseUpdateAdminSettingsListingResponse(rsp)
+}
+
+// PatchAdminSettingsLobbyWithBodyWithResponse request with arbitrary body returning *PatchAdminSettingsLobbyResponse
+func (c *ClientWithResponses) PatchAdminSettingsLobbyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAdminSettingsLobbyResponse, error) {
+	rsp, err := c.PatchAdminSettingsLobbyWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchAdminSettingsLobbyResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchAdminSettingsLobbyWithResponse(ctx context.Context, body PatchAdminSettingsLobbyJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAdminSettingsLobbyResponse, error) {
+	rsp, err := c.PatchAdminSettingsLobby(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchAdminSettingsLobbyResponse(rsp)
+}
+
+// GetLockdownSettingsWithResponse request returning *GetLockdownSettingsResponse
+func (c *ClientWithResponses) GetLockdownSettingsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLockdownSettingsResponse, error) {
+	rsp, err := c.GetLockdownSettings(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetLockdownSettingsResponse(rsp)
+}
+
+// PutLockdownSettingsWithBodyWithResponse request with arbitrary body returning *PutLockdownSettingsResponse
+func (c *ClientWithResponses) PutLockdownSettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutLockdownSettingsResponse, error) {
+	rsp, err := c.PutLockdownSettingsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutLockdownSettingsResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutLockdownSettingsWithResponse(ctx context.Context, body PutLockdownSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*PutLockdownSettingsResponse, error) {
+	rsp, err := c.PutLockdownSettings(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutLockdownSettingsResponse(rsp)
+}
+
+// GetAdminSettingsModerationWithResponse request returning *GetAdminSettingsModerationResponse
+func (c *ClientWithResponses) GetAdminSettingsModerationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminSettingsModerationResponse, error) {
+	rsp, err := c.GetAdminSettingsModeration(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAdminSettingsModerationResponse(rsp)
 }
 
 // UpdateAdminSettingsModerationWithBodyWithResponse request with arbitrary body returning *UpdateAdminSettingsModerationResponse
@@ -30930,6 +34230,77 @@ func (c *ClientWithResponses) UpdateAdminSettingsTagsWithResponse(ctx context.Co
 	return ParseUpdateAdminSettingsTagsResponse(rsp)
 }
 
+// GetWidgetSettingsWithResponse request returning *GetWidgetSettingsResponse
+func (c *ClientWithResponses) GetWidgetSettingsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetWidgetSettingsResponse, error) {
+	rsp, err := c.GetWidgetSettings(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWidgetSettingsResponse(rsp)
+}
+
+// PutWidgetSettingsWithBodyWithResponse request with arbitrary body returning *PutWidgetSettingsResponse
+func (c *ClientWithResponses) PutWidgetSettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutWidgetSettingsResponse, error) {
+	rsp, err := c.PutWidgetSettingsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutWidgetSettingsResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutWidgetSettingsWithResponse(ctx context.Context, body PutWidgetSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*PutWidgetSettingsResponse, error) {
+	rsp, err := c.PutWidgetSettings(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutWidgetSettingsResponse(rsp)
+}
+
+// ListStoredStickersWithResponse request returning *ListStoredStickersResponse
+func (c *ClientWithResponses) ListStoredStickersWithResponse(ctx context.Context, params *ListStoredStickersParams, reqEditors ...RequestEditorFn) (*ListStoredStickersResponse, error) {
+	rsp, err := c.ListStoredStickers(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListStoredStickersResponse(rsp)
+}
+
+// ListStickerBlocklistWithResponse request returning *ListStickerBlocklistResponse
+func (c *ClientWithResponses) ListStickerBlocklistWithResponse(ctx context.Context, params *ListStickerBlocklistParams, reqEditors ...RequestEditorFn) (*ListStickerBlocklistResponse, error) {
+	rsp, err := c.ListStickerBlocklist(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListStickerBlocklistResponse(rsp)
+}
+
+// UnblockStickerWithResponse request returning *UnblockStickerResponse
+func (c *ClientWithResponses) UnblockStickerWithResponse(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*UnblockStickerResponse, error) {
+	rsp, err := c.UnblockSticker(ctx, sha256, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUnblockStickerResponse(rsp)
+}
+
+// GetStickerUsageWithResponse request returning *GetStickerUsageResponse
+func (c *ClientWithResponses) GetStickerUsageWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetStickerUsageResponse, error) {
+	rsp, err := c.GetStickerUsage(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetStickerUsageResponse(rsp)
+}
+
+// DeleteStoredStickerWithResponse request returning *DeleteStoredStickerResponse
+func (c *ClientWithResponses) DeleteStoredStickerWithResponse(ctx context.Context, id string, params *DeleteStoredStickerParams, reqEditors ...RequestEditorFn) (*DeleteStoredStickerResponse, error) {
+	rsp, err := c.DeleteStoredSticker(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteStoredStickerResponse(rsp)
+}
+
 // GetAdminSurveyWithResponse request returning *GetAdminSurveyResponse
 func (c *ClientWithResponses) GetAdminSurveyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminSurveyResponse, error) {
 	rsp, err := c.GetAdminSurvey(ctx, reqEditors...)
@@ -30957,8 +34328,8 @@ func (c *ClientWithResponses) SetAdminSurveyWithResponse(ctx context.Context, bo
 }
 
 // ListAdminSurveyResponsesWithResponse request returning *ListAdminSurveyResponsesResponse
-func (c *ClientWithResponses) ListAdminSurveyResponsesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminSurveyResponsesResponse, error) {
-	rsp, err := c.ListAdminSurveyResponses(ctx, reqEditors...)
+func (c *ClientWithResponses) ListAdminSurveyResponsesWithResponse(ctx context.Context, params *ListAdminSurveyResponsesParams, reqEditors ...RequestEditorFn) (*ListAdminSurveyResponsesResponse, error) {
+	rsp, err := c.ListAdminSurveyResponses(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -30972,6 +34343,15 @@ func (c *ClientWithResponses) GetAdminSurveyResponseWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParseGetAdminSurveyResponseResponse(rsp)
+}
+
+// ListAdminWebhooksWithResponse request returning *ListAdminWebhooksResponse
+func (c *ClientWithResponses) ListAdminWebhooksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAdminWebhooksResponse, error) {
+	rsp, err := c.ListAdminWebhooks(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAdminWebhooksResponse(rsp)
 }
 
 // CreateAdminWebhookWithBodyWithResponse request with arbitrary body returning *CreateAdminWebhookResponse
@@ -30998,6 +34378,15 @@ func (c *ClientWithResponses) DeleteAdminWebhookWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseDeleteAdminWebhookResponse(rsp)
+}
+
+// RegenerateAdminWebhookWithResponse request returning *RegenerateAdminWebhookResponse
+func (c *ClientWithResponses) RegenerateAdminWebhookWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*RegenerateAdminWebhookResponse, error) {
+	rsp, err := c.RegenerateAdminWebhook(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRegenerateAdminWebhookResponse(rsp)
 }
 
 // ListAlliancesWithResponse request returning *ListAlliancesResponse
@@ -31123,8 +34512,8 @@ func (c *ClientWithResponses) DeleteAllianceChannelWithResponse(ctx context.Cont
 }
 
 // ListAllianceChannelMessagesWithResponse request returning *ListAllianceChannelMessagesResponse
-func (c *ClientWithResponses) ListAllianceChannelMessagesWithResponse(ctx context.Context, allianceId string, channelId string, reqEditors ...RequestEditorFn) (*ListAllianceChannelMessagesResponse, error) {
-	rsp, err := c.ListAllianceChannelMessages(ctx, allianceId, channelId, reqEditors...)
+func (c *ClientWithResponses) ListAllianceChannelMessagesWithResponse(ctx context.Context, allianceId string, channelId string, params *ListAllianceChannelMessagesParams, reqEditors ...RequestEditorFn) (*ListAllianceChannelMessagesResponse, error) {
+	rsp, err := c.ListAllianceChannelMessages(ctx, allianceId, channelId, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -31340,6 +34729,15 @@ func (c *ClientWithResponses) CreateAlliancePushInviteWithResponse(ctx context.C
 	return ParseCreateAlliancePushInviteResponse(rsp)
 }
 
+// GetAllianceUploadWithResponse request returning *GetAllianceUploadResponse
+func (c *ClientWithResponses) GetAllianceUploadWithResponse(ctx context.Context, allianceId string, id string, reqEditors ...RequestEditorFn) (*GetAllianceUploadResponse, error) {
+	rsp, err := c.GetAllianceUpload(ctx, allianceId, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAllianceUploadResponse(rsp)
+}
+
 // CreateAllianceVoiceGrantWithBodyWithResponse request with arbitrary body returning *CreateAllianceVoiceGrantResponse
 func (c *ClientWithResponses) CreateAllianceVoiceGrantWithBodyWithResponse(ctx context.Context, allianceId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAllianceVoiceGrantResponse, error) {
 	rsp, err := c.CreateAllianceVoiceGrantWithBody(ctx, allianceId, contentType, body, reqEditors...)
@@ -31355,6 +34753,41 @@ func (c *ClientWithResponses) CreateAllianceVoiceGrantWithResponse(ctx context.C
 		return nil, err
 	}
 	return ParseCreateAllianceVoiceGrantResponse(rsp)
+}
+
+// GetApplicationWithResponse request returning *GetApplicationResponse
+func (c *ClientWithResponses) GetApplicationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApplicationResponse, error) {
+	rsp, err := c.GetApplication(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApplicationResponse(rsp)
+}
+
+// SubmitApplicationWithBodyWithResponse request with arbitrary body returning *SubmitApplicationResponse
+func (c *ClientWithResponses) SubmitApplicationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SubmitApplicationResponse, error) {
+	rsp, err := c.SubmitApplicationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSubmitApplicationResponse(rsp)
+}
+
+func (c *ClientWithResponses) SubmitApplicationWithResponse(ctx context.Context, body SubmitApplicationJSONRequestBody, reqEditors ...RequestEditorFn) (*SubmitApplicationResponse, error) {
+	rsp, err := c.SubmitApplication(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSubmitApplicationResponse(rsp)
+}
+
+// GetApplicationStatusWithResponse request returning *GetApplicationStatusResponse
+func (c *ClientWithResponses) GetApplicationStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApplicationStatusResponse, error) {
+	rsp, err := c.GetApplicationStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApplicationStatusResponse(rsp)
 }
 
 // ListAppsWithResponse request returning *ListAppsResponse
@@ -31381,40 +34814,6 @@ func (c *ClientWithResponses) CreateAuthChallengeWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseCreateAuthChallengeResponse(rsp)
-}
-
-// CreateAuthDeviceTokenWithBodyWithResponse request with arbitrary body returning *CreateAuthDeviceTokenResponse
-func (c *ClientWithResponses) CreateAuthDeviceTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAuthDeviceTokenResponse, error) {
-	rsp, err := c.CreateAuthDeviceTokenWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateAuthDeviceTokenResponse(rsp)
-}
-
-func (c *ClientWithResponses) CreateAuthDeviceTokenWithResponse(ctx context.Context, body CreateAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAuthDeviceTokenResponse, error) {
-	rsp, err := c.CreateAuthDeviceToken(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateAuthDeviceTokenResponse(rsp)
-}
-
-// RedeemAuthDeviceTokenWithBodyWithResponse request with arbitrary body returning *RedeemAuthDeviceTokenResponse
-func (c *ClientWithResponses) RedeemAuthDeviceTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RedeemAuthDeviceTokenResponse, error) {
-	rsp, err := c.RedeemAuthDeviceTokenWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseRedeemAuthDeviceTokenResponse(rsp)
-}
-
-func (c *ClientWithResponses) RedeemAuthDeviceTokenWithResponse(ctx context.Context, body RedeemAuthDeviceTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*RedeemAuthDeviceTokenResponse, error) {
-	rsp, err := c.RedeemAuthDeviceToken(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseRedeemAuthDeviceTokenResponse(rsp)
 }
 
 // VerifyAuthWithBodyWithResponse request with arbitrary body returning *VerifyAuthResponse
@@ -31557,8 +34956,8 @@ func (c *ClientWithResponses) ListCertsRevocationsWithResponse(ctx context.Conte
 }
 
 // GetNewChallengeWithResponse request returning *GetNewChallengeResponse
-func (c *ClientWithResponses) GetNewChallengeWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetNewChallengeResponse, error) {
-	rsp, err := c.GetNewChallenge(ctx, reqEditors...)
+func (c *ClientWithResponses) GetNewChallengeWithResponse(ctx context.Context, params *GetNewChallengeParams, reqEditors ...RequestEditorFn) (*GetNewChallengeResponse, error) {
+	rsp, err := c.GetNewChallenge(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -32114,6 +35513,23 @@ func (c *ClientWithResponses) MarkChannelReadWithResponse(ctx context.Context, c
 		return nil, err
 	}
 	return ParseMarkChannelReadResponse(rsp)
+}
+
+// EnsureChannelStickerWithBodyWithResponse request with arbitrary body returning *EnsureChannelStickerResponse
+func (c *ClientWithResponses) EnsureChannelStickerWithBodyWithResponse(ctx context.Context, channelId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EnsureChannelStickerResponse, error) {
+	rsp, err := c.EnsureChannelStickerWithBody(ctx, channelId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEnsureChannelStickerResponse(rsp)
+}
+
+func (c *ClientWithResponses) EnsureChannelStickerWithResponse(ctx context.Context, channelId string, body EnsureChannelStickerJSONRequestBody, reqEditors ...RequestEditorFn) (*EnsureChannelStickerResponse, error) {
+	rsp, err := c.EnsureChannelSticker(ctx, channelId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEnsureChannelStickerResponse(rsp)
 }
 
 // ListChannelTagsWithResponse request returning *ListChannelTagsResponse
@@ -32730,30 +36146,13 @@ func (c *ClientWithResponses) GetFederationListingWithResponse(ctx context.Conte
 	return ParseGetFederationListingResponse(rsp)
 }
 
-// ListFederationPeersWithResponse request returning *ListFederationPeersResponse
-func (c *ClientWithResponses) ListFederationPeersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListFederationPeersResponse, error) {
-	rsp, err := c.ListFederationPeers(ctx, reqEditors...)
+// FederationGetStickerWithResponse request returning *FederationGetStickerResponse
+func (c *ClientWithResponses) FederationGetStickerWithResponse(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*FederationGetStickerResponse, error) {
+	rsp, err := c.FederationGetSticker(ctx, sha256, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseListFederationPeersResponse(rsp)
-}
-
-// CreateFederationPeerWithBodyWithResponse request with arbitrary body returning *CreateFederationPeerResponse
-func (c *ClientWithResponses) CreateFederationPeerWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error) {
-	rsp, err := c.CreateFederationPeerWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateFederationPeerResponse(rsp)
-}
-
-func (c *ClientWithResponses) CreateFederationPeerWithResponse(ctx context.Context, body CreateFederationPeerJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFederationPeerResponse, error) {
-	rsp, err := c.CreateFederationPeer(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateFederationPeerResponse(rsp)
+	return ParseFederationGetStickerResponse(rsp)
 }
 
 // ListFriendsWithResponse request returning *ListFriendsResponse
@@ -32792,8 +36191,8 @@ func (c *ClientWithResponses) ListPendingFriendsWithResponse(ctx context.Context
 }
 
 // DeleteFriendWithResponse request returning *DeleteFriendResponse
-func (c *ClientWithResponses) DeleteFriendWithResponse(ctx context.Context, publicKey string, reqEditors ...RequestEditorFn) (*DeleteFriendResponse, error) {
-	rsp, err := c.DeleteFriend(ctx, publicKey, reqEditors...)
+func (c *ClientWithResponses) DeleteFriendWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*DeleteFriendResponse, error) {
+	rsp, err := c.DeleteFriend(ctx, pubkey, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -32801,8 +36200,8 @@ func (c *ClientWithResponses) DeleteFriendWithResponse(ctx context.Context, publ
 }
 
 // AcceptFriendWithResponse request returning *AcceptFriendResponse
-func (c *ClientWithResponses) AcceptFriendWithResponse(ctx context.Context, publicKey string, reqEditors ...RequestEditorFn) (*AcceptFriendResponse, error) {
-	rsp, err := c.AcceptFriend(ctx, publicKey, reqEditors...)
+func (c *ClientWithResponses) AcceptFriendWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*AcceptFriendResponse, error) {
+	rsp, err := c.AcceptFriend(ctx, pubkey, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -32887,9 +36286,18 @@ func (c *ClientWithResponses) UpdateHubIconWithResponse(ctx context.Context, ico
 	return ParseUpdateHubIconResponse(rsp)
 }
 
+// GetHubLandingImageWithResponse request returning *GetHubLandingImageResponse
+func (c *ClientWithResponses) GetHubLandingImageWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHubLandingImageResponse, error) {
+	rsp, err := c.GetHubLandingImage(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetHubLandingImageResponse(rsp)
+}
+
 // ListHubMembersWithResponse request returning *ListHubMembersResponse
-func (c *ClientWithResponses) ListHubMembersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListHubMembersResponse, error) {
-	rsp, err := c.ListHubMembers(ctx, reqEditors...)
+func (c *ClientWithResponses) ListHubMembersWithResponse(ctx context.Context, params *ListHubMembersParams, reqEditors ...RequestEditorFn) (*ListHubMembersResponse, error) {
+	rsp, err := c.ListHubMembers(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -32906,12 +36314,29 @@ func (c *ClientWithResponses) ListHubPendingWithResponse(ctx context.Context, pa
 }
 
 // ApproveHubPendingWithResponse request returning *ApproveHubPendingResponse
-func (c *ClientWithResponses) ApproveHubPendingWithResponse(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*ApproveHubPendingResponse, error) {
-	rsp, err := c.ApproveHubPending(ctx, targetKey, reqEditors...)
+func (c *ClientWithResponses) ApproveHubPendingWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*ApproveHubPendingResponse, error) {
+	rsp, err := c.ApproveHubPending(ctx, pubkey, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseApproveHubPendingResponse(rsp)
+}
+
+// RejectHubPendingWithBodyWithResponse request with arbitrary body returning *RejectHubPendingResponse
+func (c *ClientWithResponses) RejectHubPendingWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RejectHubPendingResponse, error) {
+	rsp, err := c.RejectHubPendingWithBody(ctx, pubkey, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRejectHubPendingResponse(rsp)
+}
+
+func (c *ClientWithResponses) RejectHubPendingWithResponse(ctx context.Context, pubkey string, body RejectHubPendingJSONRequestBody, reqEditors ...RequestEditorFn) (*RejectHubPendingResponse, error) {
+	rsp, err := c.RejectHubPending(ctx, pubkey, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRejectHubPendingResponse(rsp)
 }
 
 // GetHubSettingsWithResponse request returning *GetHubSettingsResponse
@@ -32921,40 +36346,6 @@ func (c *ClientWithResponses) GetHubSettingsWithResponse(ctx context.Context, re
 		return nil, err
 	}
 	return ParseGetHubSettingsResponse(rsp)
-}
-
-// SetHubSettingsChallengeWithBodyWithResponse request with arbitrary body returning *SetHubSettingsChallengeResponse
-func (c *ClientWithResponses) SetHubSettingsChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetHubSettingsChallengeResponse, error) {
-	rsp, err := c.SetHubSettingsChallengeWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseSetHubSettingsChallengeResponse(rsp)
-}
-
-func (c *ClientWithResponses) SetHubSettingsChallengeWithResponse(ctx context.Context, body SetHubSettingsChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*SetHubSettingsChallengeResponse, error) {
-	rsp, err := c.SetHubSettingsChallenge(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseSetHubSettingsChallengeResponse(rsp)
-}
-
-// SetHubSettingsLobbyWithBodyWithResponse request with arbitrary body returning *SetHubSettingsLobbyResponse
-func (c *ClientWithResponses) SetHubSettingsLobbyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetHubSettingsLobbyResponse, error) {
-	rsp, err := c.SetHubSettingsLobbyWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseSetHubSettingsLobbyResponse(rsp)
-}
-
-func (c *ClientWithResponses) SetHubSettingsLobbyWithResponse(ctx context.Context, body SetHubSettingsLobbyJSONRequestBody, reqEditors ...RequestEditorFn) (*SetHubSettingsLobbyResponse, error) {
-	rsp, err := c.SetHubSettingsLobby(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseSetHubSettingsLobbyResponse(rsp)
 }
 
 // ListIdentityDmBlocksWithResponse request returning *ListIdentityDmBlocksResponse
@@ -33043,110 +36434,6 @@ func (c *ClientWithResponses) GetIdentityPairingStatusWithResponse(ctx context.C
 	return ParseGetIdentityPairingStatusResponse(rsp)
 }
 
-// GetIdentityDesignationWithResponse request returning *GetIdentityDesignationResponse
-func (c *ClientWithResponses) GetIdentityDesignationWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*GetIdentityDesignationResponse, error) {
-	rsp, err := c.GetIdentityDesignation(ctx, master, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetIdentityDesignationResponse(rsp)
-}
-
-// CreateIdentityDesignationWithBodyWithResponse request with arbitrary body returning *CreateIdentityDesignationResponse
-func (c *ClientWithResponses) CreateIdentityDesignationWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error) {
-	rsp, err := c.CreateIdentityDesignationWithBody(ctx, master, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateIdentityDesignationResponse(rsp)
-}
-
-func (c *ClientWithResponses) CreateIdentityDesignationWithResponse(ctx context.Context, master string, body CreateIdentityDesignationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error) {
-	rsp, err := c.CreateIdentityDesignation(ctx, master, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateIdentityDesignationResponse(rsp)
-}
-
-// ListIdentityDevicesWithResponse request returning *ListIdentityDevicesResponse
-func (c *ClientWithResponses) ListIdentityDevicesWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*ListIdentityDevicesResponse, error) {
-	rsp, err := c.ListIdentityDevices(ctx, master, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListIdentityDevicesResponse(rsp)
-}
-
-// CreateIdentityDeviceWithBodyWithResponse request with arbitrary body returning *CreateIdentityDeviceResponse
-func (c *ClientWithResponses) CreateIdentityDeviceWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error) {
-	rsp, err := c.CreateIdentityDeviceWithBody(ctx, master, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateIdentityDeviceResponse(rsp)
-}
-
-func (c *ClientWithResponses) CreateIdentityDeviceWithResponse(ctx context.Context, master string, body CreateIdentityDeviceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error) {
-	rsp, err := c.CreateIdentityDevice(ctx, master, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateIdentityDeviceResponse(rsp)
-}
-
-// GetIdentityPrefsWithResponse request returning *GetIdentityPrefsResponse
-func (c *ClientWithResponses) GetIdentityPrefsWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*GetIdentityPrefsResponse, error) {
-	rsp, err := c.GetIdentityPrefs(ctx, master, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetIdentityPrefsResponse(rsp)
-}
-
-// SetIdentityPrefsWithBodyWithResponse request with arbitrary body returning *SetIdentityPrefsResponse
-func (c *ClientWithResponses) SetIdentityPrefsWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error) {
-	rsp, err := c.SetIdentityPrefsWithBody(ctx, master, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseSetIdentityPrefsResponse(rsp)
-}
-
-func (c *ClientWithResponses) SetIdentityPrefsWithResponse(ctx context.Context, master string, body SetIdentityPrefsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error) {
-	rsp, err := c.SetIdentityPrefs(ctx, master, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseSetIdentityPrefsResponse(rsp)
-}
-
-// ListIdentityRevocationsWithResponse request returning *ListIdentityRevocationsResponse
-func (c *ClientWithResponses) ListIdentityRevocationsWithResponse(ctx context.Context, master string, reqEditors ...RequestEditorFn) (*ListIdentityRevocationsResponse, error) {
-	rsp, err := c.ListIdentityRevocations(ctx, master, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListIdentityRevocationsResponse(rsp)
-}
-
-// CreateIdentityRevocationWithBodyWithResponse request with arbitrary body returning *CreateIdentityRevocationResponse
-func (c *ClientWithResponses) CreateIdentityRevocationWithBodyWithResponse(ctx context.Context, master string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error) {
-	rsp, err := c.CreateIdentityRevocationWithBody(ctx, master, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateIdentityRevocationResponse(rsp)
-}
-
-func (c *ClientWithResponses) CreateIdentityRevocationWithResponse(ctx context.Context, master string, body CreateIdentityRevocationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error) {
-	rsp, err := c.CreateIdentityRevocation(ctx, master, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateIdentityRevocationResponse(rsp)
-}
-
 // ListIdentityCertsWithResponse request returning *ListIdentityCertsResponse
 func (c *ClientWithResponses) ListIdentityCertsWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*ListIdentityCertsResponse, error) {
 	rsp, err := c.ListIdentityCerts(ctx, pubkey, reqEditors...)
@@ -33154,6 +36441,58 @@ func (c *ClientWithResponses) ListIdentityCertsWithResponse(ctx context.Context,
 		return nil, err
 	}
 	return ParseListIdentityCertsResponse(rsp)
+}
+
+// GetIdentityDesignationWithResponse request returning *GetIdentityDesignationResponse
+func (c *ClientWithResponses) GetIdentityDesignationWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetIdentityDesignationResponse, error) {
+	rsp, err := c.GetIdentityDesignation(ctx, pubkey, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetIdentityDesignationResponse(rsp)
+}
+
+// CreateIdentityDesignationWithBodyWithResponse request with arbitrary body returning *CreateIdentityDesignationResponse
+func (c *ClientWithResponses) CreateIdentityDesignationWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error) {
+	rsp, err := c.CreateIdentityDesignationWithBody(ctx, pubkey, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateIdentityDesignationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateIdentityDesignationWithResponse(ctx context.Context, pubkey string, body CreateIdentityDesignationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityDesignationResponse, error) {
+	rsp, err := c.CreateIdentityDesignation(ctx, pubkey, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateIdentityDesignationResponse(rsp)
+}
+
+// ListIdentityDevicesWithResponse request returning *ListIdentityDevicesResponse
+func (c *ClientWithResponses) ListIdentityDevicesWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*ListIdentityDevicesResponse, error) {
+	rsp, err := c.ListIdentityDevices(ctx, pubkey, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListIdentityDevicesResponse(rsp)
+}
+
+// CreateIdentityDeviceWithBodyWithResponse request with arbitrary body returning *CreateIdentityDeviceResponse
+func (c *ClientWithResponses) CreateIdentityDeviceWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error) {
+	rsp, err := c.CreateIdentityDeviceWithBody(ctx, pubkey, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateIdentityDeviceResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateIdentityDeviceWithResponse(ctx context.Context, pubkey string, body CreateIdentityDeviceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityDeviceResponse, error) {
+	rsp, err := c.CreateIdentityDevice(ctx, pubkey, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateIdentityDeviceResponse(rsp)
 }
 
 // GetIdentityDhKeyWithResponse request returning *GetIdentityDhKeyResponse
@@ -33180,6 +36519,58 @@ func (c *ClientWithResponses) SetIdentityDhKeyWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseSetIdentityDhKeyResponse(rsp)
+}
+
+// GetIdentityPrefsWithResponse request returning *GetIdentityPrefsResponse
+func (c *ClientWithResponses) GetIdentityPrefsWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetIdentityPrefsResponse, error) {
+	rsp, err := c.GetIdentityPrefs(ctx, pubkey, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetIdentityPrefsResponse(rsp)
+}
+
+// SetIdentityPrefsWithBodyWithResponse request with arbitrary body returning *SetIdentityPrefsResponse
+func (c *ClientWithResponses) SetIdentityPrefsWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error) {
+	rsp, err := c.SetIdentityPrefsWithBody(ctx, pubkey, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetIdentityPrefsResponse(rsp)
+}
+
+func (c *ClientWithResponses) SetIdentityPrefsWithResponse(ctx context.Context, pubkey string, body SetIdentityPrefsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetIdentityPrefsResponse, error) {
+	rsp, err := c.SetIdentityPrefs(ctx, pubkey, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetIdentityPrefsResponse(rsp)
+}
+
+// ListIdentityRevocationsWithResponse request returning *ListIdentityRevocationsResponse
+func (c *ClientWithResponses) ListIdentityRevocationsWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*ListIdentityRevocationsResponse, error) {
+	rsp, err := c.ListIdentityRevocations(ctx, pubkey, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListIdentityRevocationsResponse(rsp)
+}
+
+// CreateIdentityRevocationWithBodyWithResponse request with arbitrary body returning *CreateIdentityRevocationResponse
+func (c *ClientWithResponses) CreateIdentityRevocationWithBodyWithResponse(ctx context.Context, pubkey string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error) {
+	rsp, err := c.CreateIdentityRevocationWithBody(ctx, pubkey, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateIdentityRevocationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateIdentityRevocationWithResponse(ctx context.Context, pubkey string, body CreateIdentityRevocationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateIdentityRevocationResponse, error) {
+	rsp, err := c.CreateIdentityRevocation(ctx, pubkey, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateIdentityRevocationResponse(rsp)
 }
 
 // GetInfoWithResponse request returning *GetInfoResponse
@@ -33242,15 +36633,6 @@ func (c *ClientWithResponses) RedeemJoinInviteWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseRedeemJoinInviteResponse(rsp)
-}
-
-// GetKeyRotationWithResponse request returning *GetKeyRotationResponse
-func (c *ClientWithResponses) GetKeyRotationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetKeyRotationResponse, error) {
-	rsp, err := c.GetKeyRotation(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetKeyRotationResponse(rsp)
 }
 
 // GetLobbyStatusWithResponse request returning *GetLobbyStatusResponse
@@ -33418,41 +36800,6 @@ func (c *ClientWithResponses) UpdateMeCredentialWithResponse(ctx context.Context
 	return ParseUpdateMeCredentialResponse(rsp)
 }
 
-// ListMeDevicesWithResponse request returning *ListMeDevicesResponse
-func (c *ClientWithResponses) ListMeDevicesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListMeDevicesResponse, error) {
-	rsp, err := c.ListMeDevices(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListMeDevicesResponse(rsp)
-}
-
-// DeleteMeDeviceWithResponse request returning *DeleteMeDeviceResponse
-func (c *ClientWithResponses) DeleteMeDeviceWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteMeDeviceResponse, error) {
-	rsp, err := c.DeleteMeDevice(ctx, id, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDeleteMeDeviceResponse(rsp)
-}
-
-// AckMeEventsWithBodyWithResponse request with arbitrary body returning *AckMeEventsResponse
-func (c *ClientWithResponses) AckMeEventsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AckMeEventsResponse, error) {
-	rsp, err := c.AckMeEventsWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseAckMeEventsResponse(rsp)
-}
-
-func (c *ClientWithResponses) AckMeEventsWithResponse(ctx context.Context, body AckMeEventsJSONRequestBody, reqEditors ...RequestEditorFn) (*AckMeEventsResponse, error) {
-	rsp, err := c.AckMeEvents(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseAckMeEventsResponse(rsp)
-}
-
 // ListMeEventsWithResponse request returning *ListMeEventsResponse
 func (c *ClientWithResponses) ListMeEventsWithResponse(ctx context.Context, params *ListMeEventsParams, reqEditors ...RequestEditorFn) (*ListMeEventsResponse, error) {
 	rsp, err := c.ListMeEvents(ctx, params, reqEditors...)
@@ -33515,8 +36862,8 @@ func (c *ClientWithResponses) CreateModerationBanWithResponse(ctx context.Contex
 }
 
 // DeleteModerationBanWithResponse request returning *DeleteModerationBanResponse
-func (c *ClientWithResponses) DeleteModerationBanWithResponse(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*DeleteModerationBanResponse, error) {
-	rsp, err := c.DeleteModerationBan(ctx, targetKey, reqEditors...)
+func (c *ClientWithResponses) DeleteModerationBanWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*DeleteModerationBanResponse, error) {
+	rsp, err := c.DeleteModerationBan(ctx, pubkey, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -33576,8 +36923,8 @@ func (c *ClientWithResponses) CreateModerationMuteWithResponse(ctx context.Conte
 }
 
 // DeleteModerationMuteWithResponse request returning *DeleteModerationMuteResponse
-func (c *ClientWithResponses) DeleteModerationMuteWithResponse(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*DeleteModerationMuteResponse, error) {
-	rsp, err := c.DeleteModerationMute(ctx, targetKey, reqEditors...)
+func (c *ClientWithResponses) DeleteModerationMuteWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*DeleteModerationMuteResponse, error) {
+	rsp, err := c.DeleteModerationMute(ctx, pubkey, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -33628,8 +36975,8 @@ func (c *ClientWithResponses) CreateModerationVoiceMuteWithResponse(ctx context.
 }
 
 // DeleteModerationVoiceMuteWithResponse request returning *DeleteModerationVoiceMuteResponse
-func (c *ClientWithResponses) DeleteModerationVoiceMuteWithResponse(ctx context.Context, targetKey string, reqEditors ...RequestEditorFn) (*DeleteModerationVoiceMuteResponse, error) {
-	rsp, err := c.DeleteModerationVoiceMute(ctx, targetKey, reqEditors...)
+func (c *ClientWithResponses) DeleteModerationVoiceMuteWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*DeleteModerationVoiceMuteResponse, error) {
+	rsp, err := c.DeleteModerationVoiceMute(ctx, pubkey, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -33689,6 +37036,15 @@ func (c *ClientWithResponses) GetPreviewWithResponse(ctx context.Context, params
 	return ParseGetPreviewResponse(rsp)
 }
 
+// GetPreviewImageWithResponse request returning *GetPreviewImageResponse
+func (c *ClientWithResponses) GetPreviewImageWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetPreviewImageResponse, error) {
+	rsp, err := c.GetPreviewImage(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPreviewImageResponse(rsp)
+}
+
 // GetProfileWithResponse request returning *GetProfileResponse
 func (c *ClientWithResponses) GetProfileWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetProfileResponse, error) {
 	rsp, err := c.GetProfile(ctx, pubkey, reqEditors...)
@@ -33713,6 +37069,15 @@ func (c *ClientWithResponses) SetProfileWithResponse(ctx context.Context, pubkey
 		return nil, err
 	}
 	return ParseSetProfileResponse(rsp)
+}
+
+// GetPublicWidgetWithResponse request returning *GetPublicWidgetResponse
+func (c *ClientWithResponses) GetPublicWidgetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPublicWidgetResponse, error) {
+	rsp, err := c.GetPublicWidget(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPublicWidgetResponse(rsp)
 }
 
 // ListRecoveryContactsWithResponse request returning *ListRecoveryContactsResponse
@@ -33757,6 +37122,15 @@ func (c *ClientWithResponses) ListRecoveryRequestsWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParseListRecoveryRequestsResponse(rsp)
+}
+
+// ListRecoveryRequestsToAttestWithResponse request returning *ListRecoveryRequestsToAttestResponse
+func (c *ClientWithResponses) ListRecoveryRequestsToAttestWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRecoveryRequestsToAttestResponse, error) {
+	rsp, err := c.ListRecoveryRequestsToAttest(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListRecoveryRequestsToAttestResponse(rsp)
 }
 
 // RotateRecoveryKeyWithBodyWithResponse request with arbitrary body returning *RotateRecoveryKeyResponse
@@ -33878,6 +37252,23 @@ func (c *ClientWithResponses) CreateRoleWithResponse(ctx context.Context, body C
 		return nil, err
 	}
 	return ParseCreateRoleResponse(rsp)
+}
+
+// ReorderRolesWithBodyWithResponse request with arbitrary body returning *ReorderRolesResponse
+func (c *ClientWithResponses) ReorderRolesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ReorderRolesResponse, error) {
+	rsp, err := c.ReorderRolesWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseReorderRolesResponse(rsp)
+}
+
+func (c *ClientWithResponses) ReorderRolesWithResponse(ctx context.Context, body ReorderRolesJSONRequestBody, reqEditors ...RequestEditorFn) (*ReorderRolesResponse, error) {
+	rsp, err := c.ReorderRoles(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseReorderRolesResponse(rsp)
 }
 
 // DeleteRoleWithResponse request returning *DeleteRoleResponse
@@ -34011,6 +37402,93 @@ func (c *ClientWithResponses) MarkSoundboardSoundPlayedWithResponse(ctx context.
 	return ParseMarkSoundboardSoundPlayedResponse(rsp)
 }
 
+// ListStickerPacksWithResponse request returning *ListStickerPacksResponse
+func (c *ClientWithResponses) ListStickerPacksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListStickerPacksResponse, error) {
+	rsp, err := c.ListStickerPacks(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListStickerPacksResponse(rsp)
+}
+
+// CreateStickerPackWithBodyWithResponse request with arbitrary body returning *CreateStickerPackResponse
+func (c *ClientWithResponses) CreateStickerPackWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateStickerPackResponse, error) {
+	rsp, err := c.CreateStickerPackWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateStickerPackResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateStickerPackWithResponse(ctx context.Context, body CreateStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateStickerPackResponse, error) {
+	rsp, err := c.CreateStickerPack(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateStickerPackResponse(rsp)
+}
+
+// DeleteStickerPackWithResponse request returning *DeleteStickerPackResponse
+func (c *ClientWithResponses) DeleteStickerPackWithResponse(ctx context.Context, packId string, reqEditors ...RequestEditorFn) (*DeleteStickerPackResponse, error) {
+	rsp, err := c.DeleteStickerPack(ctx, packId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteStickerPackResponse(rsp)
+}
+
+// RenameStickerPackWithBodyWithResponse request with arbitrary body returning *RenameStickerPackResponse
+func (c *ClientWithResponses) RenameStickerPackWithBodyWithResponse(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameStickerPackResponse, error) {
+	rsp, err := c.RenameStickerPackWithBody(ctx, packId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRenameStickerPackResponse(rsp)
+}
+
+func (c *ClientWithResponses) RenameStickerPackWithResponse(ctx context.Context, packId string, body RenameStickerPackJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameStickerPackResponse, error) {
+	rsp, err := c.RenameStickerPack(ctx, packId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRenameStickerPackResponse(rsp)
+}
+
+// AddStickerToPackWithBodyWithResponse request with arbitrary body returning *AddStickerToPackResponse
+func (c *ClientWithResponses) AddStickerToPackWithBodyWithResponse(ctx context.Context, packId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddStickerToPackResponse, error) {
+	rsp, err := c.AddStickerToPackWithBody(ctx, packId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddStickerToPackResponse(rsp)
+}
+
+func (c *ClientWithResponses) AddStickerToPackWithResponse(ctx context.Context, packId string, body AddStickerToPackJSONRequestBody, reqEditors ...RequestEditorFn) (*AddStickerToPackResponse, error) {
+	rsp, err := c.AddStickerToPack(ctx, packId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddStickerToPackResponse(rsp)
+}
+
+// RemoveStickerFromPackWithResponse request returning *RemoveStickerFromPackResponse
+func (c *ClientWithResponses) RemoveStickerFromPackWithResponse(ctx context.Context, packId string, stickerId string, reqEditors ...RequestEditorFn) (*RemoveStickerFromPackResponse, error) {
+	rsp, err := c.RemoveStickerFromPack(ctx, packId, stickerId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveStickerFromPackResponse(rsp)
+}
+
+// GetStickerWithResponse request returning *GetStickerResponse
+func (c *ClientWithResponses) GetStickerWithResponse(ctx context.Context, sha256 string, reqEditors ...RequestEditorFn) (*GetStickerResponse, error) {
+	rsp, err := c.GetSticker(ctx, sha256, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetStickerResponse(rsp)
+}
+
 // GetSurveyCurrentWithResponse request returning *GetSurveyCurrentResponse
 func (c *ClientWithResponses) GetSurveyCurrentWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSurveyCurrentResponse, error) {
 	rsp, err := c.GetSurveyCurrent(ctx, reqEditors...)
@@ -34063,9 +37541,18 @@ func (c *ClientWithResponses) UpdateTagWithResponse(ctx context.Context, tagId s
 	return ParseUpdateTagResponse(rsp)
 }
 
+// RemoveUploadWithResponse request returning *RemoveUploadResponse
+func (c *ClientWithResponses) RemoveUploadWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*RemoveUploadResponse, error) {
+	rsp, err := c.RemoveUpload(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveUploadResponse(rsp)
+}
+
 // GetUploadWithResponse request returning *GetUploadResponse
-func (c *ClientWithResponses) GetUploadWithResponse(ctx context.Context, filename string, reqEditors ...RequestEditorFn) (*GetUploadResponse, error) {
-	rsp, err := c.GetUpload(ctx, filename, reqEditors...)
+func (c *ClientWithResponses) GetUploadWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetUploadResponse, error) {
+	rsp, err := c.GetUpload(ctx, id, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -34081,6 +37568,15 @@ func (c *ClientWithResponses) ListUsersWithResponse(ctx context.Context, params 
 	return ParseListUsersResponse(rsp)
 }
 
+// ExplainUserPermissionsWithResponse request returning *ExplainUserPermissionsResponse
+func (c *ClientWithResponses) ExplainUserPermissionsWithResponse(ctx context.Context, pubkey string, params *ExplainUserPermissionsParams, reqEditors ...RequestEditorFn) (*ExplainUserPermissionsResponse, error) {
+	rsp, err := c.ExplainUserPermissions(ctx, pubkey, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseExplainUserPermissionsResponse(rsp)
+}
+
 // GetUserProfileWithResponse request returning *GetUserProfileResponse
 func (c *ClientWithResponses) GetUserProfileWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*GetUserProfileResponse, error) {
 	rsp, err := c.GetUserProfile(ctx, pubkey, reqEditors...)
@@ -34090,18 +37586,9 @@ func (c *ClientWithResponses) GetUserProfileWithResponse(ctx context.Context, pu
 	return ParseGetUserProfileResponse(rsp)
 }
 
-// ExplainUserPermissionsWithResponse request returning *ExplainUserPermissionsResponse
-func (c *ClientWithResponses) ExplainUserPermissionsWithResponse(ctx context.Context, publicKey string, params *ExplainUserPermissionsParams, reqEditors ...RequestEditorFn) (*ExplainUserPermissionsResponse, error) {
-	rsp, err := c.ExplainUserPermissions(ctx, publicKey, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseExplainUserPermissionsResponse(rsp)
-}
-
 // ListUserRolesWithResponse request returning *ListUserRolesResponse
-func (c *ClientWithResponses) ListUserRolesWithResponse(ctx context.Context, publicKey string, reqEditors ...RequestEditorFn) (*ListUserRolesResponse, error) {
-	rsp, err := c.ListUserRoles(ctx, publicKey, reqEditors...)
+func (c *ClientWithResponses) ListUserRolesWithResponse(ctx context.Context, pubkey string, reqEditors ...RequestEditorFn) (*ListUserRolesResponse, error) {
+	rsp, err := c.ListUserRoles(ctx, pubkey, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -34109,8 +37596,8 @@ func (c *ClientWithResponses) ListUserRolesWithResponse(ctx context.Context, pub
 }
 
 // DeleteUserRoleWithResponse request returning *DeleteUserRoleResponse
-func (c *ClientWithResponses) DeleteUserRoleWithResponse(ctx context.Context, publicKey string, roleId string, reqEditors ...RequestEditorFn) (*DeleteUserRoleResponse, error) {
-	rsp, err := c.DeleteUserRole(ctx, publicKey, roleId, reqEditors...)
+func (c *ClientWithResponses) DeleteUserRoleWithResponse(ctx context.Context, pubkey string, roleId string, reqEditors ...RequestEditorFn) (*DeleteUserRoleResponse, error) {
+	rsp, err := c.DeleteUserRole(ctx, pubkey, roleId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -34118,21 +37605,12 @@ func (c *ClientWithResponses) DeleteUserRoleWithResponse(ctx context.Context, pu
 }
 
 // SetUserRoleWithResponse request returning *SetUserRoleResponse
-func (c *ClientWithResponses) SetUserRoleWithResponse(ctx context.Context, publicKey string, roleId string, reqEditors ...RequestEditorFn) (*SetUserRoleResponse, error) {
-	rsp, err := c.SetUserRole(ctx, publicKey, roleId, reqEditors...)
+func (c *ClientWithResponses) SetUserRoleWithResponse(ctx context.Context, pubkey string, roleId string, reqEditors ...RequestEditorFn) (*SetUserRoleResponse, error) {
+	rsp, err := c.SetUserRole(ctx, pubkey, roleId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseSetUserRoleResponse(rsp)
-}
-
-// ListVoiceActiveUsersWithResponse request returning *ListVoiceActiveUsersResponse
-func (c *ClientWithResponses) ListVoiceActiveUsersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListVoiceActiveUsersResponse, error) {
-	rsp, err := c.ListVoiceActiveUsers(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListVoiceActiveUsersResponse(rsp)
 }
 
 // LeaveVoiceWithBodyWithResponse request with arbitrary body returning *LeaveVoiceResponse
@@ -34161,15 +37639,6 @@ func (c *ClientWithResponses) ListVoiceParticipantsWithResponse(ctx context.Cont
 	return ParseListVoiceParticipantsResponse(rsp)
 }
 
-// ListVoicePopulationsWithResponse request returning *ListVoicePopulationsResponse
-func (c *ClientWithResponses) ListVoicePopulationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListVoicePopulationsResponse, error) {
-	rsp, err := c.ListVoicePopulations(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListVoicePopulationsResponse(rsp)
-}
-
 // ExecuteWebhookWithBodyWithResponse request with arbitrary body returning *ExecuteWebhookResponse
 func (c *ClientWithResponses) ExecuteWebhookWithBodyWithResponse(ctx context.Context, id string, token string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ExecuteWebhookResponse, error) {
 	rsp, err := c.ExecuteWebhookWithBody(ctx, id, token, contentType, body, reqEditors...)
@@ -34187,6 +37656,15 @@ func (c *ClientWithResponses) ExecuteWebhookWithResponse(ctx context.Context, id
 	return ParseExecuteWebhookResponse(rsp)
 }
 
+// GetWidgetPageWithResponse request returning *GetWidgetPageResponse
+func (c *ClientWithResponses) GetWidgetPageWithResponse(ctx context.Context, params *GetWidgetPageParams, reqEditors ...RequestEditorFn) (*GetWidgetPageResponse, error) {
+	rsp, err := c.GetWidgetPage(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWidgetPageResponse(rsp)
+}
+
 // ConnectWebSocketWithResponse request returning *ConnectWebSocketResponse
 func (c *ClientWithResponses) ConnectWebSocketWithResponse(ctx context.Context, params *ConnectWebSocketParams, reqEditors ...RequestEditorFn) (*ConnectWebSocketResponse, error) {
 	rsp, err := c.ConnectWebSocket(ctx, params, reqEditors...)
@@ -34194,6 +37672,63 @@ func (c *ClientWithResponses) ConnectWebSocketWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseConnectWebSocketResponse(rsp)
+}
+
+// CreateWsTicketWithResponse request returning *CreateWsTicketResponse
+func (c *ClientWithResponses) CreateWsTicketWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CreateWsTicketResponse, error) {
+	rsp, err := c.CreateWsTicket(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateWsTicketResponse(rsp)
+}
+
+// ParseGetAdminApplicationResponse parses an HTTP response from a GetAdminApplicationWithResponse call
+func ParseGetAdminApplicationResponse(rsp *http.Response) (*GetAdminApplicationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAdminApplicationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSetAdminApplicationResponse parses an HTTP response from a SetAdminApplicationWithResponse call
+func ParseSetAdminApplicationResponse(rsp *http.Response) (*SetAdminApplicationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetAdminApplicationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetAdminApplicationResponseResponse parses an HTTP response from a GetAdminApplicationResponseWithResponse call
+func ParseGetAdminApplicationResponseResponse(rsp *http.Response) (*GetAdminApplicationResponseResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAdminApplicationResponseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
 }
 
 // ParseListAdminAuditLogResponse parses an HTTP response from a ListAdminAuditLogWithResponse call
@@ -34211,23 +37746,36 @@ func ParseListAdminAuditLogResponse(rsp *http.Response) (*ListAdminAuditLogRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Entries *[]struct {
-				ActorPubkey  *string                 `json:"actor_pubkey"`
-				At           *int64                  `json:"at,omitempty"`
-				ChannelId    *string                 `json:"channel_id"`
-				EventType    *string                 `json:"event_type,omitempty"`
-				Payload      *map[string]interface{} `json:"payload,omitempty"`
-				Seq          *int64                  `json:"seq,omitempty"`
-				TargetPubkey *string                 `json:"target_pubkey"`
-			} `json:"entries,omitempty"`
-			NextCursor *int64 `json:"next_cursor"`
+		var dest []struct {
+			ActorPubkey  *string                 `json:"actor_pubkey"`
+			At           *int64                  `json:"at,omitempty"`
+			ChannelId    *string                 `json:"channel_id"`
+			EventType    *string                 `json:"event_type,omitempty"`
+			Payload      *map[string]interface{} `json:"payload,omitempty"`
+			Seq          *int64                  `json:"seq,omitempty"`
+			TargetPubkey *string                 `json:"target_pubkey"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseListAdminIssuedBadgesResponse parses an HTTP response from a ListAdminIssuedBadgesWithResponse call
+func ParseListAdminIssuedBadgesResponse(rsp *http.Response) (*ListAdminIssuedBadgesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAdminIssuedBadgesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -34264,22 +37812,6 @@ func ParseIssueAdminBadgeResponse(rsp *http.Response) (*IssueAdminBadgeResponse,
 		}
 		response.JSON201 = &dest
 
-	}
-
-	return response, nil
-}
-
-// ParseListAdminIssuedBadgesResponse parses an HTTP response from a ListAdminIssuedBadgesWithResponse call
-func ParseListAdminIssuedBadgesResponse(rsp *http.Response) (*ListAdminIssuedBadgesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListAdminIssuedBadgesResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -34543,6 +38075,22 @@ func ParseListAdminCertsResponse(rsp *http.Response) (*ListAdminCertsResponse, e
 	return response, nil
 }
 
+// ParseRevokeAdminCertResponse parses an HTTP response from a RevokeAdminCertWithResponse call
+func ParseRevokeAdminCertResponse(rsp *http.Response) (*RevokeAdminCertResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RevokeAdminCertResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseIssueAdminCertResponse parses an HTTP response from a IssueAdminCertWithResponse call
 func ParseIssueAdminCertResponse(rsp *http.Response) (*IssueAdminCertResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -34590,22 +38138,6 @@ func ParseCreateAdminCertBadgeResponse(rsp *http.Response) (*CreateAdminCertBadg
 		}
 		response.JSON201 = &dest
 
-	}
-
-	return response, nil
-}
-
-// ParseRevokeAdminCertResponse parses an HTTP response from a RevokeAdminCertWithResponse call
-func ParseRevokeAdminCertResponse(rsp *http.Response) (*RevokeAdminCertResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &RevokeAdminCertResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -34857,11 +38389,9 @@ func ParseListAdminOutgoingWebhookSubscriptionsResponse(rsp *http.Response) (*Li
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Subscriptions *[]struct {
-				Channels *[]string `json:"channels"`
-				Event    *string   `json:"event,omitempty"`
-			} `json:"subscriptions,omitempty"`
+		var dest []struct {
+			Channels *[]string `json:"channels"`
+			Event    *string   `json:"event,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -35147,6 +38677,22 @@ func ParseUpdateAdminSettingsCertsResponse(rsp *http.Response) (*UpdateAdminSett
 	return response, nil
 }
 
+// ParsePatchAdminSettingsChallengeResponse parses an HTTP response from a PatchAdminSettingsChallengeWithResponse call
+func ParsePatchAdminSettingsChallengeResponse(rsp *http.Response) (*PatchAdminSettingsChallengeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchAdminSettingsChallengeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseUpdateAdminSettingsListingResponse parses an HTTP response from a UpdateAdminSettingsListingWithResponse call
 func ParseUpdateAdminSettingsListingResponse(rsp *http.Response) (*UpdateAdminSettingsListingResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -35158,6 +38704,107 @@ func ParseUpdateAdminSettingsListingResponse(rsp *http.Response) (*UpdateAdminSe
 	response := &UpdateAdminSettingsListingResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParsePatchAdminSettingsLobbyResponse parses an HTTP response from a PatchAdminSettingsLobbyWithResponse call
+func ParsePatchAdminSettingsLobbyResponse(rsp *http.Response) (*PatchAdminSettingsLobbyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchAdminSettingsLobbyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetLockdownSettingsResponse parses an HTTP response from a GetLockdownSettingsWithResponse call
+func ParseGetLockdownSettingsResponse(rsp *http.Response) (*GetLockdownSettingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetLockdownSettingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest LockdownSettings
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutLockdownSettingsResponse parses an HTTP response from a PutLockdownSettingsWithResponse call
+func ParsePutLockdownSettingsResponse(rsp *http.Response) (*PutLockdownSettingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutLockdownSettingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest LockdownSettings
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAdminSettingsModerationResponse parses an HTTP response from a GetAdminSettingsModerationWithResponse call
+func ParseGetAdminSettingsModerationResponse(rsp *http.Response) (*GetAdminSettingsModerationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAdminSettingsModerationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			CircuitOpen      bool   `json:"circuit_open"`
+			CircuitOpenUntil *int64 `json:"circuit_open_until"`
+			WebhookSecretSet bool   `json:"webhook_secret_set"`
+
+			// WebhookUrl Omitted unless set.
+			WebhookUrl *string `json:"webhook_url,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil
@@ -35268,6 +38915,190 @@ func ParseUpdateAdminSettingsTagsResponse(rsp *http.Response) (*UpdateAdminSetti
 	return response, nil
 }
 
+// ParseGetWidgetSettingsResponse parses an HTTP response from a GetWidgetSettingsWithResponse call
+func ParseGetWidgetSettingsResponse(rsp *http.Response) (*GetWidgetSettingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWidgetSettingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WidgetSettings
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutWidgetSettingsResponse parses an HTTP response from a PutWidgetSettingsWithResponse call
+func ParsePutWidgetSettingsResponse(rsp *http.Response) (*PutWidgetSettingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutWidgetSettingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WidgetSettings
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListStoredStickersResponse parses an HTTP response from a ListStoredStickersWithResponse call
+func ParseListStoredStickersResponse(rsp *http.Response) (*ListStoredStickersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListStoredStickersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []AdminSticker
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListStickerBlocklistResponse parses an HTTP response from a ListStickerBlocklistWithResponse call
+func ParseListStickerBlocklistResponse(rsp *http.Response) (*ListStickerBlocklistResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListStickerBlocklistResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []struct {
+			BlockedBy *string `json:"blocked_by,omitempty"`
+			CreatedAt *int64  `json:"created_at,omitempty"`
+			Reason    *string `json:"reason"`
+			Sha256    *string `json:"sha256,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUnblockStickerResponse parses an HTTP response from a UnblockStickerWithResponse call
+func ParseUnblockStickerResponse(rsp *http.Response) (*UnblockStickerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UnblockStickerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetStickerUsageResponse parses an HTTP response from a GetStickerUsageWithResponse call
+func ParseGetStickerUsageResponse(rsp *http.Response) (*GetStickerUsageResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetStickerUsageResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Copies *struct {
+				Bytes    *int64 `json:"bytes,omitempty"`
+				CapBytes *int64 `json:"cap_bytes,omitempty"`
+				Count    *int64 `json:"count,omitempty"`
+			} `json:"copies,omitempty"`
+
+			// Evictions Copies whose bytes were dropped for space and have not come back
+			Evictions *int64 `json:"evictions,omitempty"`
+			Packs     *struct {
+				Bytes    *int64 `json:"bytes,omitempty"`
+				CapBytes *int64 `json:"cap_bytes,omitempty"`
+				Count    *int64 `json:"count,omitempty"`
+			} `json:"packs,omitempty"`
+
+			// PacksWarning Packs are at or past `stickers_packs_warn_percent` of their cap
+			PacksWarning *bool `json:"packs_warning,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteStoredStickerResponse parses an HTTP response from a DeleteStoredStickerWithResponse call
+func ParseDeleteStoredStickerResponse(rsp *http.Response) (*DeleteStoredStickerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteStoredStickerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseGetAdminSurveyResponse parses an HTTP response from a GetAdminSurveyWithResponse call
 func ParseGetAdminSurveyResponse(rsp *http.Response) (*GetAdminSurveyResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -35332,6 +39163,42 @@ func ParseGetAdminSurveyResponseResponse(rsp *http.Response) (*GetAdminSurveyRes
 	return response, nil
 }
 
+// ParseListAdminWebhooksResponse parses an HTTP response from a ListAdminWebhooksWithResponse call
+func ParseListAdminWebhooksResponse(rsp *http.Response) (*ListAdminWebhooksResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAdminWebhooksResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []struct {
+			ChannelId   string  `json:"channel_id"`
+			ChannelName *string `json:"channel_name"`
+			CreatedAt   int64   `json:"created_at"`
+			CreatedBy   string  `json:"created_by"`
+			DisplayName string  `json:"display_name"`
+			Id          string  `json:"id"`
+
+			// WebhookUrl Base URL only; the token is stored hashed and cannot be recovered. Regenerate to get a working URL.
+			WebhookUrl string `json:"webhook_url"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseCreateAdminWebhookResponse parses an HTTP response from a CreateAdminWebhookWithResponse call
 func ParseCreateAdminWebhookResponse(rsp *http.Response) (*CreateAdminWebhookResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -35375,6 +39242,36 @@ func ParseDeleteAdminWebhookResponse(rsp *http.Response) (*DeleteAdminWebhookRes
 	response := &DeleteAdminWebhookResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseRegenerateAdminWebhookResponse parses an HTTP response from a RegenerateAdminWebhookWithResponse call
+func ParseRegenerateAdminWebhookResponse(rsp *http.Response) (*RegenerateAdminWebhookResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RegenerateAdminWebhookResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			DisplayName string `json:"display_name"`
+			Id          string `json:"id"`
+			WebhookUrl  string `json:"webhook_url"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil
@@ -35627,11 +39524,7 @@ func ParseListAllianceChannelPostsResponse(rsp *http.Response) (*ListAllianceCha
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			// Cursor Omitted on the last page
-			Cursor *string        `json:"cursor,omitempty"`
-			Posts  *[]PostSummary `json:"posts,omitempty"`
-		}
+		var dest []PostSummary
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -35959,6 +39852,22 @@ func ParseCreateAlliancePushInviteResponse(rsp *http.Response) (*CreateAllianceP
 	return response, nil
 }
 
+// ParseGetAllianceUploadResponse parses an HTTP response from a GetAllianceUploadWithResponse call
+func ParseGetAllianceUploadResponse(rsp *http.Response) (*GetAllianceUploadResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAllianceUploadResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseCreateAllianceVoiceGrantResponse parses an HTTP response from a CreateAllianceVoiceGrantWithResponse call
 func ParseCreateAllianceVoiceGrantResponse(rsp *http.Response) (*CreateAllianceVoiceGrantResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -35981,6 +39890,70 @@ func ParseCreateAllianceVoiceGrantResponse(rsp *http.Response) (*CreateAllianceV
 			Grant          *map[string]interface{} `json:"grant,omitempty"`
 			OwnerHubPubkey *string                 `json:"owner_hub_pubkey,omitempty"`
 			OwnerHubUrl    *string                 `json:"owner_hub_url,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApplicationResponse parses an HTTP response from a GetApplicationWithResponse call
+func ParseGetApplicationResponse(rsp *http.Response) (*GetApplicationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApplicationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSubmitApplicationResponse parses an HTTP response from a SubmitApplicationWithResponse call
+func ParseSubmitApplicationResponse(rsp *http.Response) (*SubmitApplicationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SubmitApplicationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetApplicationStatusResponse parses an HTTP response from a GetApplicationStatusWithResponse call
+func ParseGetApplicationStatusResponse(rsp *http.Response) (*GetApplicationStatusResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApplicationStatusResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Reason *string `json:"reason,omitempty"`
+
+			// RetryAfter Unix seconds from which a rejected applicant may apply again.
+			RetryAfter *int64                       `json:"retry_after,omitempty"`
+			State      GetApplicationStatus200State `json:"state"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -36052,68 +40025,8 @@ func ParseCreateAuthChallengeResponse(rsp *http.Response) (*CreateAuthChallengeR
 			// Challenge 32 random bytes, lowercase hex (64 chars)
 			Challenge string `json:"challenge"`
 
-			// Scheme Present when the answer may be signed over "wavvon/auth-challenge/v1\0" || hex-decoded challenge (wire-format.md). Omitted by older hubs, which take a signature over the raw decoded bytes only. A hub that sends it still accepts the raw form.
+			// Scheme tagged-v2 from a current hub or farm: the answer must be bound to the server's public key (wire-format.md), and no other answer is accepted. tagged-v1 from an older one.
 			Scheme *CreateAuthChallenge200Scheme `json:"scheme,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseCreateAuthDeviceTokenResponse parses an HTTP response from a CreateAuthDeviceTokenWithResponse call
-func ParseCreateAuthDeviceTokenResponse(rsp *http.Response) (*CreateAuthDeviceTokenResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CreateAuthDeviceTokenResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			ExpiresAt *int64  `json:"expires_at,omitempty"`
-			Id        *string `json:"id,omitempty"`
-
-			// Token Shown once — store hashed on the client
-			Token *string `json:"token,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseRedeemAuthDeviceTokenResponse parses an HTTP response from a RedeemAuthDeviceTokenWithResponse call
-func ParseRedeemAuthDeviceTokenResponse(rsp *http.Response) (*RedeemAuthDeviceTokenResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &RedeemAuthDeviceTokenResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			SessionToken *string `json:"session_token,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -37041,11 +40954,7 @@ func ParseListChannelPostsResponse(rsp *http.Response) (*ListChannelPostsRespons
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			// Cursor Omitted on the last page
-			Cursor *string        `json:"cursor,omitempty"`
-			Posts  *[]PostSummary `json:"posts,omitempty"`
-		}
+		var dest []PostSummary
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -37097,15 +41006,12 @@ func ParseSearchChannelPostsResponse(rsp *http.Response) (*SearchChannelPostsRes
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Cursor  *string `json:"cursor,omitempty"`
-			Results *[]struct {
-				BodySnippet  *string `json:"body_snippet,omitempty"`
-				IsReply      *bool   `json:"is_reply,omitempty"`
-				PostId       *string `json:"post_id,omitempty"`
-				ReplyId      *string `json:"reply_id,omitempty"`
-				TitleSnippet *string `json:"title_snippet,omitempty"`
-			} `json:"results,omitempty"`
+		var dest []struct {
+			BodySnippet  *string `json:"body_snippet,omitempty"`
+			IsReply      *bool   `json:"is_reply,omitempty"`
+			PostId       *string `json:"post_id,omitempty"`
+			ReplyId      *string `json:"reply_id,omitempty"`
+			TitleSnippet *string `json:"title_snippet,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -37476,6 +41382,39 @@ func ParseMarkChannelReadResponse(rsp *http.Response) (*MarkChannelReadResponse,
 	return response, nil
 }
 
+// ParseEnsureChannelStickerResponse parses an HTTP response from a EnsureChannelStickerWithResponse call
+func ParseEnsureChannelStickerResponse(rsp *http.Response) (*EnsureChannelStickerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &EnsureChannelStickerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Sticker
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Sticker
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListChannelTagsResponse parses an HTTP response from a ListChannelTagsWithResponse call
 func ParseListChannelTagsResponse(rsp *http.Response) (*ListChannelTagsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -37591,15 +41530,7 @@ func ParseUploadChannelFileResponse(rsp *http.Response) (*UploadChannelFileRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest struct {
-			Filename  *string `json:"filename,omitempty"`
-			Id        *string `json:"id,omitempty"`
-			MimeType  *string `json:"mime_type,omitempty"`
-			SizeBytes *int64  `json:"size_bytes,omitempty"`
-
-			// Url Path under /uploads/
-			Url *string `json:"url,omitempty"`
-		}
+		var dest AttachmentRef
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -38534,31 +42465,15 @@ func ParseGetFederationListingResponse(rsp *http.Response) (*GetFederationListin
 	return response, nil
 }
 
-// ParseListFederationPeersResponse parses an HTTP response from a ListFederationPeersWithResponse call
-func ParseListFederationPeersResponse(rsp *http.Response) (*ListFederationPeersResponse, error) {
+// ParseFederationGetStickerResponse parses an HTTP response from a FederationGetStickerWithResponse call
+func ParseFederationGetStickerResponse(rsp *http.Response) (*FederationGetStickerResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &ListFederationPeersResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseCreateFederationPeerResponse parses an HTTP response from a CreateFederationPeerWithResponse call
-func ParseCreateFederationPeerResponse(rsp *http.Response) (*CreateFederationPeerResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CreateFederationPeerResponse{
+	response := &FederationGetStickerResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -38662,7 +42577,13 @@ func ParseGetHealthResponse(rsp *http.Response) (*GetHealthResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
-			Status *string `json:"status,omitempty"`
+			// DbStatus `ok`, or `error: ` followed by the reason the database did not answer.
+			DbStatus      string `json:"db_status"`
+			Status        string `json:"status"`
+			UptimeSeconds int64  `json:"uptime_seconds"`
+
+			// Version The hub's version.
+			Version string `json:"version"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -38754,6 +42675,22 @@ func ParseUpdateHubIconResponse(rsp *http.Response) (*UpdateHubIconResponse, err
 	return response, nil
 }
 
+// ParseGetHubLandingImageResponse parses an HTTP response from a GetHubLandingImageWithResponse call
+func ParseGetHubLandingImageResponse(rsp *http.Response) (*GetHubLandingImageResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetHubLandingImageResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseListHubMembersResponse parses an HTTP response from a ListHubMembersWithResponse call
 func ParseListHubMembersResponse(rsp *http.Response) (*ListHubMembersResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -38793,6 +42730,25 @@ func ParseListHubPendingResponse(rsp *http.Response) (*ListHubPendingResponse, e
 		HTTPResponse: rsp,
 	}
 
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []struct {
+			// BanEvasionMatch The banned identity whose last address this joiner arrived from, when that is why they wait. Approving clears it. Present on hubs advertising `admission.banevasion`.
+			BanEvasionMatch *string `json:"ban_evasion_match"`
+			DisplayName     *string `json:"display_name"`
+			FirstSeenAt     int64   `json:"first_seen_at"`
+
+			// HasApplication Whether they filled the join application.
+			HasApplication *bool  `json:"has_application,omitempty"`
+			PublicKey      string `json:"public_key"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
 	return response, nil
 }
 
@@ -38812,6 +42768,22 @@ func ParseApproveHubPendingResponse(rsp *http.Response) (*ApproveHubPendingRespo
 	return response, nil
 }
 
+// ParseRejectHubPendingResponse parses an HTTP response from a RejectHubPendingWithResponse call
+func ParseRejectHubPendingResponse(rsp *http.Response) (*RejectHubPendingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RejectHubPendingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseGetHubSettingsResponse parses an HTTP response from a GetHubSettingsWithResponse call
 func ParseGetHubSettingsResponse(rsp *http.Response) (*GetHubSettingsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -38821,38 +42793,6 @@ func ParseGetHubSettingsResponse(rsp *http.Response) (*GetHubSettingsResponse, e
 	}
 
 	response := &GetHubSettingsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseSetHubSettingsChallengeResponse parses an HTTP response from a SetHubSettingsChallengeWithResponse call
-func ParseSetHubSettingsChallengeResponse(rsp *http.Response) (*SetHubSettingsChallengeResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &SetHubSettingsChallengeResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseSetHubSettingsLobbyResponse parses an HTTP response from a SetHubSettingsLobbyWithResponse call
-func ParseSetHubSettingsLobbyResponse(rsp *http.Response) (*SetHubSettingsLobbyResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &SetHubSettingsLobbyResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -38968,6 +42908,32 @@ func ParseGetIdentityPairingStatusResponse(rsp *http.Response) (*GetIdentityPair
 	return response, nil
 }
 
+// ParseListIdentityCertsResponse parses an HTTP response from a ListIdentityCertsWithResponse call
+func ParseListIdentityCertsResponse(rsp *http.Response) (*ListIdentityCertsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListIdentityCertsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Certification
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetIdentityDesignationResponse parses an HTTP response from a GetIdentityDesignationWithResponse call
 func ParseGetIdentityDesignationResponse(rsp *http.Response) (*GetIdentityDesignationResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -39032,6 +42998,38 @@ func ParseCreateIdentityDeviceResponse(rsp *http.Response) (*CreateIdentityDevic
 	return response, nil
 }
 
+// ParseGetIdentityDhKeyResponse parses an HTTP response from a GetIdentityDhKeyWithResponse call
+func ParseGetIdentityDhKeyResponse(rsp *http.Response) (*GetIdentityDhKeyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetIdentityDhKeyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSetIdentityDhKeyResponse parses an HTTP response from a SetIdentityDhKeyWithResponse call
+func ParseSetIdentityDhKeyResponse(rsp *http.Response) (*SetIdentityDhKeyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetIdentityDhKeyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseGetIdentityPrefsResponse parses an HTTP response from a GetIdentityPrefsWithResponse call
 func ParseGetIdentityPrefsResponse(rsp *http.Response) (*GetIdentityPrefsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -39089,64 +43087,6 @@ func ParseCreateIdentityRevocationResponse(rsp *http.Response) (*CreateIdentityR
 	}
 
 	response := &CreateIdentityRevocationResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseListIdentityCertsResponse parses an HTTP response from a ListIdentityCertsWithResponse call
-func ParseListIdentityCertsResponse(rsp *http.Response) (*ListIdentityCertsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListIdentityCertsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Certification
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetIdentityDhKeyResponse parses an HTTP response from a GetIdentityDhKeyWithResponse call
-func ParseGetIdentityDhKeyResponse(rsp *http.Response) (*GetIdentityDhKeyResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetIdentityDhKeyResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseSetIdentityDhKeyResponse parses an HTTP response from a SetIdentityDhKeyWithResponse call
-func ParseSetIdentityDhKeyResponse(rsp *http.Response) (*SetIdentityDhKeyResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &SetIdentityDhKeyResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -39265,8 +43205,15 @@ func ParseGetJoinInviteResponse(rsp *http.Response) (*GetJoinInviteResponse, err
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
 			Code        *string `json:"code,omitempty"`
+			Description *string `json:"description"`
 			HubName     *string `json:"hub_name,omitempty"`
-			MemberCount *int64  `json:"member_count,omitempty"`
+
+			// Landing How the invite landing looks (hubs advertising `hub.landing`). Each field is omitted when unset.
+			Landing     *Landing `json:"landing,omitempty"`
+			MemberCount *int64   `json:"member_count,omitempty"`
+
+			// OnlineCount Connected members, not counting invisible ones.
+			OnlineCount *int64 `json:"online_count,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -39287,22 +43234,6 @@ func ParseRedeemJoinInviteResponse(rsp *http.Response) (*RedeemJoinInviteRespons
 	}
 
 	response := &RedeemJoinInviteResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseGetKeyRotationResponse parses an HTTP response from a GetKeyRotationWithResponse call
-func ParseGetKeyRotationResponse(rsp *http.Response) (*GetKeyRotationResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetKeyRotationResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -39596,70 +43527,6 @@ func ParseUpdateMeCredentialResponse(rsp *http.Response) (*UpdateMeCredentialRes
 	return response, nil
 }
 
-// ParseListMeDevicesResponse parses an HTTP response from a ListMeDevicesWithResponse call
-func ParseListMeDevicesResponse(rsp *http.Response) (*ListMeDevicesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListMeDevicesResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []struct {
-			CreatedAt  *int64  `json:"created_at,omitempty"`
-			DeviceName *string `json:"device_name"`
-			ExpiresAt  *int64  `json:"expires_at,omitempty"`
-			Id         *string `json:"id,omitempty"`
-			LastUsedAt *int64  `json:"last_used_at"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseDeleteMeDeviceResponse parses an HTTP response from a DeleteMeDeviceWithResponse call
-func ParseDeleteMeDeviceResponse(rsp *http.Response) (*DeleteMeDeviceResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DeleteMeDeviceResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseAckMeEventsResponse parses an HTTP response from a AckMeEventsWithResponse call
-func ParseAckMeEventsResponse(rsp *http.Response) (*AckMeEventsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &AckMeEventsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
 // ParseListMeEventsResponse parses an HTTP response from a ListMeEventsWithResponse call
 func ParseListMeEventsResponse(rsp *http.Response) (*ListMeEventsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -39675,21 +43542,23 @@ func ParseListMeEventsResponse(rsp *http.Response) (*ListMeEventsResponse, error
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Events []struct {
-				// CreatedAt Unix seconds
-				CreatedAt int64  `json:"created_at"`
-				EventType string `json:"event_type"`
-				Id        string `json:"id"`
-
-				// Payload The event payload as a JSON-encoded string; parse it
-				Payload string `json:"payload"`
-			} `json:"events"`
-		}
+		var dest []HubEvent
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 410:
+		var dest struct {
+			// EarliestAt Unix seconds
+			EarliestAt  int64               `json:"earliest_at"`
+			EarliestSeq int64               `json:"earliest_seq"`
+			Type        ListMeEvents410Type `json:"type"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON410 = &dest
 
 	}
 
@@ -39972,6 +43841,9 @@ func ParseListPermissionsResponse(rsp *http.Response) (*ListPermissionsResponse,
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
 			Permissions *[]struct {
+				// Category The section a roles screen shows it under: messages, voice, moderation, members, channels, events, hub, integrations, federation. Hubs advertising `permissions.categories`.
+				Category *string `json:"category,omitempty"`
+
 				// Group Dotted prefix, for grouping without re-splitting the id.
 				Group *string `json:"group,omitempty"`
 				Id    *string `json:"id,omitempty"`
@@ -40080,15 +43952,33 @@ func ParseGetPreviewResponse(rsp *http.Response) (*GetPreviewResponse, error) {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
 			Description *string `json:"description"`
-			ImageUrl    *string `json:"image_url"`
-			Title       *string `json:"title"`
-			Url         *string `json:"url,omitempty"`
+
+			// ImageUrl The page's image as fetched and served by this hub (`/preview/image/{id}` under its public URL), so readers never contact the third-party host. Null when the page has no PNG/JPEG/GIF/WebP/AVIF image of at most 1 MB, or the hub has no public URL.
+			ImageUrl *string `json:"image_url"`
+			Title    *string `json:"title"`
+			Url      *string `json:"url,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseGetPreviewImageResponse parses an HTTP response from a GetPreviewImageWithResponse call
+func ParseGetPreviewImageResponse(rsp *http.Response) (*GetPreviewImageResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPreviewImageResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -40121,6 +44011,32 @@ func ParseSetProfileResponse(rsp *http.Response) (*SetProfileResponse, error) {
 	response := &SetProfileResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetPublicWidgetResponse parses an HTTP response from a GetPublicWidgetWithResponse call
+func ParseGetPublicWidgetResponse(rsp *http.Response) (*GetPublicWidgetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPublicWidgetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WidgetData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil
@@ -40212,6 +44128,40 @@ func ParseListRecoveryRequestsResponse(rsp *http.Response) (*ListRecoveryRequest
 			Id               *string `json:"id,omitempty"`
 			NewPubkey        *string `json:"new_pubkey,omitempty"`
 			Status           *string `json:"status,omitempty"`
+			Threshold        *int64  `json:"threshold,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListRecoveryRequestsToAttestResponse parses an HTTP response from a ListRecoveryRequestsToAttestWithResponse call
+func ParseListRecoveryRequestsToAttestResponse(rsp *http.Response) (*ListRecoveryRequestsToAttestResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListRecoveryRequestsToAttestResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []struct {
+			AttestationCount *int64  `json:"attestation_count,omitempty"`
+			CreatedAt        *int64  `json:"created_at,omitempty"`
+			Id               *string `json:"id,omitempty"`
+			NewPubkey        *string `json:"new_pubkey,omitempty"`
+			OldPubkey        *string `json:"old_pubkey,omitempty"`
+			Reason           *string `json:"reason"`
 			Threshold        *int64  `json:"threshold,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -40448,6 +44398,32 @@ func ParseCreateRoleResponse(rsp *http.Response) (*CreateRoleResponse, error) {
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseReorderRolesResponse parses an HTTP response from a ReorderRolesWithResponse call
+func ParseReorderRolesResponse(rsp *http.Response) (*ReorderRolesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ReorderRolesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Role
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	}
 
@@ -40717,6 +44693,148 @@ func ParseMarkSoundboardSoundPlayedResponse(rsp *http.Response) (*MarkSoundboard
 	return response, nil
 }
 
+// ParseListStickerPacksResponse parses an HTTP response from a ListStickerPacksWithResponse call
+func ParseListStickerPacksResponse(rsp *http.Response) (*ListStickerPacksResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListStickerPacksResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []StickerPack
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateStickerPackResponse parses an HTTP response from a CreateStickerPackWithResponse call
+func ParseCreateStickerPackResponse(rsp *http.Response) (*CreateStickerPackResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateStickerPackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest StickerPack
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteStickerPackResponse parses an HTTP response from a DeleteStickerPackWithResponse call
+func ParseDeleteStickerPackResponse(rsp *http.Response) (*DeleteStickerPackResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteStickerPackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseRenameStickerPackResponse parses an HTTP response from a RenameStickerPackWithResponse call
+func ParseRenameStickerPackResponse(rsp *http.Response) (*RenameStickerPackResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RenameStickerPackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseAddStickerToPackResponse parses an HTTP response from a AddStickerToPackWithResponse call
+func ParseAddStickerToPackResponse(rsp *http.Response) (*AddStickerToPackResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AddStickerToPackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest Sticker
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRemoveStickerFromPackResponse parses an HTTP response from a RemoveStickerFromPackWithResponse call
+func ParseRemoveStickerFromPackResponse(rsp *http.Response) (*RemoveStickerFromPackResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveStickerFromPackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetStickerResponse parses an HTTP response from a GetStickerWithResponse call
+func ParseGetStickerResponse(rsp *http.Response) (*GetStickerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetStickerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseGetSurveyCurrentResponse parses an HTTP response from a GetSurveyCurrentWithResponse call
 func ParseGetSurveyCurrentResponse(rsp *http.Response) (*GetSurveyCurrentResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -40791,6 +44909,22 @@ func ParseUpdateTagResponse(rsp *http.Response) (*UpdateTagResponse, error) {
 	return response, nil
 }
 
+// ParseRemoveUploadResponse parses an HTTP response from a RemoveUploadWithResponse call
+func ParseRemoveUploadResponse(rsp *http.Response) (*RemoveUploadResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveUploadResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseGetUploadResponse parses an HTTP response from a GetUploadWithResponse call
 func ParseGetUploadResponse(rsp *http.Response) (*GetUploadResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -40833,6 +44967,44 @@ func ParseListUsersResponse(rsp *http.Response) (*ListUsersResponse, error) {
 	return response, nil
 }
 
+// ParseExplainUserPermissionsResponse parses an HTTP response from a ExplainUserPermissionsWithResponse call
+func ParseExplainUserPermissionsResponse(rsp *http.Response) (*ExplainUserPermissionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ExplainUserPermissionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Allowed    *bool   `json:"allowed,omitempty"`
+			ChannelId  *string `json:"channel_id"`
+			IsOwner    *bool   `json:"is_owner,omitempty"`
+			Permission *string `json:"permission,omitempty"`
+			PublicKey  *string `json:"public_key,omitempty"`
+			Sources    *[]struct {
+				ChannelId *string                               `json:"channel_id"`
+				Kind      *ExplainUserPermissions200SourcesKind `json:"kind,omitempty"`
+				RoleId    *string                               `json:"role_id,omitempty"`
+				RoleName  *string                               `json:"role_name,omitempty"`
+			} `json:"sources,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetUserProfileResponse parses an HTTP response from a GetUserProfileWithResponse call
 func ParseGetUserProfileResponse(rsp *http.Response) (*GetUserProfileResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -40862,44 +45034,6 @@ func ParseGetUserProfileResponse(rsp *http.Response) (*GetUserProfileResponse, e
 				Id    *string `json:"id,omitempty"`
 				Name  *string `json:"name,omitempty"`
 			} `json:"roles,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseExplainUserPermissionsResponse parses an HTTP response from a ExplainUserPermissionsWithResponse call
-func ParseExplainUserPermissionsResponse(rsp *http.Response) (*ExplainUserPermissionsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ExplainUserPermissionsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Allowed    *bool   `json:"allowed,omitempty"`
-			ChannelId  *string `json:"channel_id"`
-			IsOwner    *bool   `json:"is_owner,omitempty"`
-			Permission *string `json:"permission,omitempty"`
-			PublicKey  *string `json:"public_key,omitempty"`
-			Sources    *[]struct {
-				ChannelId *string                               `json:"channel_id"`
-				Kind      *ExplainUserPermissions200SourcesKind `json:"kind,omitempty"`
-				RoleId    *string                               `json:"role_id,omitempty"`
-				RoleName  *string                               `json:"role_name,omitempty"`
-			} `json:"sources,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -40969,32 +45103,6 @@ func ParseSetUserRoleResponse(rsp *http.Response) (*SetUserRoleResponse, error) 
 	return response, nil
 }
 
-// ParseListVoiceActiveUsersResponse parses an HTTP response from a ListVoiceActiveUsersWithResponse call
-func ParseListVoiceActiveUsersResponse(rsp *http.Response) (*ListVoiceActiveUsersResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListVoiceActiveUsersResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []string
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
 // ParseLeaveVoiceResponse parses an HTTP response from a LeaveVoiceWithResponse call
 func ParseLeaveVoiceResponse(rsp *http.Response) (*LeaveVoiceResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -41020,22 +45128,6 @@ func ParseListVoiceParticipantsResponse(rsp *http.Response) (*ListVoiceParticipa
 	}
 
 	response := &ListVoiceParticipantsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseListVoicePopulationsResponse parses an HTTP response from a ListVoicePopulationsWithResponse call
-func ParseListVoicePopulationsResponse(rsp *http.Response) (*ListVoicePopulationsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListVoicePopulationsResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -41072,6 +45164,22 @@ func ParseExecuteWebhookResponse(rsp *http.Response) (*ExecuteWebhookResponse, e
 	return response, nil
 }
 
+// ParseGetWidgetPageResponse parses an HTTP response from a GetWidgetPageWithResponse call
+func ParseGetWidgetPageResponse(rsp *http.Response) (*GetWidgetPageResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWidgetPageResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseConnectWebSocketResponse parses an HTTP response from a ConnectWebSocketWithResponse call
 func ParseConnectWebSocketResponse(rsp *http.Response) (*ConnectWebSocketResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -41083,6 +45191,35 @@ func ParseConnectWebSocketResponse(rsp *http.Response) (*ConnectWebSocketRespons
 	response := &ConnectWebSocketResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseCreateWsTicketResponse parses an HTTP response from a CreateWsTicketWithResponse call
+func ParseCreateWsTicketResponse(rsp *http.Response) (*CreateWsTicketResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateWsTicketResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			ExpiresIn int    `json:"expires_in"`
+			Ticket    string `json:"ticket"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil

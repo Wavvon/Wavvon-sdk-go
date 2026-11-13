@@ -263,8 +263,17 @@ func (c *Client) Connect(opts EventStreamOptions) *EventStream {
 			if err != nil {
 				return "", err
 			}
-			ws := "ws" + strings.TrimPrefix(c.HubURL, "http")
-			return ws + "/ws?token=" + url.QueryEscape(s.Token), nil
+			ws := "ws" + strings.TrimPrefix(c.HubURL, "http") + "/ws"
+			// A single-use ticket keeps the session token out of URLs, and so
+			// out of proxy logs. An older hub only takes the token, and a ticket
+			// request that fails falls back to it: the socket then answers 401
+			// and the stream re-authenticates as before.
+			if ok, _ := c.HasCapability(ctx, "ws.ticket"); ok {
+				if res, err := c.Rest.CreateWsTicketWithResponse(ctx); err == nil && res.JSON200 != nil {
+					return ws + "?ticket=" + url.QueryEscape(res.JSON200.Ticket), nil
+				}
+			}
+			return ws + "?token=" + url.QueryEscape(s.Token), nil
 		},
 		reauth: func(ctx context.Context) error {
 			c.mu.Lock()
