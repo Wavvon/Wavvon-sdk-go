@@ -1,5 +1,12 @@
 # Wavvon SDK for Go
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/Wavvon/Wavvon-sdk-go.svg)](https://pkg.go.dev/github.com/Wavvon/Wavvon-sdk-go)
+[![Release](https://img.shields.io/github/v/release/Wavvon/Wavvon-sdk-go?sort=semver)](https://github.com/Wavvon/Wavvon-sdk-go/releases/latest)
+[![CI](https://github.com/Wavvon/Wavvon-sdk-go/actions/workflows/ci.yml/badge.svg)](https://github.com/Wavvon/Wavvon-sdk-go/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![Go](https://img.shields.io/badge/go-1.23%2B-00ADD8?logo=go&logoColor=white)](go.mod)
+[![Status: community](https://img.shields.io/badge/status-community%20%2F%20experimental-orange)](#)
+
 > **Community / experimental.** This SDK is maintained in-house only on a
 > best-effort basis until an outside maintainer volunteers to own it. It still
 > runs the shared conformance suite in CI, so every signed byte it produces is
