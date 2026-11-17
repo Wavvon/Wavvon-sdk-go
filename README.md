@@ -91,11 +91,37 @@ A fuller one is [examples/echobot](examples/echobot/main.go).
 | Slash command and button webhooks | `DispatchHandler` (an `http.Handler`), `VerifyDispatch` |
 | Outgoing webhook receiver | `VerifyOutgoingWebhook` |
 | Mini-app host | `EventStream.AnnounceApp`, `DismissApp`, `SendMiniAppMessage` |
+| E2E encrypted DMs (1:1 double ratchet, group sender keys) | `Client.PublishDHKey`, `Client.DMs()` -> `*Dms` |
+| Peer DH keys, pinned on first use | `Client.PeerDHKey`, `AcceptDHKey`; state in `ClientOptions.Store` |
 
 Errors are typed: `*HubError` (a definitive 4xx), `*HubUnavailableError` (the
 retry budget ran out; not an answer), `*UnsupportedByHubError` (also matches
 `errors.Is(err, wavvon.ErrUnsupportedByHub)`), `*AuthSchemeError`,
-`*WebhookVerificationError`. Use `errors.As`.
+`*WebhookVerificationError`, and for DMs `*RecipientHasNoKeyError`,
+`*DHKeyChangedError`, `*DHKeyUnsignedError` and the per-message `*DMError`.
+Use `errors.As`.
+
+## E2E DMs
+
+A program with a published DH key gets encrypted DMs, the way both clients do
+([sdk-dm.md](https://github.com/Wavvon/Wavvon-docs/blob/main/docs/sdk-dm.md)).
+The SDK never sends in the clear because encryption was impossible: that is
+the separate, explicit `SendPlaintext`.
+
+```go
+client.PublishDHKey(ctx)            // once per hub; without it nobody can encrypt to you
+dms := client.DMs()
+conv, _ := dms.CreateConversation(ctx, []string{peer})
+dms.SendText(ctx, conv.ID, "hello") // double ratchet in a 1:1, sender keys in a group
+msgs, _ := dms.Poll(ctx, conv.ID)   // after a *DMEvent; msg.Err is per message
+```
+
+DH pins, ratchet sessions and group chains live in a `StateStore` (default: in
+memory). Losing the ratchet leaves the conversations it belongs to unreadable,
+so a program that must survive restarts passes its own in `ClientOptions.Store`.
+A changed peer key is `*DHKeyChangedError` until the program calls
+`AcceptDHKey`. A ratchet cannot read the program's own messages.
+[examples/dmecho](examples/dmecho/main.go) is a complete echo program.
 
 ## Capabilities each feature needs
 

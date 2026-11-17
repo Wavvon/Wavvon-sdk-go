@@ -620,18 +620,23 @@ type GroupEncryptedEnvelope struct {
 
 // HubEvent One envelope for live push, replay, polling and outgoing webhooks (docs/apps.md).
 type HubEvent struct {
+	// ActorPubkey Absent when empty. Live
 	ActorPubkey *string `json:"actor_pubkey,omitempty"`
 
 	// At Unix seconds
-	At        int64                  `json:"at"`
+	At int64 `json:"at"`
+
+	// ChannelId Absent when empty. Live
 	ChannelId *string                `json:"channel_id,omitempty"`
 	Event     string                 `json:"event"`
 	HubUrl    string                 `json:"hub_url"`
 	Payload   map[string]interface{} `json:"payload"`
 
 	// Replayed Set on events read back from the audit log (Resume and polling).
-	Replayed     *bool   `json:"replayed,omitempty"`
-	Seq          int64   `json:"seq"`
+	Replayed *bool `json:"replayed,omitempty"`
+	Seq      int64 `json:"seq"`
+
+	// TargetPubkey Absent when empty. Live
 	TargetPubkey *string `json:"target_pubkey,omitempty"`
 
 	// Truncated Outgoing webhooks only, when the payload was cut to the size cap.
