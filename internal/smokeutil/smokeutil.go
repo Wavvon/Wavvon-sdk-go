@@ -65,3 +65,19 @@ func Join(ctx context.Context, hub string, owner *wavvon.Client) (*wavvon.Client
 	_, err = c.Login(ctx)
 	return c, err
 }
+
+// VoiceChannel creates a fresh voice channel as the owner and returns its id.
+func VoiceChannel(ctx context.Context, owner *wavvon.Client) (string, error) {
+	var b [3]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return "", err
+	}
+	typ := "voice"
+	res, err := wavvon.Check(owner.Rest.CreateChannelWithResponse(ctx, rest.CreateChannelJSONRequestBody{
+		Name: fmt.Sprintf("voice-smoke-%x", b), ChannelType: &typ,
+	}))
+	if err != nil || res.JSON201 == nil || res.JSON201.Id == nil {
+		return "", fmt.Errorf("create voice channel: %v", err)
+	}
+	return *res.JSON201.Id, nil
+}

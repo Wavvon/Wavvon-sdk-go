@@ -4,7 +4,7 @@
 [![Release](https://img.shields.io/github/v/release/Wavvon/Wavvon-sdk-go?sort=semver)](https://github.com/Wavvon/Wavvon-sdk-go/releases/latest)
 [![CI](https://github.com/Wavvon/Wavvon-sdk-go/actions/workflows/ci.yml/badge.svg)](https://github.com/Wavvon/Wavvon-sdk-go/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
-[![Go](https://img.shields.io/badge/go-1.23%2B-00ADD8?logo=go&logoColor=white)](go.mod)
+[![Go](https://img.shields.io/badge/go-1.25%2B-00ADD8?logo=go&logoColor=white)](go.mod)
 [![Status: community](https://img.shields.io/badge/status-community%20%2F%20experimental-orange)](#)
 
 > **Community / experimental.** This SDK is maintained in-house only on a
@@ -25,10 +25,10 @@ makes a program an *app* is a role carrying `apps.register`. The design this
 module implements is
 [sdk.md](https://github.com/Wavvon/Wavvon-docs/blob/main/docs/sdk.md) (tier 1).
 
-- Go 1.23 or later. `context.Context` on every call, errors as values.
-- Depends on `github.com/coder/websocket`, `golang.org/x/crypto` (HKDF) and
-  `github.com/oapi-codegen/runtime`. Ed25519, HMAC and SHA-256 come from the
-  standard library.
+- Go 1.25 or later. `context.Context` on every call, errors as values.
+- Depends on `github.com/coder/websocket`, `github.com/oapi-codegen/runtime`
+  and, for voice, `github.com/quic-go/quic-go`. Ed25519, X25519, AES-GCM, HMAC
+  and SHA-256 come from the standard library.
 - Apache-2.0, so a closed-source program can use it.
 
 ## Install
@@ -92,6 +92,7 @@ A fuller one is [examples/echobot](examples/echobot/main.go).
 | Outgoing webhook receiver | `VerifyOutgoingWebhook` |
 | Mini-app host | `EventStream.AnnounceApp`, `DismissApp`, `SendMiniAppMessage` |
 | E2E encrypted DMs (1:1 double ratchet, group sender keys) | `Client.PublishDHKey`, `Client.DMs()` -> `*Dms` |
+| A voice room (E2E Opus, proximity) | `voice.Join` -> `*voice.Voice`: `Events`, `SendOpus`, `SendPCM` |
 | Peer DH keys, pinned on first use | `Client.PeerDHKey`, `AcceptDHKey`; state in `ClientOptions.Store` |
 
 Errors are typed: `*HubError` (a definitive 4xx), `*HubUnavailableError` (the
@@ -122,6 +123,40 @@ so a program that must survive restarts passes its own in `ClientOptions.Store`.
 A changed peer key is `*DHKeyChangedError` until the program calls
 `AcceptDHKey`. A ratchet cannot read the program's own messages.
 [examples/dmecho](examples/dmecho/main.go) is a complete echo program.
+
+## Voice
+
+`voice.Join` puts a program in a voice channel the way both clients do
+([sdk-voice.md](https://github.com/Wavvon/Wavvon-docs/blob/main/docs/sdk-voice.md)):
+it publishes the DH key, joins over a socket of its own, opens the WebTransport
+audio session and distributes a sender key to everyone in the room, rotating it
+when someone leaves.
+
+```go
+room, _ := voice.Join(ctx, client, channelID)
+room.SendOpus(ctx, packet)               // one 20 ms Opus packet, paced to real time
+room.SetPosition(zoneID, []float64{40, 60})
+for ev := range room.Events() {          // read them, or they pile up
+	switch e := ev.(type) {
+	case voice.Audio:           // e.Frame.From, .Opus, .PCM (with -tags opus)
+	case voice.PositionRefused: // the hub refused a position update: e.Reason
+	case voice.KeySkipped:      // a peer without a usable DH key cannot hear you
+	}
+}
+room.Leave(ctx)
+```
+
+The package decides nothing for the program: mute, deafen, AFK moves
+(`MoveRequested`) and a changed DH key are events and calls. Only a real
+interop constraint refuses input: an Opus packet that is not exactly 20 ms.
+`SendOpus` and `Audio.Opus` are pure Go. PCM (`SendPCM`, `Audio.PCM`) needs cgo
+and libopus: build with `-tags opus`.
+[examples/voiceogg](examples/voiceogg/main.go) plays an Ogg Opus file into a
+channel.
+
+The WebTransport client is a small one of its own over `quic-go`, not
+`webtransport-go`: since v0.11.0 that library only speaks the settings
+codepoint of the current draft, which the hub's `wtransport` does not send yet.
 
 ## Capabilities each feature needs
 
