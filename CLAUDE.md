@@ -19,10 +19,10 @@ scripts/generate.sh [docs-path] [git-ref]   # regenerate rest/ (default ../../do
 go run ./cmd/smoke            # real hub binary, see below
 ```
 
-`go.mod` targets Go 1.23: keep dependencies at versions whose own `go`
-directive is 1.23 or lower (`go mod tidy` will otherwise raise it). HKDF is written out in `dmcrypto.go`:
-`crypto/hkdf` is 1.24+ and current `x/crypto/hkdf` needs a newer Go than this
-module supports.
+`go.mod` targets Go 1.25, which `quic-go` (voice) needs. HKDF is written out in
+`dmcrypto.go` rather than imported. `-tags opus` (cgo, libopus,
+`gopkg.in/hraban/opus.v2`) is the only cgo path; CI has a job for it and the
+default build stays pure Go.
 
 Code comments in English, only where the why is not obvious. Doc comments on
 every exported identifier. No comments in GitHub Actions workflow files:
@@ -46,7 +46,14 @@ explain choices in the commit message.
    and AEADs, plus the exported voice key wrap and packet seal), `wire.go`
    (signing bytes), `store.go` (`StateStore`, in-memory default). The crypto is
    a port of Wavvon-server `crates/identity/src/{dm,voice}.rs`; the Rust SDK is
-   the API reference.
+   the API reference. Voice: package `voice/` (`voice.go` the room,
+   `transport.go` the WebTransport client, `opus.go` the 20 ms check, `pcm_*.go`
+   the optional codec).
+   **Do not swap `transport.go` for `quic-go/webtransport-go`**: since v0.11.0
+   (the first without CVE-2026-21435 and CVE-2026-57497) its client requires
+   SETTINGS_WT_ENABLED 0x2c7cf000, while the hub's `wtransport` 0.7 sends only
+   SETTINGS_ENABLE_WEBTRANSPORT 0x2b603742: the dial fails with "server didn't
+   enable WebTransport". Revisit when the hub's `wtransport` moves on.
 3. **Conformance** - `conformance_test.go` reads Wavvon-server
    `crates/identity/wire-vectors.json` (default `../../server/...`, or
    `WAVVON_WIRE_VECTORS`). Strings starting with `@` refer to `fixtures`. It
