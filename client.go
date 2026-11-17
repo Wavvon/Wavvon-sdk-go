@@ -44,6 +44,10 @@ type ClientOptions struct {
 	Retry      RetryOptions
 	// HTTPClient defaults to http.DefaultClient.
 	HTTPClient *http.Client
+	// Store keeps DH pins, DM ratchet sessions and group sender chains. It
+	// defaults to a MemoryStore: state is then lost when the process ends,
+	// and with it the DM conversations it belongs to.
+	Store StateStore
 }
 
 // Client is a program's connection to one hub: a session that renews itself,
@@ -67,6 +71,9 @@ type Client struct {
 	state    SessionState
 	handlers map[int]func(SessionState)
 	nextID   int
+
+	store StateStore
+	dms   *Dms
 }
 
 // NewClient builds a Client. It does not contact the hub.
@@ -77,6 +84,10 @@ func NewClient(opts ClientOptions) (*Client, error) {
 		http:     opts.HTTPClient,
 		state:    StateSignedOut,
 		handlers: map[int]func(SessionState){},
+		store:    opts.Store,
+	}
+	if c.store == nil {
+		c.store = &MemoryStore{}
 	}
 	if c.http == nil {
 		c.http = http.DefaultClient

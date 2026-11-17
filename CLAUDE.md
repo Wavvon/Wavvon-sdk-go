@@ -20,8 +20,9 @@ go run ./cmd/smoke            # real hub binary, see below
 ```
 
 `go.mod` targets Go 1.23: keep dependencies at versions whose own `go`
-directive is 1.23 or lower (`go mod tidy` will otherwise raise it), and use
-`golang.org/x/crypto/hkdf`, not `crypto/hkdf` (1.24+).
+directive is 1.23 or lower (`go mod tidy` will otherwise raise it). HKDF is written out in `dmcrypto.go`:
+`crypto/hkdf` is 1.24+ and current `x/crypto/hkdf` needs a newer Go than this
+module supports.
 
 Code comments in English, only where the why is not obvious. Doc comments on
 every exported identifier. No comments in GitHub Actions workflow files:
@@ -40,6 +41,12 @@ explain choices in the commit message.
    re-authenticates on 401), capabilities, app registration, polling, `Check`;
    `pager.go`; `events.go` the WebSocket stream and frame types; `webhooks.go`
    dispatch and outgoing-webhook verification, reply types, `DispatchHandler`.
+   E2E DMs: `dm.go` (`Client.DMs()`, ratchet and sender-key sessions),
+   `dhkey.go` (publish, verify, pin a DH key), `dmcrypto.go` (pure derivations
+   and AEADs, plus the exported voice key wrap and packet seal), `wire.go`
+   (signing bytes), `store.go` (`StateStore`, in-memory default). The crypto is
+   a port of Wavvon-server `crates/identity/src/{dm,voice}.rs`; the Rust SDK is
+   the API reference.
 3. **Conformance** - `conformance_test.go` reads Wavvon-server
    `crates/identity/wire-vectors.json` (default `../../server/...`, or
    `WAVVON_WIRE_VECTORS`). Strings starting with `@` refer to `fixtures`. It
@@ -70,7 +77,10 @@ explain choices in the commit message.
 - **Never send the seed** or any private key anywhere. Never invent a wire
   format: signed bytes come from wire-format.md and the vectors; a new one is
   a server-side change first. Never model a bot as an account or send
-  `is_bot`. Tier 1 is community-axis only (no DMs E2E, pairing, home hub).
+  `is_bot`. Tier 1 is community-axis plus E2E DMs and voice (sdk-dm.md,
+  sdk-voice.md); no pairing or home hub. The SDK offers mechanisms, never
+  program policy: only a real interop constraint (a non-20 ms Opus packet)
+  refuses input.
 
 Code is authoritative over docs. When they disagree, follow the hub code and
 report the doc bug to Wavvon-docs.
@@ -107,6 +117,11 @@ container (`WAVVON_PG_CONTAINER`, default `wavvon-pg`), sets up a role, invite
 and channel as owner, runs the smoke, kills only the process it started and
 drops the database. In-process tests have missed every cross-process bug this
 project has had: run it when touching auth, the socket or webhooks.
+
+`cmd/smoke-dm` (and `cmd/smoke-voice`) run against ONE already running hub:
+`WAVVON_SMOKE_HUB`, and an owner seed in `WAVVON_SMOKE_SEED` (default `5a`
+repeated) whose public key the hub was started with as `WAVVON_OWNER_PUBKEY`,
+so it can mint invites for the fresh identities they use.
 
 ## Git
 

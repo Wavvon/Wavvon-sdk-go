@@ -81,6 +81,14 @@ type DMEvent struct {
 	Timestamp      int64   `json:"timestamp"`
 }
 
+// DMMemberChanged says members were added to or removed from a conversation.
+// Pass it to Dms.HandleEvent to rotate a group sender key.
+type DMMemberChanged struct {
+	ConversationID string   `json:"conversation_id"`
+	Added          []string `json:"added"`
+	Removed        []string `json:"removed"`
+}
+
 // HubEvent is the one envelope for live push, replay and outgoing webhooks
 // (apps.md §5).
 type HubEvent struct {
@@ -158,6 +166,7 @@ func (e *MessageRefEvent) EventType() string { return e.Type }
 func (*ReactionsUpdated) EventType() string  { return "reactions_updated" }
 func (*TypingEvent) EventType() string       { return "typing" }
 func (*DMEvent) EventType() string           { return "dm" }
+func (*DMMemberChanged) EventType() string   { return "dm_member_changed" }
 func (*HubEvent) EventType() string          { return "hub_event" }
 func (*ReplayComplete) EventType() string    { return "replay_complete" }
 func (*ReplayUnavailable) EventType() string { return "replay_unavailable" }
@@ -179,6 +188,7 @@ var frameTypes = map[string]func() Event{
 	"reactions_updated":  func() Event { return new(ReactionsUpdated) },
 	"typing":             func() Event { return new(TypingEvent) },
 	"dm":                 func() Event { return new(DMEvent) },
+	"dm_member_changed":  func() Event { return new(DMMemberChanged) },
 	"hub_event":          func() Event { return new(HubEvent) },
 	"replay_complete":    func() Event { return new(ReplayComplete) },
 	"replay_unavailable": func() Event { return new(ReplayUnavailable) },
