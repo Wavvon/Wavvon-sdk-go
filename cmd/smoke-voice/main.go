@@ -232,20 +232,25 @@ func run(ctx context.Context) error {
 	if err := until(ctx, "both to see the zone", func() bool { return hasZone(va)() && hasZone(vb2)() }); err != nil {
 		return err
 	}
+	t0 := time.Now()
 	for i := range 10 {
 		if err := va.SetPosition("smoke-zone", []float64{10 + float64(i), 50}); err != nil {
 			return err
 		}
 		time.Sleep(10 * time.Millisecond)
 	}
+	// One update per 50 ms window the loop spanned, plus the first and the final
+	// flush; timer slop stretches the loop, and nine keeps it a coalescing test.
+	limit := min(9, int((time.Since(t0)+50*time.Millisecond-1)/(50*time.Millisecond))+2)
 	if err := until(ctx, "B to see the last position", seenB2.read(func(s *seen) bool {
 		return len(s.positions) > 0 && s.positions[len(s.positions)-1][0] == 19
 	})); err != nil {
 		return err
 	}
-	n := seenB2.read(func(s *seen) bool { return len(s.positions) <= 4 })()
-	if !n {
-		return errors.New("coalescing let more than 4 of 10 positions through")
+	var n int
+	seenB2.read(func(s *seen) bool { n = len(s.positions); return true })()
+	if n > limit {
+		return fmt.Errorf("coalescing let %d of 10 positions through (limit %d)", n, limit)
 	}
 	fmt.Println("ten positions in 100 ms coalesced, ending at the last")
 
