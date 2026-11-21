@@ -2,139 +2,115 @@ package voice
 
 import (
 	"context"
-	"crypto/sha256"
-	"crypto/subtle"
-	"crypto/tls"
-	"crypto/x509"
-	"encoding/hex"
 	"errors"
 	"fmt"
-	"net/http"
-	"net/url"
-	"strings"
-	"time"
+	"sync"
 
-	"github.com/quic-go/quic-go"
-	"github.com/quic-go/quic-go/http3"
+	"github.com/pion/webrtc/v4"
 )
 
-// A minimal WebTransport client over quic-go's HTTP/3: an extended CONNECT,
-// then HTTP/3 datagrams bound to that stream. Voice needs nothing else.
-//
-// Why not quic-go/webtransport-go (>= v0.11.1, the first release without
-// CVE-2026-21435 and CVE-2026-57497)? Since v0.11.0 its client insists on the
-// current draft's SETTINGS_WT_ENABLED (0x2c7cf000), while the hub's
-// wtransport 0.7 sends only SETTINGS_ENABLE_WEBTRANSPORT (0x2b603742), the
-// codepoint browsers and wtransport still speak: the dial fails with "server
-// didn't enable WebTransport". This client sends and expects the latter and
-// uses quic-go itself, which is current.
-const (
-	settingsEnableWebTransport = 0x2b603742
-	draftOfferHeader           = "Sec-Webtransport-Http3-Draft02"
-)
+// The voice transport (voice-transport-v3.md): one WebRTC data channel,
+// negotiated on stream 0, unordered, no retransmission. The hub is ICE-lite
+// and answers with its host candidates, so no STUN or TURN server is set.
+// The room logic sees only SendDatagram, ReceiveDatagram and close.
 
-type wtSession struct {
-	conn *quic.Conn
-	tr   *http3.Transport
-	str  *http3.RequestStream
+// maxPacket fits one SCTP chunk in a 1280-byte path MTU; a larger packet is
+// split, and losing any piece loses the frame.
+const maxPacket = 1200
+
+type session struct {
+	pc   *webrtc.PeerConnection
+	dc   *webrtc.DataChannel
+	in   chan []byte
+	done chan struct{}
+	once sync.Once
 }
 
-// dialWebTransport connects to url (token already in its query). A non-empty
-// certHash pins the hub's leaf certificate as serverCertificateHashes: system
-// verification is off only in that branch.
-func dialWebTransport(ctx context.Context, rawURL, certHash string) (*wtSession, error) {
-	tlsCfg := &tls.Config{NextProtos: []string{http3.NextProtoH3}}
-	if certHash != "" {
-		want, err := hex.DecodeString(certHash)
-		if err != nil || len(want) != sha256.Size {
-			return nil, errors.New("voice_cert_hash is not a SHA-256 digest")
-		}
-		tlsCfg.InsecureSkipVerify = true
-		tlsCfg.VerifyPeerCertificate = func(raw [][]byte, _ [][]*x509.Certificate) error {
-			if len(raw) == 0 {
-				return errors.New("the hub presented no certificate")
-			}
-			got := sha256.Sum256(raw[0])
-			if subtle.ConstantTimeCompare(got[:], want) != 1 {
-				return errors.New("the hub certificate does not match voice_cert_hash")
-			}
-			return nil
-		}
-	}
-	u, err := url.Parse(rawURL)
+// rtcOffer is a peer with its voice channel, waiting for the hub's answer.
+type rtcOffer struct {
+	s   *session
+	sdp string
+}
+
+func newRTCOffer() (*rtcOffer, error) {
+	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
 		return nil, err
 	}
-	conn, err := quic.DialAddr(ctx, u.Host, tlsCfg, &quic.Config{EnableDatagrams: true, KeepAlivePeriod: 5 * time.Second})
+	negotiated, ordered := true, false
+	var id, retransmits uint16 = 0, 0
+	dc, err := pc.CreateDataChannel("voice", &webrtc.DataChannelInit{
+		Negotiated:     &negotiated,
+		ID:             &id,
+		Ordered:        &ordered,
+		MaxRetransmits: &retransmits,
+	})
 	if err != nil {
+		_ = pc.Close()
 		return nil, err
 	}
-	tr := &http3.Transport{
-		EnableDatagrams:    true,
-		AdditionalSettings: map[uint64]uint64{settingsEnableWebTransport: 1},
-	}
-	fail := func(err error) (*wtSession, error) {
-		conn.CloseWithError(0, "")
-		_ = tr.Close()
+	s := &session{pc: pc, dc: dc, in: make(chan []byte, 256), done: make(chan struct{})}
+	pc.OnConnectionStateChange(func(st webrtc.PeerConnectionState) {
+		if st == webrtc.PeerConnectionStateFailed || st == webrtc.PeerConnectionStateClosed {
+			s.once.Do(func() { close(s.done) })
+		}
+	})
+	dc.OnClose(func() { s.once.Do(func() { close(s.done) }) })
+	dc.OnMessage(func(m webrtc.DataChannelMessage) {
+		select {
+		case s.in <- m.Data:
+		default: // a reader that fell behind loses packets, never blocks the channel
+		}
+	})
+	offer, err := pc.CreateOffer(nil)
+	if err != nil {
+		s.close("")
 		return nil, err
 	}
-	cc := tr.NewClientConn(conn)
+	// The offer goes out whole, candidates included: the hub has no trickle.
+	gathered := webrtc.GatheringCompletePromise(pc)
+	if err := pc.SetLocalDescription(offer); err != nil {
+		s.close("")
+		return nil, err
+	}
+	<-gathered
+	return &rtcOffer{s: s, sdp: pc.LocalDescription().SDP}, nil
+}
+
+// accept applies the hub's answer and waits for the channel to open.
+func (o *rtcOffer) accept(ctx context.Context, answer string) (*session, error) {
+	open := make(chan struct{})
+	o.s.dc.OnOpen(func() { close(open) })
+	if err := o.s.pc.SetRemoteDescription(webrtc.SessionDescription{Type: webrtc.SDPTypeAnswer, SDP: answer}); err != nil {
+		o.s.close("")
+		return nil, err
+	}
 	select {
-	case <-cc.ReceivedSettings():
+	case <-open:
+		return o.s, nil
 	case <-ctx.Done():
-		return fail(fmt.Errorf("waiting for HTTP/3 settings: %w", ctx.Err()))
+		o.s.close("")
+		return nil, fmt.Errorf("voice data channel did not open: %w", ctx.Err())
 	}
-	st := cc.Settings()
-	if !st.EnableExtendedConnect {
-		return fail(errors.New("server didn't enable Extended CONNECT"))
-	}
-	if !st.EnableDatagrams {
-		return fail(errors.New("server didn't enable HTTP/3 datagrams"))
-	}
-	if st.Other[settingsEnableWebTransport] == 0 {
-		return fail(errors.New("server didn't enable WebTransport"))
-	}
-	str, err := cc.OpenRequestStream(ctx)
-	if err != nil {
-		return fail(err)
-	}
-	req := (&http.Request{
-		Method: http.MethodConnect,
-		Proto:  "webtransport",
-		Host:   u.Host,
-		URL:    u,
-		Header: http.Header{draftOfferHeader: {"1"}},
-	}).WithContext(ctx)
-	if err := str.SendRequestHeader(req); err != nil {
-		return fail(err)
-	}
-	resp, err := str.ReadResponse()
-	if err != nil {
-		return fail(err)
-	}
-	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return fail(fmt.Errorf("the hub answered the WebTransport CONNECT with %d", resp.StatusCode))
-	}
-	return &wtSession{conn: conn, tr: tr, str: str}, nil
 }
 
-func (s *wtSession) SendDatagram(b []byte) error { return s.str.SendDatagram(b) }
+func (s *session) SendDatagram(b []byte) error { return s.dc.Send(b) }
 
-func (s *wtSession) ReceiveDatagram(ctx context.Context) ([]byte, error) {
-	return s.str.ReceiveDatagram(ctx)
-}
-
-func (s *wtSession) close(msg string) {
-	s.str.CancelRead(0)
-	s.str.CancelWrite(0)
-	s.conn.CloseWithError(0, msg)
-	_ = s.tr.Close()
-}
-
-func withToken(rawURL, token string) string {
-	sep := "?"
-	if strings.Contains(rawURL, "?") {
-		sep = "&"
+func (s *session) ReceiveDatagram(ctx context.Context) ([]byte, error) {
+	select {
+	case b := <-s.in:
+		return b, nil
+	case <-s.done:
+		return nil, errClosed
+	case <-ctx.Done():
+		return nil, ctx.Err()
 	}
-	return rawURL + sep + "token=" + url.QueryEscape(token)
+}
+
+// errClosed is ReceiveDatagram's answer once the peer connection is gone.
+var errClosed = errors.New("voice data channel closed")
+
+func (s *session) close(string) {
+	s.once.Do(func() { close(s.done) })
+	_ = s.pc.Close()
 }
