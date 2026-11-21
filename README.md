@@ -27,7 +27,7 @@ module implements is
 
 - Go 1.25 or later. `context.Context` on every call, errors as values.
 - Depends on `github.com/coder/websocket`, `github.com/oapi-codegen/runtime`
-  and, for voice, `github.com/quic-go/quic-go`. Ed25519, X25519, AES-GCM, HMAC
+  and, for voice, `github.com/pion/webrtc/v4`. Ed25519, X25519, AES-GCM, HMAC
   and SHA-256 come from the standard library.
 - Apache-2.0, so a closed-source program can use it.
 
@@ -128,8 +128,8 @@ A changed peer key is `*DHKeyChangedError` until the program calls
 
 `voice.Join` puts a program in a voice channel the way both clients do
 ([sdk-voice.md](https://github.com/Wavvon/Wavvon-docs/blob/main/docs/sdk-voice.md)):
-it publishes the DH key, joins over a socket of its own, opens the WebTransport
-audio session and distributes a sender key to everyone in the room, rotating it
+it publishes the DH key, joins over a socket of its own, opens a WebRTC data
+channel to the hub (which must advertise `voice.webrtc`) and distributes a sender key to everyone in the room, rotating it
 when someone leaves.
 
 ```go
@@ -153,10 +153,6 @@ interop constraint refuses input: an Opus packet that is not exactly 20 ms.
 and libopus: build with `-tags opus`.
 [examples/voiceogg](examples/voiceogg/main.go) plays an Ogg Opus file into a
 channel.
-
-The WebTransport client is a small one of its own over `quic-go`, not
-`webtransport-go`: since v0.11.0 that library only speaks the settings
-codepoint of the current draft, which the hub's `wtransport` does not send yet.
 
 ## Capabilities each feature needs
 

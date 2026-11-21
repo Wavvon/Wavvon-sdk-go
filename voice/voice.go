@@ -1,6 +1,6 @@
 // Package voice puts a program in a voice channel (sdk-voice.md). It does
 // exactly what the desktop and web clients do: voice signalling rides one chat
-// WebSocket, the audio rides a WebTransport session, and every datagram is
+// WebSocket, the audio rides a WebRTC data channel, and every packet is
 // sealed with a per-sender key wrapped to each listener's DH key.
 //
 // The package owns the mechanisms (key distribution and rotation, 20 ms
@@ -25,7 +25,6 @@ import (
 	"time"
 
 	wavvon "github.com/Wavvon/Wavvon-sdk-go"
-	"github.com/quic-go/quic-go"
 )
 
 const (
@@ -160,9 +159,6 @@ func (Failure) voiceEvent()         {}
 
 // Errors.
 var (
-	// ErrNoTransport: voice_joined carried no voice_wt_url, a hub older than
-	// voice transport v2.
-	ErrNoTransport = errors.New("voice: the hub offers no WebTransport voice endpoint")
 	// ErrMayNotSpeak: talk power is below the channel's threshold, so the relay
 	// would drop every datagram. Lifted by TalkGranted.
 	ErrMayNotSpeak = errors.New("voice: may_speak is false in this channel")
@@ -266,7 +262,7 @@ type Voice struct {
 	remote       map[remoteID]remoteKey
 	marks        map[markID]uint64
 	zones        []Zone
-	sess         *wtSession
+	sess         *session
 	pace         *pacing
 	speaking     bool
 	lastSend     time.Time
@@ -286,6 +282,11 @@ func Join(ctx context.Context, c *wavvon.Client, channelID string) (*Voice, erro
 // JoinWith is Join with options.
 func JoinWith(ctx context.Context, c *wavvon.Client, channelID string, opts Options) (*Voice, error) {
 	if err := c.RequireCapability(ctx, "channels.voice"); err != nil {
+		return nil, err
+	}
+	// Voice transport v3: a hub without it speaks only WebTransport, which
+	// this package no longer carries.
+	if err := c.RequireCapability(ctx, "voice.webrtc"); err != nil {
 		return nil, err
 	}
 	// Without a published key nobody wraps a voice key to this program and it
@@ -456,17 +457,9 @@ func (v *Voice) establish(ctx context.Context, channelID string) error {
 			}
 		}
 	}
-	url := str(joined, "voice_wt_url")
-	if url == "" {
-		return ErrNoTransport
-	}
-	var certHash string
-	if h, ok := joined["voice_cert_hash"].(string); ok {
-		certHash = h
-	}
-	sess, err := dialWebTransport(sctx, withToken(url, str(joined, "voice_token")), certHash)
+	sess, deferred, err := v.connectTransport(sctx, str(joined, "voice_token"))
 	if err != nil {
-		return fmt.Errorf("voice: transport: %w", err)
+		return err
 	}
 	senderID, ok := u16(joined, "sender_id")
 	if !ok {
@@ -511,7 +504,58 @@ func (v *Voice) establish(ctx context.Context, channelID string) error {
 
 	go v.readDatagrams(sess)
 	v.offer(others)
+	// What arrived while the answer was awaited, a key bundle above all:
+	// dropping it would leave this room unable to open that speaker.
+	for _, ev := range deferred {
+		v.handleEvent(ev)
+	}
 	return nil
+}
+
+// connectTransport offers a WebRTC session bound by the voice token and waits
+// for the hub's answer on the same socket, keeping every other event that
+// arrives meanwhile.
+func (v *Voice) connectTransport(ctx context.Context, token string) (*session, []wavvon.Event, error) {
+	offer, err := newRTCOffer()
+	if err != nil {
+		return nil, nil, fmt.Errorf("voice: transport: %w", err)
+	}
+	if err := v.stream.Send(ctx, map[string]string{"type": "voice_rtc_offer", "token": token, "sdp": offer.sdp}); err != nil {
+		offer.s.close("")
+		return nil, nil, err
+	}
+	var deferred []wavvon.Event
+	var answer string
+	for answer == "" {
+		ev, err := v.stream.Next(ctx)
+		if err != nil {
+			offer.s.close("")
+			return nil, nil, err
+		}
+		switch e := ev.(type) {
+		case *wavvon.UnknownEvent:
+			if e.RawType == "voice_rtc_answer" {
+				var m map[string]any
+				if err := json.Unmarshal(e.Raw, &m); err != nil {
+					offer.s.close("")
+					return nil, nil, fmt.Errorf("voice: voice_rtc_answer did not decode: %w", err)
+				}
+				answer = str(m, "sdp")
+				continue
+			}
+		case *wavvon.ErrorEvent:
+			if e.Context == "voice_rtc_offer" {
+				offer.s.close("")
+				return nil, nil, &RefusedError{Message: e.Message}
+			}
+		}
+		deferred = append(deferred, ev)
+	}
+	sess, err := offer.accept(ctx, answer)
+	if err != nil {
+		return nil, nil, fmt.Errorf("voice: transport: %w", err)
+	}
+	return sess, deferred, nil
 }
 
 // dhFor is a peer's DH key, looked up once per session: it is pinned, so a
@@ -844,7 +888,7 @@ func (v *Voice) handleVoice(e *wavvon.UnknownEvent, m map[string]any, me string)
 	}
 }
 
-func (v *Voice) readDatagrams(sess *wtSession) {
+func (v *Voice) readDatagrams(sess *session) {
 	for {
 		dg, err := sess.ReceiveDatagram(v.ctx)
 		if err != nil {
@@ -1103,11 +1147,11 @@ func (v *Voice) SendOpus(ctx context.Context, packet []byte) error {
 			return err
 		}
 	}
+	// 3 relay prefix bytes are added by the hub.
+	if len(sealed)+3 > maxPacket {
+		return &PacketTooLargeError{Size: len(packet)}
+	}
 	if err := sess.SendDatagram(sealed); err != nil {
-		var tooLarge *quic.DatagramTooLargeError
-		if errors.As(err, &tooLarge) {
-			return &PacketTooLargeError{Size: len(packet)}
-		}
 		return fmt.Errorf("voice: transport: %w", err)
 	}
 	return nil
@@ -1178,7 +1222,7 @@ func (v *Voice) DestroyZone(ctx context.Context, zoneID string) error {
 }
 
 // Leave sends voice_leave, then closes the audio session and the room's
-// socket. Closing the WebTransport session alone would not leave the roster.
+// socket. Closing the audio session alone would not leave the roster.
 func (v *Voice) Leave(ctx context.Context) error {
 	v.mu.Lock()
 	v.inRoom = false
